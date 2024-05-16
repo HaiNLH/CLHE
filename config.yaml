@@ -1,5 +1,5 @@
 pog:
-  data_path: './datasets/'
+  data_path: '/content/drive/MyDrive/datasets/'
   batch_size_train: 256 # the batch size for training
   batch_size_test: 1024 # the batch size for testing
   topk: [5, 10, 20, 40, 80] # the topks metrics for evaluation
@@ -12,7 +12,7 @@ pog:
   test_interval: 2 # by how many epochs to run the validation and testing.
 
 pog_dense:
-  data_path: './datasets/'
+  data_path: '/content/drive/MyDrive/datasets/'
   batch_size_train: 256 # the batch size for training
   batch_size_test: 1024 # the batch size for testing
   topk: [5, 10, 20, 40, 80] # the topks metrics for evaluation
@@ -25,7 +25,7 @@ pog_dense:
   test_interval: 2 # by how many epochs to run the validation and testing.
 
 spotify:
-  data_path: './datasets/'
+  data_path: '/content/drive/MyDrive/datasets/'
   batch_size_train: 256 # the batch size for training
   batch_size_test: 256 # the batch size for testing
   topk: [10, 20, 40, 80] # the topks metrics for evaluation
@@ -38,7 +38,7 @@ spotify:
   test_interval: 2 # by how many epochs to run the validation and testing.
 
 spotify_sparse:
-  data_path: './datasets/'
+  data_path: '/content/drive/MyDrive/datasets/'
   batch_size_train: 256 # the batch size for training
   batch_size_test: 256 # the batch size for testing
   topk: [10, 20, 40, 80] # the topks metrics for evaluation
