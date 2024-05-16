@@ -1,0 +1,1437 @@
+2024-05-16 02:55:00.222334: E external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:9261] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+2024-05-16 02:55:00.222387: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:607] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+2024-05-16 02:55:00.223728: E external/local_xla/xla/stream_executor/cuda/cuda_blas.cc:1515] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+2024-05-16 02:55:00.232128: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2024-05-16 02:55:01.283648: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+load config file done!
+Train: 7
+Val/Test: 4
+Val/Test: 4
+/usr/local/lib/python3.10/dist-packages/torch/utils/data/dataloader.py:558: UserWarning: This DataLoader will create 10 worker processes in total. Our suggested max number of worker in current system is 2, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  warnings.warn(_create_warning_msg(
+/usr/local/lib/python3.10/dist-packages/torch/utils/data/dataloader.py:558: UserWarning: This DataLoader will create 20 worker processes in total. Our suggested max number of worker in current system is 2, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  warnings.warn(_create_warning_msg(
+{'data_path': '/content/drive/MyDrive/datasets/', 'batch_size_train': 256, 'batch_size_test': 1024, 'topk': [5, 10, 20, 40, 80], 'neg_num': 1, 'embedding_sizes': [64], 'num_layerss': [1], 'lrs': [0.001], 'l2_regs': [1e-05], 'epochs': 50, 'test_interval': 2, 'gpu': '0', 'dataset': 'pog_dense', 'model': 'CLHE', 'info': '', 'lr': 0.001, 'reg': 1e-05, 'item_augment': 'MD', 'bundle_ratio': 0.5, 'bundle_augment': 'ID', 'dropout_rate': 0.2, 'noise_weight': 0.02, 'cl_temp': 0.5, 'cl_alpha': 0.1, 'bundle_cl_temp': 0.05, 'bundle_cl_alpha': 2.0, 'attention': '', 'trans_layer': 1, 'num_token': 200, 'seed': 2023, 'epoch': -1, 'device': device(type='cuda', index=0), 'num_users': 2311431, 'num_bundles': 29686, 'num_items': 31217, 'l2_reg': 1e-05, 'embedding_size': 64, 'num_layers': 1}
+/usr/local/lib/python3.10/dist-packages/torch/utils/data/dataloader.py:558: UserWarning: This DataLoader will create 10 worker processes in total. Our suggested max number of worker in current system is 2, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  warnings.warn(_create_warning_msg(
+/usr/lib/python3.10/multiprocessing/popen_fork.py:66: RuntimeWarning: os.fork() was called. os.fork() is incompatible with multithreaded code, and JAX is multithreaded, so this will likely lead to a deadlock.
+  self.pid = os.fork()
+epoch: 0, loss: 8.11948, item_loss: 0.34883, bundle_loss: 0.13487: 100% 82/82 [00:30<00:00,  2.67it/s]
+epoch: 1, loss: 7.24109, item_loss: 0.36799, bundle_loss: 0.02714:  99% 81/82 [00:28<00:00,  3.20it/s]
+  0% 0/3 [00:00<?, ?it/s]/usr/local/lib/python3.10/dist-packages/torch/utils/data/dataloader.py:558: UserWarning: This DataLoader will create 20 worker processes in total. Our suggested max number of worker in current system is 2, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  warnings.warn(_create_warning_msg(
+
+ 33% 1/3 [00:03<00:07,  3.99s/it]
+ 67% 2/3 [00:04<00:01,  1.85s/it]
+100% 3/3 [00:05<00:00,  1.72s/it]
+
+  0% 0/6 [00:00<?, ?it/s]
+ 17% 1/6 [00:06<00:34,  6.97s/it]
+ 33% 2/6 [00:07<00:12,  3.07s/it]
+ 50% 3/6 [00:07<00:05,  1.82s/it]
+ 67% 4/6 [00:07<00:02,  1.24s/it]
+ 83% 5/6 [00:08<00:00,  1.11it/s]
+100% 6/6 [00:09<00:00,  1.53s/it]
+2024-05-16 02:57:06, Top_5, Val:  recall: 0.236411, ndcg: 0.194698
+2024-05-16 02:57:06, Top_5, Test: recall: 0.241664, ndcg: 0.200022
+2024-05-16 02:57:06, Top_10, Val:  recall: 0.289533, ndcg: 0.213622
+2024-05-16 02:57:06, Top_10, Test: recall: 0.294544, ndcg: 0.218998
+2024-05-16 02:57:06, Top_20, Val:  recall: 0.327943, ndcg: 0.224516
+2024-05-16 02:57:06, Top_20, Test: recall: 0.333614, ndcg: 0.229977
+2024-05-16 02:57:06, Top_40, Val:  recall: 0.359333, ndcg: 0.231868
+2024-05-16 02:57:06, Top_40, Test: recall: 0.365134, ndcg: 0.237355
+2024-05-16 02:57:06, Top_80, Val:  recall: 0.396900, ndcg: 0.239173
+2024-05-16 02:57:06, Top_80, Test: recall: 0.399770, ndcg: 0.244037
+top20 as the final evaluation standard
+2024-05-16 02:57:06, Best in epoch 1, TOP 5: REC_V=0.23641, NDCG_V=0.19470
+2024-05-16 02:57:06, Best in epoch 1, TOP 5: REC_T=0.24166, NDCG_T=0.20002
+2024-05-16 02:57:06, Best in epoch 1, TOP 10: REC_V=0.28953, NDCG_V=0.21362
+2024-05-16 02:57:06, Best in epoch 1, TOP 10: REC_T=0.29454, NDCG_T=0.21900
+2024-05-16 02:57:06, Best in epoch 1, TOP 20: REC_V=0.32794, NDCG_V=0.22452
+2024-05-16 02:57:06, Best in epoch 1, TOP 20: REC_T=0.33361, NDCG_T=0.22998
+2024-05-16 02:57:06, Best in epoch 1, TOP 40: REC_V=0.35933, NDCG_V=0.23187
+2024-05-16 02:57:06, Best in epoch 1, TOP 40: REC_T=0.36513, NDCG_T=0.23735
+2024-05-16 02:57:06, Best in epoch 1, TOP 80: REC_V=0.39690, NDCG_V=0.23917
+2024-05-16 02:57:06, Best in epoch 1, TOP 80: REC_T=0.39977, NDCG_T=0.24404
+epoch: 1, loss: 7.24109, item_loss: 0.36799, bundle_loss: 0.02714: 100% 82/82 [00:43<00:00,  1.89it/s]
+epoch: 2, loss: 7.11275, item_loss: 0.36194, bundle_loss: 0.03194: 100% 82/82 [00:29<00:00,  2.75it/s]
+epoch: 3, loss: 6.71884, item_loss: 0.36830, bundle_loss: 0.01878:  99% 81/82 [00:30<00:00,  3.19it/s]
+  0% 0/3 [00:00<?, ?it/s]
+ 33% 1/3 [00:02<00:04,  2.13s/it]
+ 67% 2/3 [00:02<00:01,  1.02s/it]
+100% 3/3 [00:02<00:00,  1.05it/s]
+
+  0% 0/6 [00:00<?, ?it/s]
+ 17% 1/6 [00:03<00:17,  3.59s/it]
+ 33% 2/6 [00:03<00:06,  1.62s/it]
+ 50% 3/6 [00:04<00:02,  1.01it/s]
+ 67% 4/6 [00:04<00:01,  1.46it/s]
+ 83% 5/6 [00:04<00:00,  1.91it/s]
+100% 6/6 [00:05<00:00,  1.19it/s]
+2024-05-16 02:58:16, Top_5, Val:  recall: 0.267239, ndcg: 0.224185
+2024-05-16 02:58:16, Top_5, Test: recall: 0.269226, ndcg: 0.227054
+2024-05-16 02:58:16, Top_10, Val:  recall: 0.320530, ndcg: 0.243350
+2024-05-16 02:58:16, Top_10, Test: recall: 0.322668, ndcg: 0.246279
+2024-05-16 02:58:16, Top_20, Val:  recall: 0.358210, ndcg: 0.254128
+2024-05-16 02:58:16, Top_20, Test: recall: 0.359998, ndcg: 0.256856
+2024-05-16 02:58:16, Top_40, Val:  recall: 0.394036, ndcg: 0.262632
+2024-05-16 02:58:16, Top_40, Test: recall: 0.392051, ndcg: 0.264308
+2024-05-16 02:58:16, Top_80, Val:  recall: 0.427785, ndcg: 0.269177
+2024-05-16 02:58:16, Top_80, Test: recall: 0.427389, ndcg: 0.271127
+top20 as the final evaluation standard
+2024-05-16 02:58:16, Best in epoch 3, TOP 5: REC_V=0.26724, NDCG_V=0.22419
+2024-05-16 02:58:16, Best in epoch 3, TOP 5: REC_T=0.26923, NDCG_T=0.22705
+2024-05-16 02:58:16, Best in epoch 3, TOP 10: REC_V=0.32053, NDCG_V=0.24335
+2024-05-16 02:58:16, Best in epoch 3, TOP 10: REC_T=0.32267, NDCG_T=0.24628
+2024-05-16 02:58:16, Best in epoch 3, TOP 20: REC_V=0.35821, NDCG_V=0.25413
+2024-05-16 02:58:16, Best in epoch 3, TOP 20: REC_T=0.36000, NDCG_T=0.25686
+2024-05-16 02:58:16, Best in epoch 3, TOP 40: REC_V=0.39404, NDCG_V=0.26263
+2024-05-16 02:58:16, Best in epoch 3, TOP 40: REC_T=0.39205, NDCG_T=0.26431
+2024-05-16 02:58:16, Best in epoch 3, TOP 80: REC_V=0.42779, NDCG_V=0.26918
+2024-05-16 02:58:16, Best in epoch 3, TOP 80: REC_T=0.42739, NDCG_T=0.27113
+epoch: 3, loss: 6.71884, item_loss: 0.36830, bundle_loss: 0.01878: 100% 82/82 [00:39<00:00,  2.10it/s]
+epoch: 4, loss: 6.18464, item_loss: 0.37137, bundle_loss: 0.06367: 100% 82/82 [00:31<00:00,  2.64it/s]
+epoch: 5, loss: 5.95981, item_loss: 0.36554, bundle_loss: 0.01324:  99% 81/82 [00:29<00:00,  3.27it/s]
+  0% 0/3 [00:00<?, ?it/s]
+ 33% 1/3 [00:03<00:06,  3.34s/it]
+ 67% 2/3 [00:03<00:01,  1.58s/it]
+100% 3/3 [00:04<00:00,  1.49s/it]
+
+  0% 0/6 [00:00<?, ?it/s]
+ 17% 1/6 [00:06<00:31,  6.35s/it]
+ 33% 2/6 [00:06<00:11,  2.76s/it]
+ 50% 3/6 [00:06<00:04,  1.61s/it]
+ 67% 4/6 [00:07<00:02,  1.07s/it]
+ 83% 5/6 [00:07<00:00,  1.31it/s]
+100% 6/6 [00:07<00:00,  1.30s/it]
+2024-05-16 02:59:29, Top_5, Val:  recall: 0.282794, ndcg: 0.238983
+2024-05-16 02:59:29, Top_5, Test: recall: 0.286039, ndcg: 0.241415
+2024-05-16 02:59:29, Top_10, Val:  recall: 0.336253, ndcg: 0.257905
+2024-05-16 02:59:29, Top_10, Test: recall: 0.337319, ndcg: 0.259875
+2024-05-16 02:59:29, Top_20, Val:  recall: 0.371799, ndcg: 0.268191
+2024-05-16 02:59:29, Top_20, Test: recall: 0.373947, ndcg: 0.270187
+2024-05-16 02:59:29, Top_40, Val:  recall: 0.405660, ndcg: 0.276018
+2024-05-16 02:59:29, Top_40, Test: recall: 0.406983, ndcg: 0.277912
+2024-05-16 02:59:29, Top_80, Val:  recall: 0.437837, ndcg: 0.282383
+2024-05-16 02:59:29, Top_80, Test: recall: 0.434911, ndcg: 0.283384
+top20 as the final evaluation standard
+2024-05-16 02:59:30, Best in epoch 5, TOP 5: REC_V=0.28279, NDCG_V=0.23898
+2024-05-16 02:59:30, Best in epoch 5, TOP 5: REC_T=0.28604, NDCG_T=0.24142
+2024-05-16 02:59:30, Best in epoch 5, TOP 10: REC_V=0.33625, NDCG_V=0.25791
+2024-05-16 02:59:30, Best in epoch 5, TOP 10: REC_T=0.33732, NDCG_T=0.25988
+2024-05-16 02:59:30, Best in epoch 5, TOP 20: REC_V=0.37180, NDCG_V=0.26819
+2024-05-16 02:59:30, Best in epoch 5, TOP 20: REC_T=0.37395, NDCG_T=0.27019
+2024-05-16 02:59:30, Best in epoch 5, TOP 40: REC_V=0.40566, NDCG_V=0.27602
+2024-05-16 02:59:30, Best in epoch 5, TOP 40: REC_T=0.40698, NDCG_T=0.27791
+2024-05-16 02:59:30, Best in epoch 5, TOP 80: REC_V=0.43784, NDCG_V=0.28238
+2024-05-16 02:59:30, Best in epoch 5, TOP 80: REC_T=0.43491, NDCG_T=0.28338
+epoch: 5, loss: 5.95981, item_loss: 0.36554, bundle_loss: 0.01324: 100% 82/82 [00:42<00:00,  1.94it/s]
+epoch: 6, loss: 5.94081, item_loss: 0.37544, bundle_loss: 0.02344: 100% 82/82 [00:31<00:00,  2.57it/s]
+epoch: 7, loss: 5.49949, item_loss: 0.37534, bundle_loss: 0.00403:  99% 81/82 [00:31<00:00,  3.26it/s]
+  0% 0/3 [00:00<?, ?it/s]
+ 33% 1/3 [00:02<00:04,  2.13s/it]
+ 67% 2/3 [00:02<00:01,  1.04s/it]
+100% 3/3 [00:02<00:00,  1.03it/s]
+
+  0% 0/6 [00:00<?, ?it/s]
+ 17% 1/6 [00:05<00:28,  5.61s/it]
+ 33% 2/6 [00:05<00:10,  2.52s/it]
+ 50% 3/6 [00:06<00:04,  1.52s/it]
+ 67% 4/6 [00:06<00:02,  1.04s/it]
+ 83% 5/6 [00:06<00:00,  1.29it/s]
+100% 6/6 [00:07<00:00,  1.29s/it]
+2024-05-16 03:00:45, Top_5, Val:  recall: 0.283243, ndcg: 0.241864
+2024-05-16 03:00:45, Top_5, Test: recall: 0.290670, ndcg: 0.245343
+2024-05-16 03:00:45, Top_10, Val:  recall: 0.340690, ndcg: 0.262342
+2024-05-16 03:00:45, Top_10, Test: recall: 0.341922, ndcg: 0.263822
+2024-05-16 03:00:45, Top_20, Val:  recall: 0.378425, ndcg: 0.273196
+2024-05-16 03:00:45, Top_20, Test: recall: 0.379224, ndcg: 0.274439
+2024-05-16 03:00:45, Top_40, Val:  recall: 0.407120, ndcg: 0.279958
+2024-05-16 03:00:45, Top_40, Test: recall: 0.409341, ndcg: 0.281462
+2024-05-16 03:00:45, Top_80, Val:  recall: 0.440139, ndcg: 0.286485
+2024-05-16 03:00:45, Top_80, Test: recall: 0.440384, ndcg: 0.287500
+top20 as the final evaluation standard
+2024-05-16 03:00:45, Best in epoch 7, TOP 5: REC_V=0.28324, NDCG_V=0.24186
+2024-05-16 03:00:45, Best in epoch 7, TOP 5: REC_T=0.29067, NDCG_T=0.24534
+2024-05-16 03:00:45, Best in epoch 7, TOP 10: REC_V=0.34069, NDCG_V=0.26234
+2024-05-16 03:00:45, Best in epoch 7, TOP 10: REC_T=0.34192, NDCG_T=0.26382
+2024-05-16 03:00:45, Best in epoch 7, TOP 20: REC_V=0.37843, NDCG_V=0.27320
+2024-05-16 03:00:45, Best in epoch 7, TOP 20: REC_T=0.37922, NDCG_T=0.27444
+2024-05-16 03:00:45, Best in epoch 7, TOP 40: REC_V=0.40712, NDCG_V=0.27996
+2024-05-16 03:00:45, Best in epoch 7, TOP 40: REC_T=0.40934, NDCG_T=0.28146
+2024-05-16 03:00:45, Best in epoch 7, TOP 80: REC_V=0.44014, NDCG_V=0.28649
+2024-05-16 03:00:45, Best in epoch 7, TOP 80: REC_T=0.44038, NDCG_T=0.28750
+epoch: 7, loss: 5.49949, item_loss: 0.37534, bundle_loss: 0.00403: 100% 82/82 [00:43<00:00,  1.90it/s]
+epoch: 8, loss: 5.67048, item_loss: 0.37871, bundle_loss: 0.00464: 100% 82/82 [00:31<00:00,  2.61it/s]
+epoch: 9, loss: 5.47658, item_loss: 0.36215, bundle_loss: 0.00970:  99% 81/82 [00:29<00:00,  3.14it/s]
+  0% 0/3 [00:00<?, ?it/s]
+ 33% 1/3 [00:03<00:07,  3.66s/it]
+ 67% 2/3 [00:03<00:01,  1.70s/it]
+100% 3/3 [00:04<00:00,  1.59s/it]
+
+  0% 0/6 [00:00<?, ?it/s]
+ 17% 1/6 [00:05<00:25,  5.04s/it]
+ 33% 2/6 [00:05<00:08,  2.23s/it]
+ 50% 3/6 [00:05<00:03,  1.32s/it]
+ 67% 4/6 [00:05<00:01,  1.13it/s]
+ 83% 5/6 [00:05<00:00,  1.55it/s]
+100% 6/6 [00:06<00:00,  1.09s/it]
+2024-05-16 03:01:59, Top_5, Val:  recall: 0.288410, ndcg: 0.246711
+2024-05-16 03:01:59, Top_5, Test: recall: 0.292326, ndcg: 0.247575
+2024-05-16 03:01:59, Top_10, Val:  recall: 0.344059, ndcg: 0.266628
+2024-05-16 03:01:59, Top_10, Test: recall: 0.343887, ndcg: 0.266224
+2024-05-16 03:01:59, Top_20, Val:  recall: 0.381009, ndcg: 0.277163
+2024-05-16 03:01:59, Top_20, Test: recall: 0.378691, ndcg: 0.276247
+2024-05-16 03:01:59, Top_40, Val:  recall: 0.410377, ndcg: 0.284056
+2024-05-16 03:01:59, Top_40, Test: recall: 0.407236, ndcg: 0.282948
+2024-05-16 03:01:59, Top_80, Val:  recall: 0.443340, ndcg: 0.290540
+2024-05-16 03:01:59, Top_80, Test: recall: 0.438896, ndcg: 0.289155
+top20 as the final evaluation standard
+2024-05-16 03:01:59, Best in epoch 9, TOP 5: REC_V=0.28841, NDCG_V=0.24671
+2024-05-16 03:01:59, Best in epoch 9, TOP 5: REC_T=0.29233, NDCG_T=0.24758
+2024-05-16 03:01:59, Best in epoch 9, TOP 10: REC_V=0.34406, NDCG_V=0.26663
+2024-05-16 03:01:59, Best in epoch 9, TOP 10: REC_T=0.34389, NDCG_T=0.26622
+2024-05-16 03:01:59, Best in epoch 9, TOP 20: REC_V=0.38101, NDCG_V=0.27716
+2024-05-16 03:01:59, Best in epoch 9, TOP 20: REC_T=0.37869, NDCG_T=0.27625
+2024-05-16 03:01:59, Best in epoch 9, TOP 40: REC_V=0.41038, NDCG_V=0.28406
+2024-05-16 03:01:59, Best in epoch 9, TOP 40: REC_T=0.40724, NDCG_T=0.28295
+2024-05-16 03:01:59, Best in epoch 9, TOP 80: REC_V=0.44334, NDCG_V=0.29054
+2024-05-16 03:01:59, Best in epoch 9, TOP 80: REC_T=0.43890, NDCG_T=0.28916
+epoch: 9, loss: 5.47658, item_loss: 0.36215, bundle_loss: 0.00970: 100% 82/82 [00:41<00:00,  2.00it/s]
+epoch: 10, loss: 5.49937, item_loss: 0.37043, bundle_loss: 0.00266: 100% 82/82 [00:29<00:00,  2.74it/s]
+epoch: 11, loss: 5.42254, item_loss: 0.37671, bundle_loss: 0.00567:  99% 81/82 [00:31<00:00,  3.29it/s]
+  0% 0/3 [00:00<?, ?it/s]
+ 33% 1/3 [00:02<00:04,  2.17s/it]
+ 67% 2/3 [00:02<00:01,  1.05s/it]
+100% 3/3 [00:02<00:00,  1.02it/s]
+
+  0% 0/6 [00:00<?, ?it/s]
+ 17% 1/6 [00:04<00:21,  4.34s/it]
+ 33% 2/6 [00:04<00:07,  1.96s/it]
+ 50% 3/6 [00:04<00:03,  1.20s/it]
+ 67% 4/6 [00:05<00:01,  1.17it/s]
+ 83% 5/6 [00:05<00:00,  1.53it/s]
+100% 6/6 [00:06<00:00,  1.05s/it]
+2024-05-16 03:03:11, Top_5, Val:  recall: 0.285602, ndcg: 0.244871
+2024-05-16 03:03:11, Top_5, Test: recall: 0.293084, ndcg: 0.248416
+2024-05-16 03:03:11, Top_10, Val:  recall: 0.342655, ndcg: 0.265472
+2024-05-16 03:03:11, Top_10, Test: recall: 0.345824, ndcg: 0.267449
+2024-05-16 03:03:11, Top_20, Val:  recall: 0.381851, ndcg: 0.276618
+2024-05-16 03:03:11, Top_20, Test: recall: 0.379842, ndcg: 0.277338
+2024-05-16 03:03:11, Top_40, Val:  recall: 0.407570, ndcg: 0.282772
+2024-05-16 03:03:11, Top_40, Test: recall: 0.409622, ndcg: 0.284324
+2024-05-16 03:03:11, Top_80, Val:  recall: 0.439971, ndcg: 0.289167
+2024-05-16 03:03:11, Top_80, Test: recall: 0.439093, ndcg: 0.290075
+top20 as the final evaluation standard
+epoch: 11, loss: 5.42254, item_loss: 0.37671, bundle_loss: 0.00567: 100% 82/82 [00:41<00:00,  1.97it/s]
+epoch: 12, loss: 5.29880, item_loss: 0.38212, bundle_loss: 0.00578: 100% 82/82 [00:29<00:00,  2.75it/s]
+epoch: 13, loss: 5.30228, item_loss: 0.37095, bundle_loss: 0.00864:  99% 81/82 [00:30<00:00,  3.13it/s]
+  0% 0/3 [00:00<?, ?it/s]
+ 33% 1/3 [00:02<00:04,  2.22s/it]
+ 67% 2/3 [00:02<00:01,  1.10s/it]
+100% 3/3 [00:03<00:00,  1.11s/it]
+
+  0% 0/6 [00:00<?, ?it/s]
+ 17% 1/6 [00:06<00:31,  6.28s/it]
+ 33% 2/6 [00:06<00:11,  2.77s/it]
+ 50% 3/6 [00:06<00:05,  1.67s/it]
+ 67% 4/6 [00:07<00:02,  1.13s/it]
+ 83% 5/6 [00:07<00:00,  1.19it/s]
+100% 6/6 [00:08<00:00,  1.41s/it]
+2024-05-16 03:04:24, Top_5, Val:  recall: 0.290993, ndcg: 0.246342
+2024-05-16 03:04:24, Top_5, Test: recall: 0.292944, ndcg: 0.248207
+2024-05-16 03:04:24, Top_10, Val:  recall: 0.345463, ndcg: 0.265883
+2024-05-16 03:04:24, Top_10, Test: recall: 0.345880, ndcg: 0.267226
+2024-05-16 03:04:24, Top_20, Val:  recall: 0.382019, ndcg: 0.276311
+2024-05-16 03:04:24, Top_20, Test: recall: 0.382648, ndcg: 0.277845
+2024-05-16 03:04:24, Top_40, Val:  recall: 0.408580, ndcg: 0.282621
+2024-05-16 03:04:24, Top_40, Test: recall: 0.409594, ndcg: 0.284206
+2024-05-16 03:04:24, Top_80, Val:  recall: 0.443059, ndcg: 0.289430
+2024-05-16 03:04:24, Top_80, Test: recall: 0.438279, ndcg: 0.289826
+top20 as the final evaluation standard
+epoch: 13, loss: 5.30228, item_loss: 0.37095, bundle_loss: 0.00864: 100% 82/82 [00:42<00:00,  1.91it/s]
+epoch: 14, loss: 5.20274, item_loss: 0.37071, bundle_loss: 0.00463: 100% 82/82 [00:33<00:00,  2.47it/s]
+epoch: 15, loss: 5.28305, item_loss: 0.36858, bundle_loss: 0.01175:  99% 81/82 [00:29<00:00,  3.22it/s]
+  0% 0/3 [00:00<?, ?it/s]
+ 33% 1/3 [00:03<00:06,  3.42s/it]
+ 67% 2/3 [00:03<00:01,  1.59s/it]
+100% 3/3 [00:04<00:00,  1.52s/it]
+
+  0% 0/6 [00:00<?, ?it/s]
+ 17% 1/6 [00:05<00:29,  5.99s/it]
+ 33% 2/6 [00:06<00:10,  2.61s/it]
+ 50% 3/6 [00:06<00:04,  1.53s/it]
+ 67% 4/6 [00:06<00:02,  1.02s/it]
+ 83% 5/6 [00:06<00:00,  1.37it/s]
+100% 6/6 [00:07<00:00,  1.24s/it]
+2024-05-16 03:05:40, Top_5, Val:  recall: 0.289870, ndcg: 0.246857
+2024-05-16 03:05:40, Top_5, Test: recall: 0.292439, ndcg: 0.248147
+2024-05-16 03:05:40, Top_10, Val:  recall: 0.346249, ndcg: 0.267053
+2024-05-16 03:05:40, Top_10, Test: recall: 0.346637, ndcg: 0.267562
+2024-05-16 03:05:40, Top_20, Val:  recall: 0.380447, ndcg: 0.276866
+2024-05-16 03:05:40, Top_20, Test: recall: 0.383687, ndcg: 0.278212
+2024-05-16 03:05:40, Top_40, Val:  recall: 0.410377, ndcg: 0.283879
+2024-05-16 03:05:40, Top_40, Test: recall: 0.410632, ndcg: 0.284545
+2024-05-16 03:05:40, Top_80, Val:  recall: 0.443228, ndcg: 0.290338
+2024-05-16 03:05:40, Top_80, Test: recall: 0.440075, ndcg: 0.290259
+top20 as the final evaluation standard
+epoch: 15, loss: 5.28305, item_loss: 0.36858, bundle_loss: 0.01175: 100% 82/82 [00:41<00:00,  1.97it/s]
+epoch: 16, loss: 5.20347, item_loss: 0.36792, bundle_loss: 0.00303: 100% 82/82 [00:29<00:00,  2.79it/s]
+epoch: 17, loss: 5.19514, item_loss: 0.37805, bundle_loss: 0.00374:  99% 81/82 [00:31<00:00,  3.26it/s]
+  0% 0/3 [00:00<?, ?it/s]
+ 33% 1/3 [00:02<00:04,  2.15s/it]
+ 67% 2/3 [00:02<00:01,  1.04s/it]
+100% 3/3 [00:02<00:00,  1.02it/s]
+
+  0% 0/6 [00:00<?, ?it/s]
+ 17% 1/6 [00:03<00:18,  3.65s/it]
+ 33% 2/6 [00:03<00:06,  1.68s/it]
+ 50% 3/6 [00:04<00:03,  1.06s/it]
+ 67% 4/6 [00:04<00:01,  1.33it/s]
+ 83% 5/6 [00:04<00:00,  1.72it/s]
+100% 6/6 [00:05<00:00,  1.06it/s]
+2024-05-16 03:06:51, Top_5, Val:  recall: 0.289926, ndcg: 0.246417
+2024-05-16 03:06:51, Top_5, Test: recall: 0.293056, ndcg: 0.248005
+2024-05-16 03:06:51, Top_10, Val:  recall: 0.346417, ndcg: 0.266720
+2024-05-16 03:06:51, Top_10, Test: recall: 0.347732, ndcg: 0.267569
+2024-05-16 03:06:51, Top_20, Val:  recall: 0.381009, ndcg: 0.276613
+2024-05-16 03:06:51, Top_20, Test: recall: 0.382031, ndcg: 0.277434
+2024-05-16 03:06:51, Top_40, Val:  recall: 0.409367, ndcg: 0.283343
+2024-05-16 03:06:51, Top_40, Test: recall: 0.410632, ndcg: 0.284251
+2024-05-16 03:06:51, Top_80, Val:  recall: 0.442161, ndcg: 0.289886
+2024-05-16 03:06:51, Top_80, Test: recall: 0.439261, ndcg: 0.289803
+top20 as the final evaluation standard
+epoch: 17, loss: 5.19514, item_loss: 0.37805, bundle_loss: 0.00374: 100% 82/82 [00:40<00:00,  2.01it/s]
+epoch: 18, loss: 5.08204, item_loss: 0.36145, bundle_loss: 0.03304: 100% 82/82 [00:31<00:00,  2.58it/s]
+epoch: 19, loss: 5.16288, item_loss: 0.37084, bundle_loss: 0.01445:  99% 81/82 [00:29<00:00,  3.13it/s]
+  0% 0/3 [00:00<?, ?it/s]
+ 33% 1/3 [00:03<00:06,  3.49s/it]
+ 67% 2/3 [00:03<00:01,  1.62s/it]
+100% 3/3 [00:04<00:00,  1.52s/it]
+
+  0% 0/6 [00:00<?, ?it/s]
+ 17% 1/6 [00:03<00:17,  3.60s/it]
+ 33% 2/6 [00:03<00:06,  1.62s/it]
+ 50% 3/6 [00:04<00:02,  1.01it/s]
+ 67% 4/6 [00:04<00:01,  1.46it/s]
+ 83% 5/6 [00:04<00:00,  1.91it/s]
+100% 6/6 [00:05<00:00,  1.19it/s]
+2024-05-16 03:08:03, Top_5, Val:  recall: 0.292453, ndcg: 0.247677
+2024-05-16 03:08:03, Top_5, Test: recall: 0.292972, ndcg: 0.248319
+2024-05-16 03:08:03, Top_10, Val:  recall: 0.345631, ndcg: 0.266823
+2024-05-16 03:08:03, Top_10, Test: recall: 0.347115, ndcg: 0.267822
+2024-05-16 03:08:03, Top_20, Val:  recall: 0.378369, ndcg: 0.276208
+2024-05-16 03:08:03, Top_20, Test: recall: 0.383940, ndcg: 0.278343
+2024-05-16 03:08:03, Top_40, Val:  recall: 0.411276, ndcg: 0.283976
+2024-05-16 03:08:03, Top_40, Test: recall: 0.412007, ndcg: 0.285018
+2024-05-16 03:08:03, Top_80, Val:  recall: 0.440364, ndcg: 0.289727
+2024-05-16 03:08:03, Top_80, Test: recall: 0.439037, ndcg: 0.290339
+top20 as the final evaluation standard
+epoch: 19, loss: 5.16288, item_loss: 0.37084, bundle_loss: 0.01445: 100% 82/82 [00:39<00:00,  2.07it/s]
+epoch: 20, loss: 5.24312, item_loss: 0.37539, bundle_loss: 0.01968: 100% 82/82 [00:31<00:00,  2.57it/s]
+epoch: 21, loss: 5.06088, item_loss: 0.36623, bundle_loss: 0.00281:  99% 81/82 [00:29<00:00,  3.13it/s]
+  0% 0/3 [00:00<?, ?it/s]
+ 33% 1/3 [00:03<00:07,  3.54s/it]
+ 67% 2/3 [00:03<00:01,  1.63s/it]
+100% 3/3 [00:04<00:00,  1.51s/it]
+
+  0% 0/6 [00:00<?, ?it/s]
+ 17% 1/6 [00:06<00:32,  6.54s/it]
+ 33% 2/6 [00:06<00:11,  2.88s/it]
+ 50% 3/6 [00:07<00:05,  1.71s/it]
+ 67% 4/6 [00:07<00:02,  1.15s/it]
+ 83% 5/6 [00:07<00:00,  1.19it/s]
+100% 6/6 [00:08<00:00,  1.43s/it]
+2024-05-16 03:09:19, Top_5, Val:  recall: 0.292509, ndcg: 0.246502
+2024-05-16 03:09:19, Top_5, Test: recall: 0.293028, ndcg: 0.248205
+2024-05-16 03:09:19, Top_10, Val:  recall: 0.343947, ndcg: 0.264959
+2024-05-16 03:09:19, Top_10, Test: recall: 0.346413, ndcg: 0.267405
+2024-05-16 03:09:19, Top_20, Val:  recall: 0.382132, ndcg: 0.275832
+2024-05-16 03:09:19, Top_20, Test: recall: 0.383266, ndcg: 0.278022
+2024-05-16 03:09:19, Top_40, Val:  recall: 0.409030, ndcg: 0.282214
+2024-05-16 03:09:19, Top_40, Test: recall: 0.412821, ndcg: 0.284944
+2024-05-16 03:09:19, Top_80, Val:  recall: 0.442554, ndcg: 0.288762
+2024-05-16 03:09:19, Top_80, Test: recall: 0.440244, ndcg: 0.290281
+top20 as the final evaluation standard
+epoch: 21, loss: 5.06088, item_loss: 0.36623, bundle_loss: 0.00281: 100% 82/82 [00:43<00:00,  1.89it/s]
+epoch: 22, loss: 5.10305, item_loss: 0.38761, bundle_loss: 0.01283: 100% 82/82 [00:29<00:00,  2.80it/s]
+epoch: 23, loss: 5.20020, item_loss: 0.37727, bundle_loss: 0.00714:  99% 81/82 [00:31<00:00,  3.25it/s]
+  0% 0/3 [00:00<?, ?it/s]
+ 33% 1/3 [00:02<00:04,  2.08s/it]
+ 67% 2/3 [00:02<00:01,  1.00s/it]
+100% 3/3 [00:02<00:00,  1.05it/s]
+
+  0% 0/6 [00:00<?, ?it/s]
+ 17% 1/6 [00:03<00:18,  3.61s/it]
+ 33% 2/6 [00:03<00:06,  1.63s/it]
+ 50% 3/6 [00:04<00:02,  1.00it/s]
+ 67% 4/6 [00:04<00:01,  1.44it/s]
+ 83% 5/6 [00:04<00:00,  1.89it/s]
+100% 6/6 [00:05<00:00,  1.18it/s]
+2024-05-16 03:10:28, Top_5, Val:  recall: 0.291386, ndcg: 0.247339
+2024-05-16 03:10:28, Top_5, Test: recall: 0.291260, ndcg: 0.247566
+2024-05-16 03:10:28, Top_10, Val:  recall: 0.347709, ndcg: 0.267445
+2024-05-16 03:10:28, Top_10, Test: recall: 0.344729, ndcg: 0.266789
+2024-05-16 03:10:28, Top_20, Val:  recall: 0.382300, ndcg: 0.277341
+2024-05-16 03:10:28, Top_20, Test: recall: 0.383631, ndcg: 0.277955
+2024-05-16 03:10:28, Top_40, Val:  recall: 0.410883, ndcg: 0.283961
+2024-05-16 03:10:28, Top_40, Test: recall: 0.410015, ndcg: 0.284145
+2024-05-16 03:10:28, Top_80, Val:  recall: 0.442217, ndcg: 0.290133
+2024-05-16 03:10:28, Top_80, Test: recall: 0.441422, ndcg: 0.290268
+top20 as the final evaluation standard
+2024-05-16 03:10:29, Best in epoch 23, TOP 5: REC_V=0.29139, NDCG_V=0.24734
+2024-05-16 03:10:29, Best in epoch 23, TOP 5: REC_T=0.29126, NDCG_T=0.24757
+2024-05-16 03:10:29, Best in epoch 23, TOP 10: REC_V=0.34771, NDCG_V=0.26744
+2024-05-16 03:10:29, Best in epoch 23, TOP 10: REC_T=0.34473, NDCG_T=0.26679
+2024-05-16 03:10:29, Best in epoch 23, TOP 20: REC_V=0.38230, NDCG_V=0.27734
+2024-05-16 03:10:29, Best in epoch 23, TOP 20: REC_T=0.38363, NDCG_T=0.27796
+2024-05-16 03:10:29, Best in epoch 23, TOP 40: REC_V=0.41088, NDCG_V=0.28396
+2024-05-16 03:10:29, Best in epoch 23, TOP 40: REC_T=0.41001, NDCG_T=0.28414
+2024-05-16 03:10:29, Best in epoch 23, TOP 80: REC_V=0.44222, NDCG_V=0.29013
+2024-05-16 03:10:29, Best in epoch 23, TOP 80: REC_T=0.44142, NDCG_T=0.29027
+epoch: 23, loss: 5.20020, item_loss: 0.37727, bundle_loss: 0.00714: 100% 82/82 [00:39<00:00,  2.06it/s]
+epoch: 24, loss: 4.98434, item_loss: 0.38382, bundle_loss: 0.00905: 100% 82/82 [00:31<00:00,  2.59it/s]
+epoch: 25, loss: 5.00412, item_loss: 0.37202, bundle_loss: 0.00805:  99% 81/82 [00:29<00:00,  3.28it/s]
+  0% 0/3 [00:00<?, ?it/s]
+ 33% 1/3 [00:03<00:06,  3.30s/it]
+ 67% 2/3 [00:03<00:01,  1.55s/it]
+100% 3/3 [00:04<00:00,  1.46s/it]
+
+  0% 0/6 [00:00<?, ?it/s]
+ 17% 1/6 [00:06<00:32,  6.55s/it]
+ 33% 2/6 [00:06<00:11,  2.89s/it]
+ 50% 3/6 [00:07<00:05,  1.71s/it]
+ 67% 4/6 [00:07<00:02,  1.13s/it]
+ 83% 5/6 [00:07<00:00,  1.24it/s]
+100% 6/6 [00:08<00:00,  1.37s/it]
+2024-05-16 03:11:43, Top_5, Val:  recall: 0.291217, ndcg: 0.246875
+2024-05-16 03:11:43, Top_5, Test: recall: 0.289548, ndcg: 0.246907
+2024-05-16 03:11:43, Top_10, Val:  recall: 0.345126, ndcg: 0.266449
+2024-05-16 03:11:43, Top_10, Test: recall: 0.343971, ndcg: 0.266617
+2024-05-16 03:11:43, Top_20, Val:  recall: 0.378089, ndcg: 0.275969
+2024-05-16 03:11:43, Top_20, Test: recall: 0.380600, ndcg: 0.277157
+2024-05-16 03:11:43, Top_40, Val:  recall: 0.412230, ndcg: 0.283974
+2024-05-16 03:11:43, Top_40, Test: recall: 0.409453, ndcg: 0.283965
+2024-05-16 03:11:43, Top_80, Val:  recall: 0.442442, ndcg: 0.289893
+2024-05-16 03:11:43, Top_80, Test: recall: 0.439233, ndcg: 0.289793
+top20 as the final evaluation standard
+epoch: 25, loss: 5.00412, item_loss: 0.37202, bundle_loss: 0.00805: 100% 82/82 [00:42<00:00,  1.93it/s]
+epoch: 26, loss: 5.10457, item_loss: 0.37469, bundle_loss: 0.00517: 100% 82/82 [00:30<00:00,  2.73it/s]
+epoch: 27, loss: 5.06620, item_loss: 0.36406, bundle_loss: 0.00565:  99% 81/82 [00:31<00:00,  3.26it/s]
+  0% 0/3 [00:00<?, ?it/s]
+ 33% 1/3 [00:02<00:04,  2.09s/it]
+ 67% 2/3 [00:02<00:00,  1.00it/s]
+100% 3/3 [00:02<00:00,  1.06it/s]
+
+  0% 0/6 [00:00<?, ?it/s]
+ 17% 1/6 [00:03<00:17,  3.58s/it]
+ 33% 2/6 [00:03<00:06,  1.62s/it]
+ 50% 3/6 [00:04<00:02,  1.01it/s]
+ 67% 4/6 [00:04<00:01,  1.44it/s]
+ 83% 5/6 [00:04<00:00,  1.83it/s]
+100% 6/6 [00:05<00:00,  1.12it/s]
+2024-05-16 03:12:54, Top_5, Val:  recall: 0.291442, ndcg: 0.247494
+2024-05-16 03:12:54, Top_5, Test: recall: 0.291372, ndcg: 0.246704
+2024-05-16 03:12:54, Top_10, Val:  recall: 0.345350, ndcg: 0.267217
+2024-05-16 03:12:54, Top_10, Test: recall: 0.343859, ndcg: 0.265781
+2024-05-16 03:12:54, Top_20, Val:  recall: 0.382019, ndcg: 0.277642
+2024-05-16 03:12:54, Top_20, Test: recall: 0.382031, ndcg: 0.276778
+2024-05-16 03:12:54, Top_40, Val:  recall: 0.411388, ndcg: 0.284573
+2024-05-16 03:12:54, Top_40, Test: recall: 0.410351, ndcg: 0.283408
+2024-05-16 03:12:54, Top_80, Val:  recall: 0.443340, ndcg: 0.290881
+2024-05-16 03:12:54, Top_80, Test: recall: 0.437577, ndcg: 0.288747
+top20 as the final evaluation standard
+epoch: 27, loss: 5.06620, item_loss: 0.36406, bundle_loss: 0.00565: 100% 82/82 [00:40<00:00,  2.02it/s]
+epoch: 28, loss: 4.98848, item_loss: 0.37276, bundle_loss: 0.02170: 100% 82/82 [00:31<00:00,  2.62it/s]
+epoch: 29, loss: 5.02879, item_loss: 0.36387, bundle_loss: 0.01478:  99% 81/82 [00:31<00:00,  3.30it/s]
+  0% 0/3 [00:00<?, ?it/s]
+ 33% 1/3 [00:03<00:06,  3.32s/it]
+ 67% 2/3 [00:03<00:01,  1.57s/it]
+100% 3/3 [00:04<00:00,  1.49s/it]
+
+  0% 0/6 [00:00<?, ?it/s]
+ 17% 1/6 [00:06<00:31,  6.35s/it]
+ 33% 2/6 [00:06<00:11,  2.76s/it]
+ 50% 3/6 [00:06<00:04,  1.61s/it]
+ 67% 4/6 [00:07<00:02,  1.07s/it]
+ 83% 5/6 [00:07<00:00,  1.31it/s]
+100% 6/6 [00:07<00:00,  1.31s/it]
+2024-05-16 03:14:10, Top_5, Val:  recall: 0.293295, ndcg: 0.247560
+2024-05-16 03:14:10, Top_5, Test: recall: 0.289660, ndcg: 0.245295
+2024-05-16 03:14:10, Top_10, Val:  recall: 0.346754, ndcg: 0.266765
+2024-05-16 03:14:10, Top_10, Test: recall: 0.344841, ndcg: 0.265096
+2024-05-16 03:14:10, Top_20, Val:  recall: 0.382581, ndcg: 0.277050
+2024-05-16 03:14:10, Top_20, Test: recall: 0.382480, ndcg: 0.275944
+2024-05-16 03:14:10, Top_40, Val:  recall: 0.409142, ndcg: 0.283350
+2024-05-16 03:14:10, Top_40, Test: recall: 0.409397, ndcg: 0.282301
+2024-05-16 03:14:10, Top_80, Val:  recall: 0.441262, ndcg: 0.289713
+2024-05-16 03:14:10, Top_80, Test: recall: 0.438896, ndcg: 0.288037
+top20 as the final evaluation standard
+epoch: 29, loss: 5.02879, item_loss: 0.36387, bundle_loss: 0.01478: 100% 82/82 [00:43<00:00,  1.87it/s]
+epoch: 30, loss: 5.04277, item_loss: 0.38517, bundle_loss: 0.00830: 100% 82/82 [00:29<00:00,  2.75it/s]
+epoch: 31, loss: 4.98363, item_loss: 0.37964, bundle_loss: 0.04172:  99% 81/82 [00:31<00:00,  3.30it/s]
+  0% 0/3 [00:00<?, ?it/s]
+ 33% 1/3 [00:02<00:04,  2.14s/it]
+ 67% 2/3 [00:02<00:01,  1.02s/it]
+100% 3/3 [00:02<00:00,  1.04it/s]
+
+  0% 0/6 [00:00<?, ?it/s]
+ 17% 1/6 [00:04<00:21,  4.25s/it]
+ 33% 2/6 [00:04<00:07,  1.95s/it]
+ 50% 3/6 [00:04<00:03,  1.21s/it]
+ 67% 4/6 [00:05<00:01,  1.18it/s]
+ 83% 5/6 [00:05<00:00,  1.55it/s]
+100% 6/6 [00:06<00:00,  1.04s/it]
+2024-05-16 03:15:22, Top_5, Val:  recall: 0.290544, ndcg: 0.247370
+2024-05-16 03:15:22, Top_5, Test: recall: 0.291147, ndcg: 0.247067
+2024-05-16 03:15:22, Top_10, Val:  recall: 0.347372, ndcg: 0.267872
+2024-05-16 03:15:22, Top_10, Test: recall: 0.346216, ndcg: 0.266818
+2024-05-16 03:15:22, Top_20, Val:  recall: 0.381739, ndcg: 0.277599
+2024-05-16 03:15:22, Top_20, Test: recall: 0.381414, ndcg: 0.277007
+2024-05-16 03:15:22, Top_40, Val:  recall: 0.414421, ndcg: 0.285249
+2024-05-16 03:15:22, Top_40, Test: recall: 0.409004, ndcg: 0.283496
+2024-05-16 03:15:22, Top_80, Val:  recall: 0.441712, ndcg: 0.290626
+2024-05-16 03:15:22, Top_80, Test: recall: 0.438672, ndcg: 0.289277
+top20 as the final evaluation standard
+epoch: 31, loss: 4.98363, item_loss: 0.37964, bundle_loss: 0.04172: 100% 82/82 [00:41<00:00,  1.99it/s]
+epoch: 32, loss: 4.97645, item_loss: 0.36959, bundle_loss: 0.00434: 100% 82/82 [00:31<00:00,  2.60it/s]
+epoch: 33, loss: 5.25685, item_loss: 0.37964, bundle_loss: 0.23303:  99% 81/82 [00:31<00:00,  3.14it/s]
+  0% 0/3 [00:00<?, ?it/s]
+ 33% 1/3 [00:03<00:07,  3.50s/it]
+ 67% 2/3 [00:03<00:01,  1.62s/it]
+100% 3/3 [00:04<00:00,  1.53s/it]
+
+  0% 0/6 [00:00<?, ?it/s]
+ 17% 1/6 [00:05<00:25,  5.08s/it]
+ 33% 2/6 [00:05<00:08,  2.24s/it]
+ 50% 3/6 [00:05<00:03,  1.33s/it]
+ 67% 4/6 [00:05<00:01,  1.12it/s]
+ 83% 5/6 [00:06<00:00,  1.53it/s]
+100% 6/6 [00:06<00:00,  1.09s/it]
+2024-05-16 03:16:37, Top_5, Val:  recall: 0.290544, ndcg: 0.245627
+2024-05-16 03:16:37, Top_5, Test: recall: 0.291372, ndcg: 0.245978
+2024-05-16 03:16:37, Top_10, Val:  recall: 0.346810, ndcg: 0.265754
+2024-05-16 03:16:37, Top_10, Test: recall: 0.343325, ndcg: 0.264776
+2024-05-16 03:16:37, Top_20, Val:  recall: 0.380896, ndcg: 0.275540
+2024-05-16 03:16:37, Top_20, Test: recall: 0.381245, ndcg: 0.275732
+2024-05-16 03:16:37, Top_40, Val:  recall: 0.412343, ndcg: 0.283010
+2024-05-16 03:16:37, Top_40, Test: recall: 0.408976, ndcg: 0.282302
+2024-05-16 03:16:37, Top_80, Val:  recall: 0.443340, ndcg: 0.289104
+2024-05-16 03:16:37, Top_80, Test: recall: 0.439177, ndcg: 0.288186
+top20 as the final evaluation standard
+epoch: 33, loss: 5.25685, item_loss: 0.37964, bundle_loss: 0.23303: 100% 82/82 [00:42<00:00,  1.92it/s]
+epoch: 34, loss: 5.14819, item_loss: 0.37826, bundle_loss: 0.00899: 100% 82/82 [00:29<00:00,  2.76it/s]
+epoch: 35, loss: 5.03928, item_loss: 0.36412, bundle_loss: 0.01247:  99% 81/82 [00:31<00:00,  3.28it/s]
+  0% 0/3 [00:00<?, ?it/s]
+ 33% 1/3 [00:02<00:04,  2.06s/it]
+ 67% 2/3 [00:02<00:00,  1.00it/s]
+100% 3/3 [00:02<00:00,  1.05it/s]
+
+  0% 0/6 [00:00<?, ?it/s]
+ 17% 1/6 [00:04<00:23,  4.79s/it]
+ 33% 2/6 [00:05<00:08,  2.16s/it]
+ 50% 3/6 [00:05<00:03,  1.31s/it]
+ 67% 4/6 [00:05<00:01,  1.10it/s]
+ 83% 5/6 [00:05<00:00,  1.47it/s]
+100% 6/6 [00:06<00:00,  1.13s/it]
+2024-05-16 03:17:49, Top_5, Val:  recall: 0.290151, ndcg: 0.246252
+2024-05-16 03:17:49, Top_5, Test: recall: 0.290754, ndcg: 0.245565
+2024-05-16 03:17:49, Top_10, Val:  recall: 0.344003, ndcg: 0.265858
+2024-05-16 03:17:49, Top_10, Test: recall: 0.343887, ndcg: 0.264748
+2024-05-16 03:17:49, Top_20, Val:  recall: 0.381963, ndcg: 0.276766
+2024-05-16 03:17:49, Top_20, Test: recall: 0.382957, ndcg: 0.275940
+2024-05-16 03:17:49, Top_40, Val:  recall: 0.409984, ndcg: 0.283434
+2024-05-16 03:17:49, Top_40, Test: recall: 0.410548, ndcg: 0.282453
+2024-05-16 03:17:49, Top_80, Val:  recall: 0.441936, ndcg: 0.289685
+2024-05-16 03:17:49, Top_80, Test: recall: 0.438279, ndcg: 0.287850
+top20 as the final evaluation standard
+epoch: 35, loss: 5.03928, item_loss: 0.36412, bundle_loss: 0.01247: 100% 82/82 [00:41<00:00,  1.95it/s]
+epoch: 36, loss: 4.99969, item_loss: 0.37036, bundle_loss: 0.00365: 100% 82/82 [00:29<00:00,  2.77it/s]
+epoch: 37, loss: 5.04351, item_loss: 0.36668, bundle_loss: 0.00651:  99% 81/82 [00:32<00:00,  3.12it/s]
+  0% 0/3 [00:00<?, ?it/s]
+ 33% 1/3 [00:03<00:07,  3.67s/it]
+ 67% 2/3 [00:03<00:01,  1.67s/it]
+100% 3/3 [00:04<00:00,  1.48s/it]
+
+  0% 0/6 [00:00<?, ?it/s]
+ 17% 1/6 [00:03<00:17,  3.52s/it]
+ 33% 2/6 [00:03<00:06,  1.59s/it]
+ 50% 3/6 [00:03<00:02,  1.03it/s]
+ 67% 4/6 [00:04<00:01,  1.47it/s]
+ 83% 5/6 [00:04<00:00,  1.92it/s]
+100% 6/6 [00:04<00:00,  1.20it/s]
+2024-05-16 03:19:02, Top_5, Val:  recall: 0.291217, ndcg: 0.245734
+2024-05-16 03:19:02, Top_5, Test: recall: 0.291484, ndcg: 0.246705
+2024-05-16 03:19:02, Top_10, Val:  recall: 0.344957, ndcg: 0.265347
+2024-05-16 03:19:02, Top_10, Test: recall: 0.345515, ndcg: 0.266068
+2024-05-16 03:19:02, Top_20, Val:  recall: 0.381739, ndcg: 0.275884
+2024-05-16 03:19:02, Top_20, Test: recall: 0.383182, ndcg: 0.276920
+2024-05-16 03:19:02, Top_40, Val:  recall: 0.409760, ndcg: 0.282485
+2024-05-16 03:19:02, Top_40, Test: recall: 0.409509, ndcg: 0.283199
+2024-05-16 03:19:02, Top_80, Val:  recall: 0.441599, ndcg: 0.288782
+2024-05-16 03:19:02, Top_80, Test: recall: 0.437605, ndcg: 0.288675
+top20 as the final evaluation standard
+epoch: 37, loss: 5.04351, item_loss: 0.36668, bundle_loss: 0.00651: 100% 82/82 [00:42<00:00,  1.94it/s]
+epoch: 38, loss: 4.95369, item_loss: 0.36719, bundle_loss: 0.00527: 100% 82/82 [00:30<00:00,  2.73it/s]
+epoch: 39, loss: 5.04939, item_loss: 0.36528, bundle_loss: 0.00348:  99% 81/82 [00:30<00:00,  3.27it/s]
+  0% 0/3 [00:00<?, ?it/s]
+ 33% 1/3 [00:02<00:04,  2.16s/it]
+ 67% 2/3 [00:02<00:01,  1.03s/it]
+100% 3/3 [00:02<00:00,  1.03it/s]
+
+  0% 0/6 [00:00<?, ?it/s]
+ 17% 1/6 [00:04<00:22,  4.43s/it]
+ 33% 2/6 [00:04<00:08,  2.01s/it]
+ 50% 3/6 [00:05<00:03,  1.24s/it]
+ 67% 4/6 [00:05<00:01,  1.14it/s]
+ 83% 5/6 [00:05<00:00,  1.50it/s]
+100% 6/6 [00:06<00:00,  1.07s/it]
+2024-05-16 03:20:13, Top_5, Val:  recall: 0.289364, ndcg: 0.244698
+2024-05-16 03:20:13, Top_5, Test: recall: 0.288790, ndcg: 0.245868
+2024-05-16 03:20:13, Top_10, Val:  recall: 0.344227, ndcg: 0.264627
+2024-05-16 03:20:13, Top_10, Test: recall: 0.343354, ndcg: 0.265462
+2024-05-16 03:20:13, Top_20, Val:  recall: 0.381233, ndcg: 0.275101
+2024-05-16 03:20:13, Top_20, Test: recall: 0.381133, ndcg: 0.276374
+2024-05-16 03:20:13, Top_40, Val:  recall: 0.409591, ndcg: 0.281929
+2024-05-16 03:20:13, Top_40, Test: recall: 0.408864, ndcg: 0.283008
+2024-05-16 03:20:13, Top_80, Val:  recall: 0.440701, ndcg: 0.288005
+2024-05-16 03:20:13, Top_80, Test: recall: 0.437409, ndcg: 0.288565
+top20 as the final evaluation standard
+epoch: 39, loss: 5.04939, item_loss: 0.36528, bundle_loss: 0.00348: 100% 82/82 [00:39<00:00,  2.05it/s]
+epoch: 40, loss: 4.92651, item_loss: 0.38238, bundle_loss: 0.07310: 100% 82/82 [00:29<00:00,  2.81it/s]
+epoch: 41, loss: 4.97558, item_loss: 0.37053, bundle_loss: 0.02142:  99% 81/82 [00:30<00:00,  3.19it/s]
+  0% 0/3 [00:00<?, ?it/s]
+ 33% 1/3 [00:02<00:04,  2.09s/it]
+ 67% 2/3 [00:02<00:01,  1.00s/it]
+100% 3/3 [00:02<00:00,  1.05it/s]
+
+  0% 0/6 [00:00<?, ?it/s]
+ 17% 1/6 [00:03<00:17,  3.55s/it]
+ 33% 2/6 [00:03<00:06,  1.60s/it]
+ 50% 3/6 [00:04<00:02,  1.02it/s]
+ 67% 4/6 [00:04<00:01,  1.46it/s]
+ 83% 5/6 [00:04<00:00,  1.93it/s]
+100% 6/6 [00:05<00:00,  1.20it/s]
+2024-05-16 03:21:22, Top_5, Val:  recall: 0.290207, ndcg: 0.246152
+2024-05-16 03:21:22, Top_5, Test: recall: 0.289295, ndcg: 0.246772
+2024-05-16 03:21:22, Top_10, Val:  recall: 0.343890, ndcg: 0.265614
+2024-05-16 03:21:22, Top_10, Test: recall: 0.343325, ndcg: 0.266234
+2024-05-16 03:21:22, Top_20, Val:  recall: 0.382974, ndcg: 0.276739
+2024-05-16 03:21:22, Top_20, Test: recall: 0.382087, ndcg: 0.277389
+2024-05-16 03:21:22, Top_40, Val:  recall: 0.408468, ndcg: 0.282859
+2024-05-16 03:21:22, Top_40, Test: recall: 0.410071, ndcg: 0.283984
+2024-05-16 03:21:22, Top_80, Val:  recall: 0.441936, ndcg: 0.289456
+2024-05-16 03:21:22, Top_80, Test: recall: 0.439009, ndcg: 0.289684
+top20 as the final evaluation standard
+epoch: 41, loss: 4.97558, item_loss: 0.37053, bundle_loss: 0.02142: 100% 82/82 [00:38<00:00,  2.11it/s]
+epoch: 42, loss: 5.02258, item_loss: 0.36891, bundle_loss: 0.00749: 100% 82/82 [00:30<00:00,  2.68it/s]
+epoch: 43, loss: 5.01961, item_loss: 0.37512, bundle_loss: 0.01744:  99% 81/82 [00:29<00:00,  3.31it/s]
+  0% 0/3 [00:00<?, ?it/s]
+ 33% 1/3 [00:03<00:06,  3.37s/it]
+ 67% 2/3 [00:03<00:01,  1.59s/it]
+100% 3/3 [00:04<00:00,  1.51s/it]
+
+  0% 0/6 [00:00<?, ?it/s]
+ 17% 1/6 [00:06<00:31,  6.24s/it]
+ 33% 2/6 [00:06<00:10,  2.70s/it]
+ 50% 3/6 [00:06<00:04,  1.58s/it]
+ 67% 4/6 [00:06<00:02,  1.04s/it]
+ 83% 5/6 [00:07<00:00,  1.34it/s]
+100% 6/6 [00:07<00:00,  1.28s/it]
+2024-05-16 03:22:35, Top_5, Val:  recall: 0.288971, ndcg: 0.245293
+2024-05-16 03:22:35, Top_5, Test: recall: 0.288818, ndcg: 0.245795
+2024-05-16 03:22:35, Top_10, Val:  recall: 0.343890, ndcg: 0.265084
+2024-05-16 03:22:35, Top_10, Test: recall: 0.343045, ndcg: 0.265366
+2024-05-16 03:22:35, Top_20, Val:  recall: 0.380503, ndcg: 0.275588
+2024-05-16 03:22:35, Top_20, Test: recall: 0.381582, ndcg: 0.276527
+2024-05-16 03:22:35, Top_40, Val:  recall: 0.411781, ndcg: 0.282933
+2024-05-16 03:22:35, Top_40, Test: recall: 0.409930, ndcg: 0.283196
+2024-05-16 03:22:35, Top_80, Val:  recall: 0.442610, ndcg: 0.289019
+2024-05-16 03:22:35, Top_80, Test: recall: 0.438840, ndcg: 0.288877
+top20 as the final evaluation standard
+epoch: 43, loss: 5.01961, item_loss: 0.37512, bundle_loss: 0.01744: 100% 82/82 [00:41<00:00,  1.95it/s]
+epoch: 44, loss: 4.89163, item_loss: 0.37355, bundle_loss: 0.06931: 100% 82/82 [00:29<00:00,  2.79it/s]
+epoch: 45, loss: 4.95230, item_loss: 0.36603, bundle_loss: 0.00360:  99% 81/82 [00:31<00:00,  3.16it/s]
+  0% 0/3 [00:00<?, ?it/s]
+ 33% 1/3 [00:03<00:07,  3.63s/it]
+ 67% 2/3 [00:03<00:01,  1.68s/it]
+100% 3/3 [00:04<00:00,  1.56s/it]
+
+  0% 0/6 [00:00<?, ?it/s]
+ 17% 1/6 [00:06<00:32,  6.45s/it]
+ 33% 2/6 [00:06<00:11,  2.84s/it]
+ 50% 3/6 [00:07<00:05,  1.68s/it]
+ 67% 4/6 [00:07<00:02,  1.13s/it]
+ 83% 5/6 [00:07<00:00,  1.20it/s]
+100% 6/6 [00:08<00:00,  1.42s/it]
+2024-05-16 03:23:50, Top_5, Val:  recall: 0.288971, ndcg: 0.245654
+2024-05-16 03:23:50, Top_5, Test: recall: 0.291232, ndcg: 0.245800
+2024-05-16 03:23:50, Top_10, Val:  recall: 0.345070, ndcg: 0.265831
+2024-05-16 03:23:50, Top_10, Test: recall: 0.343943, ndcg: 0.264744
+2024-05-16 03:23:50, Top_20, Val:  recall: 0.379829, ndcg: 0.275743
+2024-05-16 03:23:50, Top_20, Test: recall: 0.382480, ndcg: 0.275840
+2024-05-16 03:23:50, Top_40, Val:  recall: 0.409647, ndcg: 0.282820
+2024-05-16 03:23:50, Top_40, Test: recall: 0.410464, ndcg: 0.282401
+2024-05-16 03:23:50, Top_80, Val:  recall: 0.443340, ndcg: 0.289483
+2024-05-16 03:23:50, Top_80, Test: recall: 0.437409, ndcg: 0.287745
+top20 as the final evaluation standard
+epoch: 45, loss: 4.95230, item_loss: 0.36603, bundle_loss: 0.00360: 100% 82/82 [00:45<00:00,  1.81it/s]
+epoch: 46, loss: 4.95697, item_loss: 0.36476, bundle_loss: 0.01196: 100% 82/82 [00:29<00:00,  2.78it/s]
+epoch: 47, loss: 4.87336, item_loss: 0.37087, bundle_loss: 0.03121:  99% 81/82 [00:30<00:00,  3.19it/s]
+  0% 0/3 [00:00<?, ?it/s]
+ 33% 1/3 [00:02<00:04,  2.13s/it]
+ 67% 2/3 [00:02<00:01,  1.03s/it]
+100% 3/3 [00:02<00:00,  1.03it/s]
+
+  0% 0/6 [00:00<?, ?it/s]
+ 17% 1/6 [00:03<00:18,  3.67s/it]
+ 33% 2/6 [00:03<00:06,  1.66s/it]
+ 50% 3/6 [00:04<00:03,  1.01s/it]
+ 67% 4/6 [00:04<00:01,  1.42it/s]
+ 83% 5/6 [00:04<00:00,  1.88it/s]
+100% 6/6 [00:05<00:00,  1.17it/s]
+2024-05-16 03:24:59, Top_5, Val:  recall: 0.294137, ndcg: 0.246672
+2024-05-16 03:24:59, Top_5, Test: recall: 0.289098, ndcg: 0.244585
+2024-05-16 03:24:59, Top_10, Val:  recall: 0.345350, ndcg: 0.265216
+2024-05-16 03:24:59, Top_10, Test: recall: 0.343634, ndcg: 0.264264
+2024-05-16 03:24:59, Top_20, Val:  recall: 0.382356, ndcg: 0.275592
+2024-05-16 03:24:59, Top_20, Test: recall: 0.383547, ndcg: 0.275777
+2024-05-16 03:24:59, Top_40, Val:  recall: 0.411107, ndcg: 0.282427
+2024-05-16 03:24:59, Top_40, Test: recall: 0.410267, ndcg: 0.282117
+2024-05-16 03:24:59, Top_80, Val:  recall: 0.440420, ndcg: 0.288230
+2024-05-16 03:24:59, Top_80, Test: recall: 0.439486, ndcg: 0.287836
+top20 as the final evaluation standard
+epoch: 47, loss: 4.87336, item_loss: 0.37087, bundle_loss: 0.03121: 100% 82/82 [00:39<00:00,  2.10it/s]
+epoch: 48, loss: 4.76972, item_loss: 0.35764, bundle_loss: 0.00822: 100% 82/82 [00:31<00:00,  2.63it/s]
+epoch: 49, loss: 5.00722, item_loss: 0.36663, bundle_loss: 0.07495:  99% 81/82 [00:29<00:00,  3.30it/s]
+  0% 0/3 [00:00<?, ?it/s]
+ 33% 1/3 [00:03<00:06,  3.26s/it]
+ 67% 2/3 [00:03<00:01,  1.53s/it]
+100% 3/3 [00:04<00:00,  1.45s/it]
+
+  0% 0/6 [00:00<?, ?it/s]
+ 17% 1/6 [00:06<00:32,  6.46s/it]
+ 33% 2/6 [00:06<00:11,  2.82s/it]
+ 50% 3/6 [00:06<00:04,  1.64s/it]
+ 67% 4/6 [00:07<00:02,  1.08s/it]
+ 83% 5/6 [00:07<00:00,  1.28it/s]
+100% 6/6 [00:07<00:00,  1.33s/it]
+2024-05-16 03:26:13, Top_5, Val:  recall: 0.291779, ndcg: 0.245910
+2024-05-16 03:26:13, Top_5, Test: recall: 0.289604, ndcg: 0.244546
+2024-05-16 03:26:13, Top_10, Val:  recall: 0.344059, ndcg: 0.264848
+2024-05-16 03:26:13, Top_10, Test: recall: 0.343718, ndcg: 0.264147
+2024-05-16 03:26:13, Top_20, Val:  recall: 0.378987, ndcg: 0.274897
+2024-05-16 03:26:13, Top_20, Test: recall: 0.383154, ndcg: 0.275387
+2024-05-16 03:26:13, Top_40, Val:  recall: 0.409479, ndcg: 0.282075
+2024-05-16 03:26:13, Top_40, Test: recall: 0.410099, ndcg: 0.281765
+2024-05-16 03:26:13, Top_80, Val:  recall: 0.440757, ndcg: 0.288277
+2024-05-16 03:26:13, Top_80, Test: recall: 0.438784, ndcg: 0.287402
+top20 as the final evaluation standard
+epoch: 49, loss: 5.00722, item_loss: 0.36663, bundle_loss: 0.07495: 100% 82/82 [00:41<00:00,  1.96it/s]
+2024-05-16 03:26:17.250431: E external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:9261] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+2024-05-16 03:26:17.250491: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:607] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+2024-05-16 03:26:17.251803: E external/local_xla/xla/stream_executor/cuda/cuda_blas.cc:1515] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+2024-05-16 03:26:17.258847: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2024-05-16 03:26:18.296613: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+load config file done!
+Train: 5
+Val/Test: 2
+Val/Test: 2
+/usr/local/lib/python3.10/dist-packages/torch/utils/data/dataloader.py:558: UserWarning: This DataLoader will create 10 worker processes in total. Our suggested max number of worker in current system is 2, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  warnings.warn(_create_warning_msg(
+/usr/local/lib/python3.10/dist-packages/torch/utils/data/dataloader.py:558: UserWarning: This DataLoader will create 20 worker processes in total. Our suggested max number of worker in current system is 2, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  warnings.warn(_create_warning_msg(
+{'data_path': '/content/drive/MyDrive/datasets/', 'batch_size_train': 256, 'batch_size_test': 1024, 'topk': [5, 10, 20, 40, 80], 'neg_num': 1, 'embedding_sizes': [64], 'num_layerss': [1], 'lrs': [0.001], 'l2_regs': [1e-05], 'epochs': 50, 'test_interval': 2, 'gpu': '0', 'dataset': 'pog', 'model': 'CLHE', 'info': '', 'lr': 0.001, 'reg': 1e-05, 'item_augment': 'FN', 'bundle_ratio': 0.5, 'bundle_augment': 'ID', 'dropout_rate': 0.2, 'noise_weight': 0.02, 'cl_temp': 0.5, 'cl_alpha': 2.0, 'bundle_cl_temp': 0.01, 'bundle_cl_alpha': 0.5, 'attention': '', 'trans_layer': 1, 'num_token': 200, 'seed': 2023, 'epoch': -1, 'device': device(type='cuda', index=0), 'num_users': 17449, 'num_bundles': 20000, 'num_items': 48676, 'l2_reg': 1e-05, 'embedding_size': 64, 'num_layers': 1}
+/usr/local/lib/python3.10/dist-packages/torch/utils/data/dataloader.py:558: UserWarning: This DataLoader will create 10 worker processes in total. Our suggested max number of worker in current system is 2, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  warnings.warn(_create_warning_msg(
+/usr/lib/python3.10/multiprocessing/popen_fork.py:66: RuntimeWarning: os.fork() was called. os.fork() is incompatible with multithreaded code, and JAX is multithreaded, so this will likely lead to a deadlock.
+  self.pid = os.fork()
+epoch: 0, loss: 19.02783, item_loss: 9.37416, bundle_loss: 0.07018: 100% 55/55 [00:31<00:00,  1.72it/s]
+epoch: 1, loss: 17.90649, item_loss: 9.26480, bundle_loss: 0.03678:  98% 54/55 [00:34<00:00,  2.08it/s] 
+  0% 0/2 [00:00<?, ?it/s]/usr/local/lib/python3.10/dist-packages/torch/utils/data/dataloader.py:558: UserWarning: This DataLoader will create 20 worker processes in total. Our suggested max number of worker in current system is 2, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  warnings.warn(_create_warning_msg(
+
+ 50% 1/2 [00:02<00:02,  2.26s/it]
+100% 2/2 [00:02<00:00,  1.46s/it]
+
+  0% 0/4 [00:00<?, ?it/s]
+ 25% 1/4 [00:03<00:10,  3.62s/it]
+ 50% 2/4 [00:03<00:03,  1.70s/it]
+ 75% 3/4 [00:04<00:01,  1.10s/it]
+100% 4/4 [00:05<00:00,  1.26s/it]
+2024-05-16 03:28:05, Top_5, Val:  recall: 0.002833, ndcg: 0.002946
+2024-05-16 03:28:05, Top_5, Test: recall: 0.003625, ndcg: 0.002930
+2024-05-16 03:28:05, Top_10, Val:  recall: 0.006417, ndcg: 0.004358
+2024-05-16 03:28:05, Top_10, Test: recall: 0.005500, ndcg: 0.003688
+2024-05-16 03:28:05, Top_20, Val:  recall: 0.009417, ndcg: 0.005324
+2024-05-16 03:28:05, Top_20, Test: recall: 0.009083, ndcg: 0.004803
+2024-05-16 03:28:05, Top_40, Val:  recall: 0.014583, ndcg: 0.006660
+2024-05-16 03:28:05, Top_40, Test: recall: 0.015542, ndcg: 0.006423
+2024-05-16 03:28:05, Top_80, Val:  recall: 0.023167, ndcg: 0.008484
+2024-05-16 03:28:05, Top_80, Test: recall: 0.024917, ndcg: 0.008418
+top20 as the final evaluation standard
+2024-05-16 03:28:05, Best in epoch 1, TOP 5: REC_V=0.00283, NDCG_V=0.00295
+2024-05-16 03:28:05, Best in epoch 1, TOP 5: REC_T=0.00363, NDCG_T=0.00293
+2024-05-16 03:28:05, Best in epoch 1, TOP 10: REC_V=0.00642, NDCG_V=0.00436
+2024-05-16 03:28:05, Best in epoch 1, TOP 10: REC_T=0.00550, NDCG_T=0.00369
+2024-05-16 03:28:05, Best in epoch 1, TOP 20: REC_V=0.00942, NDCG_V=0.00532
+2024-05-16 03:28:05, Best in epoch 1, TOP 20: REC_T=0.00908, NDCG_T=0.00480
+2024-05-16 03:28:05, Best in epoch 1, TOP 40: REC_V=0.01458, NDCG_V=0.00666
+2024-05-16 03:28:05, Best in epoch 1, TOP 40: REC_T=0.01554, NDCG_T=0.00642
+2024-05-16 03:28:05, Best in epoch 1, TOP 80: REC_V=0.02317, NDCG_V=0.00848
+2024-05-16 03:28:05, Best in epoch 1, TOP 80: REC_T=0.02492, NDCG_T=0.00842
+epoch: 1, loss: 17.90649, item_loss: 9.26480, bundle_loss: 0.03678: 100% 55/55 [00:43<00:00,  1.28it/s]
+epoch: 2, loss: 17.31956, item_loss: 9.27181, bundle_loss: 0.00235: 100% 55/55 [00:32<00:00,  1.69it/s]
+epoch: 3, loss: 16.85650, item_loss: 9.26101, bundle_loss: 0.00000:  98% 54/55 [00:29<00:00,  2.10it/s]
+  0% 0/2 [00:00<?, ?it/s]
+ 50% 1/2 [00:04<00:04,  4.32s/it]
+100% 2/2 [00:05<00:00,  2.57s/it]
+
+  0% 0/4 [00:00<?, ?it/s]
+ 25% 1/4 [00:04<00:14,  4.72s/it]
+ 50% 2/4 [00:05<00:04,  2.15s/it]
+ 75% 3/4 [00:05<00:01,  1.33s/it]
+100% 4/4 [00:06<00:00,  1.53s/it]
+2024-05-16 03:29:20, Top_5, Val:  recall: 0.007000, ndcg: 0.006218
+2024-05-16 03:29:20, Top_5, Test: recall: 0.006833, ndcg: 0.006171
+2024-05-16 03:29:20, Top_10, Val:  recall: 0.010833, ndcg: 0.007703
+2024-05-16 03:29:20, Top_10, Test: recall: 0.010708, ndcg: 0.007744
+2024-05-16 03:29:20, Top_20, Val:  recall: 0.016083, ndcg: 0.009328
+2024-05-16 03:29:20, Top_20, Test: recall: 0.016167, ndcg: 0.009419
+2024-05-16 03:29:20, Top_40, Val:  recall: 0.024667, ndcg: 0.011479
+2024-05-16 03:29:20, Top_40, Test: recall: 0.024917, ndcg: 0.011655
+2024-05-16 03:29:20, Top_80, Val:  recall: 0.035583, ndcg: 0.013766
+2024-05-16 03:29:20, Top_80, Test: recall: 0.037750, ndcg: 0.014380
+top20 as the final evaluation standard
+2024-05-16 03:29:20, Best in epoch 3, TOP 5: REC_V=0.00700, NDCG_V=0.00622
+2024-05-16 03:29:20, Best in epoch 3, TOP 5: REC_T=0.00683, NDCG_T=0.00617
+2024-05-16 03:29:20, Best in epoch 3, TOP 10: REC_V=0.01083, NDCG_V=0.00770
+2024-05-16 03:29:20, Best in epoch 3, TOP 10: REC_T=0.01071, NDCG_T=0.00774
+2024-05-16 03:29:20, Best in epoch 3, TOP 20: REC_V=0.01608, NDCG_V=0.00933
+2024-05-16 03:29:20, Best in epoch 3, TOP 20: REC_T=0.01617, NDCG_T=0.00942
+2024-05-16 03:29:20, Best in epoch 3, TOP 40: REC_V=0.02467, NDCG_V=0.01148
+2024-05-16 03:29:20, Best in epoch 3, TOP 40: REC_T=0.02492, NDCG_T=0.01166
+2024-05-16 03:29:20, Best in epoch 3, TOP 80: REC_V=0.03558, NDCG_V=0.01377
+2024-05-16 03:29:20, Best in epoch 3, TOP 80: REC_T=0.03775, NDCG_T=0.01438
+epoch: 3, loss: 16.85650, item_loss: 9.26101, bundle_loss: 0.00000: 100% 55/55 [00:41<00:00,  1.32it/s]
+epoch: 4, loss: 15.80241, item_loss: 9.13493, bundle_loss: 0.00001: 100% 55/55 [00:31<00:00,  1.75it/s]
+epoch: 5, loss: 15.40733, item_loss: 9.23064, bundle_loss: 0.00000:  98% 54/55 [00:30<00:00,  2.17it/s]
+  0% 0/2 [00:00<?, ?it/s]
+ 50% 1/2 [00:04<00:04,  4.22s/it]
+100% 2/2 [00:05<00:00,  2.60s/it]
+
+  0% 0/4 [00:00<?, ?it/s]
+ 25% 1/4 [00:05<00:17,  5.70s/it]
+ 50% 2/4 [00:06<00:05,  2.56s/it]
+ 75% 3/4 [00:06<00:01,  1.55s/it]
+100% 4/4 [00:07<00:00,  1.78s/it]
+2024-05-16 03:30:35, Top_5, Val:  recall: 0.014667, ndcg: 0.013419
+2024-05-16 03:30:35, Top_5, Test: recall: 0.013292, ndcg: 0.011683
+2024-05-16 03:30:35, Top_10, Val:  recall: 0.017917, ndcg: 0.014736
+2024-05-16 03:30:35, Top_10, Test: recall: 0.016292, ndcg: 0.012893
+2024-05-16 03:30:35, Top_20, Val:  recall: 0.021750, ndcg: 0.015930
+2024-05-16 03:30:35, Top_20, Test: recall: 0.020875, ndcg: 0.014364
+2024-05-16 03:30:35, Top_40, Val:  recall: 0.027667, ndcg: 0.017432
+2024-05-16 03:30:35, Top_40, Test: recall: 0.028125, ndcg: 0.016179
+2024-05-16 03:30:35, Top_80, Val:  recall: 0.035500, ndcg: 0.019091
+2024-05-16 03:30:35, Top_80, Test: recall: 0.038125, ndcg: 0.018284
+top20 as the final evaluation standard
+2024-05-16 03:30:35, Best in epoch 5, TOP 5: REC_V=0.01467, NDCG_V=0.01342
+2024-05-16 03:30:35, Best in epoch 5, TOP 5: REC_T=0.01329, NDCG_T=0.01168
+2024-05-16 03:30:35, Best in epoch 5, TOP 10: REC_V=0.01792, NDCG_V=0.01474
+2024-05-16 03:30:35, Best in epoch 5, TOP 10: REC_T=0.01629, NDCG_T=0.01289
+2024-05-16 03:30:35, Best in epoch 5, TOP 20: REC_V=0.02175, NDCG_V=0.01593
+2024-05-16 03:30:35, Best in epoch 5, TOP 20: REC_T=0.02088, NDCG_T=0.01436
+2024-05-16 03:30:35, Best in epoch 5, TOP 40: REC_V=0.02767, NDCG_V=0.01743
+2024-05-16 03:30:35, Best in epoch 5, TOP 40: REC_T=0.02813, NDCG_T=0.01618
+2024-05-16 03:30:35, Best in epoch 5, TOP 80: REC_V=0.03550, NDCG_V=0.01909
+2024-05-16 03:30:35, Best in epoch 5, TOP 80: REC_T=0.03813, NDCG_T=0.01828
+epoch: 5, loss: 15.40733, item_loss: 9.23064, bundle_loss: 0.00000: 100% 55/55 [00:43<00:00,  1.28it/s]
+epoch: 6, loss: 14.76174, item_loss: 9.18747, bundle_loss: 0.00000: 100% 55/55 [00:30<00:00,  1.81it/s]
+epoch: 7, loss: 14.19382, item_loss: 9.14935, bundle_loss: 0.00000:  98% 54/55 [00:35<00:00,  2.16it/s]
+  0% 0/2 [00:00<?, ?it/s]
+ 50% 1/2 [00:02<00:02,  2.70s/it]
+100% 2/2 [00:03<00:00,  1.70s/it]
+
+  0% 0/4 [00:00<?, ?it/s]
+ 25% 1/4 [00:07<00:22,  7.37s/it]
+ 50% 2/4 [00:07<00:06,  3.29s/it]
+ 75% 3/4 [00:08<00:01,  2.00s/it]
+100% 4/4 [00:09<00:00,  2.34s/it]
+2024-05-16 03:31:55, Top_5, Val:  recall: 0.014833, ndcg: 0.012065
+2024-05-16 03:31:55, Top_5, Test: recall: 0.014667, ndcg: 0.012612
+2024-05-16 03:31:55, Top_10, Val:  recall: 0.018750, ndcg: 0.013692
+2024-05-16 03:31:55, Top_10, Test: recall: 0.017917, ndcg: 0.013927
+2024-05-16 03:31:55, Top_20, Val:  recall: 0.022917, ndcg: 0.014997
+2024-05-16 03:31:55, Top_20, Test: recall: 0.020917, ndcg: 0.014888
+2024-05-16 03:31:55, Top_40, Val:  recall: 0.029333, ndcg: 0.016653
+2024-05-16 03:31:55, Top_40, Test: recall: 0.027042, ndcg: 0.016451
+2024-05-16 03:31:55, Top_80, Val:  recall: 0.035750, ndcg: 0.018014
+2024-05-16 03:31:55, Top_80, Test: recall: 0.036625, ndcg: 0.018451
+top20 as the final evaluation standard
+epoch: 7, loss: 14.19382, item_loss: 9.14935, bundle_loss: 0.00000: 100% 55/55 [00:48<00:00,  1.13it/s]
+epoch: 8, loss: 13.95477, item_loss: 9.19598, bundle_loss: 0.01398: 100% 55/55 [00:31<00:00,  1.74it/s]
+epoch: 9, loss: 13.71766, item_loss: 9.22656, bundle_loss: 0.00032:  98% 54/55 [00:33<00:00,  2.16it/s]
+  0% 0/2 [00:00<?, ?it/s]
+ 50% 1/2 [00:02<00:02,  2.63s/it]
+100% 2/2 [00:03<00:00,  1.66s/it]
+
+  0% 0/4 [00:00<?, ?it/s]
+ 25% 1/4 [00:05<00:17,  5.86s/it]
+ 50% 2/4 [00:06<00:05,  2.68s/it]
+ 75% 3/4 [00:06<00:01,  1.66s/it]
+100% 4/4 [00:07<00:00,  1.98s/it]
+2024-05-16 03:33:13, Top_5, Val:  recall: 0.015417, ndcg: 0.014322
+2024-05-16 03:33:13, Top_5, Test: recall: 0.016292, ndcg: 0.014232
+2024-05-16 03:33:13, Top_10, Val:  recall: 0.020250, ndcg: 0.016283
+2024-05-16 03:33:13, Top_10, Test: recall: 0.020500, ndcg: 0.015918
+2024-05-16 03:33:13, Top_20, Val:  recall: 0.026167, ndcg: 0.018137
+2024-05-16 03:33:13, Top_20, Test: recall: 0.028083, ndcg: 0.018257
+2024-05-16 03:33:13, Top_40, Val:  recall: 0.035167, ndcg: 0.020435
+2024-05-16 03:33:13, Top_40, Test: recall: 0.038000, ndcg: 0.020775
+2024-05-16 03:33:13, Top_80, Val:  recall: 0.045750, ndcg: 0.022683
+2024-05-16 03:33:13, Top_80, Test: recall: 0.052500, ndcg: 0.023863
+top20 as the final evaluation standard
+2024-05-16 03:33:13, Best in epoch 9, TOP 5: REC_V=0.01542, NDCG_V=0.01432
+2024-05-16 03:33:13, Best in epoch 9, TOP 5: REC_T=0.01629, NDCG_T=0.01423
+2024-05-16 03:33:13, Best in epoch 9, TOP 10: REC_V=0.02025, NDCG_V=0.01628
+2024-05-16 03:33:13, Best in epoch 9, TOP 10: REC_T=0.02050, NDCG_T=0.01592
+2024-05-16 03:33:13, Best in epoch 9, TOP 20: REC_V=0.02617, NDCG_V=0.01814
+2024-05-16 03:33:13, Best in epoch 9, TOP 20: REC_T=0.02808, NDCG_T=0.01826
+2024-05-16 03:33:13, Best in epoch 9, TOP 40: REC_V=0.03517, NDCG_V=0.02044
+2024-05-16 03:33:13, Best in epoch 9, TOP 40: REC_T=0.03800, NDCG_T=0.02078
+2024-05-16 03:33:13, Best in epoch 9, TOP 80: REC_V=0.04575, NDCG_V=0.02268
+2024-05-16 03:33:13, Best in epoch 9, TOP 80: REC_T=0.05250, NDCG_T=0.02386
+epoch: 9, loss: 13.71766, item_loss: 9.22656, bundle_loss: 0.00032: 100% 55/55 [00:45<00:00,  1.21it/s]
+epoch: 10, loss: 13.53740, item_loss: 9.19983, bundle_loss: 0.00002: 100% 55/55 [00:30<00:00,  1.77it/s]
+epoch: 11, loss: 13.56046, item_loss: 9.21242, bundle_loss: 0.00000:  98% 54/55 [00:32<00:00,  2.16it/s]
+  0% 0/2 [00:00<?, ?it/s]
+ 50% 1/2 [00:02<00:02,  2.27s/it]
+100% 2/2 [00:02<00:00,  1.47s/it]
+
+  0% 0/4 [00:00<?, ?it/s]
+ 25% 1/4 [00:04<00:14,  4.70s/it]
+ 50% 2/4 [00:05<00:04,  2.21s/it]
+ 75% 3/4 [00:05<00:01,  1.41s/it]
+100% 4/4 [00:06<00:00,  1.66s/it]
+2024-05-16 03:34:29, Top_5, Val:  recall: 0.015500, ndcg: 0.014188
+2024-05-16 03:34:29, Top_5, Test: recall: 0.016333, ndcg: 0.014184
+2024-05-16 03:34:29, Top_10, Val:  recall: 0.020667, ndcg: 0.016222
+2024-05-16 03:34:29, Top_10, Test: recall: 0.019375, ndcg: 0.015427
+2024-05-16 03:34:29, Top_20, Val:  recall: 0.025583, ndcg: 0.017751
+2024-05-16 03:34:29, Top_20, Test: recall: 0.025750, ndcg: 0.017430
+2024-05-16 03:34:29, Top_40, Val:  recall: 0.035250, ndcg: 0.020191
+2024-05-16 03:34:29, Top_40, Test: recall: 0.036875, ndcg: 0.020273
+2024-05-16 03:34:29, Top_80, Val:  recall: 0.046083, ndcg: 0.022492
+2024-05-16 03:34:29, Top_80, Test: recall: 0.050250, ndcg: 0.023110
+top20 as the final evaluation standard
+epoch: 11, loss: 13.56046, item_loss: 9.21242, bundle_loss: 0.00000: 100% 55/55 [00:42<00:00,  1.28it/s]
+epoch: 12, loss: 13.43159, item_loss: 9.17813, bundle_loss: 0.00000: 100% 55/55 [00:30<00:00,  1.83it/s]
+epoch: 13, loss: 13.41016, item_loss: 9.16916, bundle_loss: 0.00207:  98% 54/55 [00:33<00:00,  2.07it/s]
+  0% 0/2 [00:00<?, ?it/s]
+ 50% 1/2 [00:02<00:02,  2.23s/it]
+100% 2/2 [00:02<00:00,  1.45s/it]
+
+  0% 0/4 [00:00<?, ?it/s]
+ 25% 1/4 [00:03<00:10,  3.58s/it]
+ 50% 2/4 [00:03<00:03,  1.68s/it]
+ 75% 3/4 [00:04<00:01,  1.08s/it]
+100% 4/4 [00:04<00:00,  1.24s/it]
+2024-05-16 03:35:42, Top_5, Val:  recall: 0.013583, ndcg: 0.012072
+2024-05-16 03:35:42, Top_5, Test: recall: 0.015708, ndcg: 0.013974
+2024-05-16 03:35:42, Top_10, Val:  recall: 0.018833, ndcg: 0.014174
+2024-05-16 03:35:42, Top_10, Test: recall: 0.019958, ndcg: 0.015670
+2024-05-16 03:35:42, Top_20, Val:  recall: 0.023750, ndcg: 0.015759
+2024-05-16 03:35:42, Top_20, Test: recall: 0.025667, ndcg: 0.017441
+2024-05-16 03:35:42, Top_40, Val:  recall: 0.033750, ndcg: 0.018271
+2024-05-16 03:35:42, Top_40, Test: recall: 0.035750, ndcg: 0.020003
+2024-05-16 03:35:42, Top_80, Val:  recall: 0.045083, ndcg: 0.020669
+2024-05-16 03:35:42, Top_80, Test: recall: 0.049083, ndcg: 0.022847
+top20 as the final evaluation standard
+epoch: 13, loss: 13.41016, item_loss: 9.16916, bundle_loss: 0.00207: 100% 55/55 [00:41<00:00,  1.31it/s]
+epoch: 14, loss: 13.30059, item_loss: 9.16819, bundle_loss: 0.00025: 100% 55/55 [00:31<00:00,  1.72it/s]
+epoch: 15, loss: 13.24987, item_loss: 9.14133, bundle_loss: 0.00072:  98% 54/55 [00:30<00:00,  2.18it/s]
+  0% 0/2 [00:00<?, ?it/s]
+ 50% 1/2 [00:03<00:03,  3.46s/it]
+100% 2/2 [00:04<00:00,  2.25s/it]
+
+  0% 0/4 [00:00<?, ?it/s]
+ 25% 1/4 [00:06<00:18,  6.01s/it]
+ 50% 2/4 [00:06<00:05,  2.69s/it]
+ 75% 3/4 [00:06<00:01,  1.62s/it]
+100% 4/4 [00:07<00:00,  1.86s/it]
+2024-05-16 03:36:57, Top_5, Val:  recall: 0.013667, ndcg: 0.012241
+2024-05-16 03:36:57, Top_5, Test: recall: 0.015750, ndcg: 0.013869
+2024-05-16 03:36:57, Top_10, Val:  recall: 0.019167, ndcg: 0.014522
+2024-05-16 03:36:57, Top_10, Test: recall: 0.020292, ndcg: 0.015692
+2024-05-16 03:36:57, Top_20, Val:  recall: 0.024667, ndcg: 0.016224
+2024-05-16 03:36:57, Top_20, Test: recall: 0.026583, ndcg: 0.017655
+2024-05-16 03:36:57, Top_40, Val:  recall: 0.033667, ndcg: 0.018516
+2024-05-16 03:36:57, Top_40, Test: recall: 0.035083, ndcg: 0.019860
+2024-05-16 03:36:57, Top_80, Val:  recall: 0.043833, ndcg: 0.020687
+2024-05-16 03:36:57, Top_80, Test: recall: 0.048792, ndcg: 0.022742
+top20 as the final evaluation standard
+epoch: 15, loss: 13.24987, item_loss: 9.14133, bundle_loss: 0.00072: 100% 55/55 [00:42<00:00,  1.30it/s]
+epoch: 16, loss: 13.26835, item_loss: 9.13389, bundle_loss: 0.00465: 100% 55/55 [00:31<00:00,  1.75it/s]
+epoch: 17, loss: 13.21447, item_loss: 9.13927, bundle_loss: 0.00005:  98% 54/55 [00:31<00:00,  2.10it/s]
+  0% 0/2 [00:00<?, ?it/s]
+ 50% 1/2 [00:02<00:02,  2.30s/it]
+100% 2/2 [00:02<00:00,  1.49s/it]
+
+  0% 0/4 [00:00<?, ?it/s]
+ 25% 1/4 [00:03<00:10,  3.57s/it]
+ 50% 2/4 [00:03<00:03,  1.68s/it]
+ 75% 3/4 [00:04<00:01,  1.08s/it]
+100% 4/4 [00:04<00:00,  1.24s/it]
+2024-05-16 03:38:09, Top_5, Val:  recall: 0.014167, ndcg: 0.012199
+2024-05-16 03:38:09, Top_5, Test: recall: 0.014833, ndcg: 0.013636
+2024-05-16 03:38:09, Top_10, Val:  recall: 0.019083, ndcg: 0.014179
+2024-05-16 03:38:09, Top_10, Test: recall: 0.019625, ndcg: 0.015601
+2024-05-16 03:38:09, Top_20, Val:  recall: 0.023583, ndcg: 0.015591
+2024-05-16 03:38:09, Top_20, Test: recall: 0.025042, ndcg: 0.017290
+2024-05-16 03:38:09, Top_40, Val:  recall: 0.033167, ndcg: 0.018049
+2024-05-16 03:38:09, Top_40, Test: recall: 0.035042, ndcg: 0.019843
+2024-05-16 03:38:09, Top_80, Val:  recall: 0.044417, ndcg: 0.020483
+2024-05-16 03:38:09, Top_80, Test: recall: 0.047292, ndcg: 0.022425
+top20 as the final evaluation standard
+epoch: 17, loss: 13.21447, item_loss: 9.13927, bundle_loss: 0.00005: 100% 55/55 [00:39<00:00,  1.39it/s]
+epoch: 18, loss: 13.29981, item_loss: 9.12947, bundle_loss: 0.00000: 100% 55/55 [00:31<00:00,  1.75it/s]
+epoch: 19, loss: 13.18932, item_loss: 9.09565, bundle_loss: 0.00000:  98% 54/55 [00:31<00:00,  2.16it/s]
+  0% 0/2 [00:00<?, ?it/s]
+ 50% 1/2 [00:02<00:02,  2.27s/it]
+100% 2/2 [00:03<00:00,  1.57s/it]
+
+  0% 0/4 [00:00<?, ?it/s]
+ 25% 1/4 [00:05<00:17,  5.86s/it]
+ 50% 2/4 [00:06<00:05,  2.67s/it]
+ 75% 3/4 [00:06<00:01,  1.66s/it]
+100% 4/4 [00:07<00:00,  1.96s/it]
+2024-05-16 03:39:24, Top_5, Val:  recall: 0.012833, ndcg: 0.011209
+2024-05-16 03:39:24, Top_5, Test: recall: 0.015375, ndcg: 0.013781
+2024-05-16 03:39:24, Top_10, Val:  recall: 0.019167, ndcg: 0.013819
+2024-05-16 03:39:24, Top_10, Test: recall: 0.018875, ndcg: 0.015180
+2024-05-16 03:39:24, Top_20, Val:  recall: 0.023750, ndcg: 0.015224
+2024-05-16 03:39:24, Top_20, Test: recall: 0.025917, ndcg: 0.017381
+2024-05-16 03:39:24, Top_40, Val:  recall: 0.033250, ndcg: 0.017678
+2024-05-16 03:39:24, Top_40, Test: recall: 0.036000, ndcg: 0.019930
+2024-05-16 03:39:24, Top_80, Val:  recall: 0.043000, ndcg: 0.019782
+2024-05-16 03:39:24, Top_80, Test: recall: 0.047042, ndcg: 0.022262
+top20 as the final evaluation standard
+epoch: 19, loss: 13.18932, item_loss: 9.09565, bundle_loss: 0.00000: 100% 55/55 [00:42<00:00,  1.29it/s]
+epoch: 20, loss: 13.20644, item_loss: 9.14273, bundle_loss: 0.00000: 100% 55/55 [00:30<00:00,  1.81it/s]
+epoch: 21, loss: 13.18007, item_loss: 9.15333, bundle_loss: 0.00001:  98% 54/55 [00:32<00:00,  2.15it/s]
+  0% 0/2 [00:00<?, ?it/s]
+ 50% 1/2 [00:02<00:02,  2.23s/it]
+100% 2/2 [00:02<00:00,  1.46s/it]
+
+  0% 0/4 [00:00<?, ?it/s]
+ 25% 1/4 [00:03<00:11,  3.95s/it]
+ 50% 2/4 [00:04<00:03,  1.84s/it]
+ 75% 3/4 [00:04<00:01,  1.17s/it]
+100% 4/4 [00:05<00:00,  1.41s/it]
+2024-05-16 03:40:37, Top_5, Val:  recall: 0.014667, ndcg: 0.012913
+2024-05-16 03:40:37, Top_5, Test: recall: 0.014750, ndcg: 0.013417
+2024-05-16 03:40:37, Top_10, Val:  recall: 0.019583, ndcg: 0.014922
+2024-05-16 03:40:37, Top_10, Test: recall: 0.020042, ndcg: 0.015528
+2024-05-16 03:40:37, Top_20, Val:  recall: 0.024667, ndcg: 0.016467
+2024-05-16 03:40:37, Top_20, Test: recall: 0.026375, ndcg: 0.017496
+2024-05-16 03:40:37, Top_40, Val:  recall: 0.034083, ndcg: 0.018887
+2024-05-16 03:40:37, Top_40, Test: recall: 0.035917, ndcg: 0.019925
+2024-05-16 03:40:37, Top_80, Val:  recall: 0.044833, ndcg: 0.021192
+2024-05-16 03:40:37, Top_80, Test: recall: 0.047708, ndcg: 0.022388
+top20 as the final evaluation standard
+epoch: 21, loss: 13.18007, item_loss: 9.15333, bundle_loss: 0.00001: 100% 55/55 [00:41<00:00,  1.32it/s]
+epoch: 22, loss: 13.13443, item_loss: 9.12521, bundle_loss: 0.00139: 100% 55/55 [00:32<00:00,  1.69it/s]
+epoch: 23, loss: 13.11049, item_loss: 9.09636, bundle_loss: 0.00355:  98% 54/55 [00:30<00:00,  2.10it/s]
+  0% 0/2 [00:00<?, ?it/s]
+ 50% 1/2 [00:03<00:03,  3.91s/it]
+100% 2/2 [00:04<00:00,  2.46s/it]
+
+  0% 0/4 [00:00<?, ?it/s]
+ 25% 1/4 [00:06<00:18,  6.32s/it]
+ 50% 2/4 [00:06<00:05,  2.87s/it]
+ 75% 3/4 [00:07<00:01,  1.76s/it]
+100% 4/4 [00:08<00:00,  2.06s/it]
+2024-05-16 03:41:54, Top_5, Val:  recall: 0.015000, ndcg: 0.012583
+2024-05-16 03:41:54, Top_5, Test: recall: 0.015333, ndcg: 0.013764
+2024-05-16 03:41:54, Top_10, Val:  recall: 0.019833, ndcg: 0.014561
+2024-05-16 03:41:54, Top_10, Test: recall: 0.019750, ndcg: 0.015513
+2024-05-16 03:41:54, Top_20, Val:  recall: 0.024583, ndcg: 0.015995
+2024-05-16 03:41:54, Top_20, Test: recall: 0.025583, ndcg: 0.017340
+2024-05-16 03:41:54, Top_40, Val:  recall: 0.033167, ndcg: 0.018194
+2024-05-16 03:41:54, Top_40, Test: recall: 0.035542, ndcg: 0.019860
+2024-05-16 03:41:54, Top_80, Val:  recall: 0.044333, ndcg: 0.020574
+2024-05-16 03:41:54, Top_80, Test: recall: 0.046542, ndcg: 0.022164
+top20 as the final evaluation standard
+epoch: 23, loss: 13.11049, item_loss: 9.09636, bundle_loss: 0.00355: 100% 55/55 [00:43<00:00,  1.25it/s]
+epoch: 24, loss: 13.08249, item_loss: 9.11152, bundle_loss: 0.00071: 100% 55/55 [00:31<00:00,  1.74it/s]
+epoch: 25, loss: 13.07857, item_loss: 9.12346, bundle_loss: 0.00000:  98% 54/55 [00:31<00:00,  2.16it/s]
+  0% 0/2 [00:00<?, ?it/s]
+ 50% 1/2 [00:02<00:02,  2.24s/it]
+100% 2/2 [00:02<00:00,  1.45s/it]
+
+  0% 0/4 [00:00<?, ?it/s]
+ 25% 1/4 [00:03<00:11,  3.97s/it]
+ 50% 2/4 [00:04<00:03,  1.90s/it]
+ 75% 3/4 [00:04<00:01,  1.22s/it]
+100% 4/4 [00:05<00:00,  1.45s/it]
+2024-05-16 03:43:07, Top_5, Val:  recall: 0.015417, ndcg: 0.012963
+2024-05-16 03:43:07, Top_5, Test: recall: 0.015708, ndcg: 0.014011
+2024-05-16 03:43:07, Top_10, Val:  recall: 0.020000, ndcg: 0.014837
+2024-05-16 03:43:07, Top_10, Test: recall: 0.019625, ndcg: 0.015578
+2024-05-16 03:43:07, Top_20, Val:  recall: 0.026167, ndcg: 0.016708
+2024-05-16 03:43:07, Top_20, Test: recall: 0.025750, ndcg: 0.017503
+2024-05-16 03:43:07, Top_40, Val:  recall: 0.032667, ndcg: 0.018375
+2024-05-16 03:43:07, Top_40, Test: recall: 0.035000, ndcg: 0.019829
+2024-05-16 03:43:07, Top_80, Val:  recall: 0.043833, ndcg: 0.020765
+2024-05-16 03:43:07, Top_80, Test: recall: 0.046000, ndcg: 0.022146
+top20 as the final evaluation standard
+epoch: 25, loss: 13.07857, item_loss: 9.12346, bundle_loss: 0.00000: 100% 55/55 [00:40<00:00,  1.36it/s]
+epoch: 26, loss: 13.19094, item_loss: 9.18038, bundle_loss: 0.00000: 100% 55/55 [00:32<00:00,  1.70it/s]
+epoch: 27, loss: 13.10455, item_loss: 9.11893, bundle_loss: 0.00000:  98% 54/55 [00:30<00:00,  2.09it/s]
+  0% 0/2 [00:00<?, ?it/s]
+ 50% 1/2 [00:02<00:02,  2.99s/it]
+100% 2/2 [00:03<00:00,  1.83s/it]
+
+  0% 0/4 [00:00<?, ?it/s]
+ 25% 1/4 [00:03<00:10,  3.55s/it]
+ 50% 2/4 [00:03<00:03,  1.68s/it]
+ 75% 3/4 [00:04<00:01,  1.08s/it]
+100% 4/4 [00:04<00:00,  1.24s/it]
+2024-05-16 03:44:20, Top_5, Val:  recall: 0.015250, ndcg: 0.013017
+2024-05-16 03:44:20, Top_5, Test: recall: 0.015375, ndcg: 0.013886
+2024-05-16 03:44:20, Top_10, Val:  recall: 0.019667, ndcg: 0.014800
+2024-05-16 03:44:20, Top_10, Test: recall: 0.020250, ndcg: 0.015811
+2024-05-16 03:44:20, Top_20, Val:  recall: 0.025833, ndcg: 0.016671
+2024-05-16 03:44:20, Top_20, Test: recall: 0.025208, ndcg: 0.017358
+2024-05-16 03:44:20, Top_40, Val:  recall: 0.032833, ndcg: 0.018468
+2024-05-16 03:44:20, Top_40, Test: recall: 0.033917, ndcg: 0.019536
+2024-05-16 03:44:20, Top_80, Val:  recall: 0.043000, ndcg: 0.020611
+2024-05-16 03:44:20, Top_80, Test: recall: 0.046000, ndcg: 0.022083
+top20 as the final evaluation standard
+epoch: 27, loss: 13.10455, item_loss: 9.11893, bundle_loss: 0.00000: 100% 55/55 [00:39<00:00,  1.38it/s]
+epoch: 28, loss: 13.05304, item_loss: 9.12463, bundle_loss: 0.00019: 100% 55/55 [00:31<00:00,  1.77it/s]
+epoch: 29, loss: 13.00373, item_loss: 9.09886, bundle_loss: 0.00043:  98% 54/55 [00:29<00:00,  2.16it/s]
+  0% 0/2 [00:00<?, ?it/s]
+ 50% 1/2 [00:03<00:03,  3.59s/it]
+100% 2/2 [00:04<00:00,  2.31s/it]
+
+  0% 0/4 [00:00<?, ?it/s]
+ 25% 1/4 [00:05<00:17,  5.91s/it]
+ 50% 2/4 [00:06<00:05,  2.64s/it]
+ 75% 3/4 [00:06<00:01,  1.60s/it]
+100% 4/4 [00:07<00:00,  1.82s/it]
+2024-05-16 03:45:34, Top_5, Val:  recall: 0.014250, ndcg: 0.012238
+2024-05-16 03:45:34, Top_5, Test: recall: 0.016583, ndcg: 0.014786
+2024-05-16 03:45:34, Top_10, Val:  recall: 0.019667, ndcg: 0.014388
+2024-05-16 03:45:34, Top_10, Test: recall: 0.020917, ndcg: 0.016482
+2024-05-16 03:45:34, Top_20, Val:  recall: 0.024083, ndcg: 0.015764
+2024-05-16 03:45:34, Top_20, Test: recall: 0.024750, ndcg: 0.017691
+2024-05-16 03:45:34, Top_40, Val:  recall: 0.032750, ndcg: 0.018013
+2024-05-16 03:45:34, Top_40, Test: recall: 0.034167, ndcg: 0.020071
+2024-05-16 03:45:34, Top_80, Val:  recall: 0.043583, ndcg: 0.020323
+2024-05-16 03:45:34, Top_80, Test: recall: 0.044667, ndcg: 0.022268
+top20 as the final evaluation standard
+epoch: 29, loss: 13.00373, item_loss: 9.09886, bundle_loss: 0.00043: 100% 55/55 [00:42<00:00,  1.30it/s]
+epoch: 30, loss: 13.14313, item_loss: 9.15112, bundle_loss: 0.00008: 100% 55/55 [00:30<00:00,  1.83it/s]
+epoch: 31, loss: 13.09177, item_loss: 9.12997, bundle_loss: 0.00456:  98% 54/55 [00:30<00:00,  2.05it/s]
+  0% 0/2 [00:00<?, ?it/s]
+ 50% 1/2 [00:04<00:04,  4.10s/it]
+100% 2/2 [00:05<00:00,  2.60s/it]
+
+  0% 0/4 [00:00<?, ?it/s]
+ 25% 1/4 [00:06<00:19,  6.40s/it]
+ 50% 2/4 [00:06<00:05,  2.90s/it]
+ 75% 3/4 [00:07<00:01,  1.77s/it]
+100% 4/4 [00:08<00:00,  2.08s/it]
+2024-05-16 03:46:49, Top_5, Val:  recall: 0.013750, ndcg: 0.011845
+2024-05-16 03:46:49, Top_5, Test: recall: 0.015958, ndcg: 0.014735
+2024-05-16 03:46:49, Top_10, Val:  recall: 0.019667, ndcg: 0.014229
+2024-05-16 03:46:49, Top_10, Test: recall: 0.020583, ndcg: 0.016563
+2024-05-16 03:46:49, Top_20, Val:  recall: 0.023167, ndcg: 0.015316
+2024-05-16 03:46:49, Top_20, Test: recall: 0.024917, ndcg: 0.017937
+2024-05-16 03:46:49, Top_40, Val:  recall: 0.032083, ndcg: 0.017600
+2024-05-16 03:46:49, Top_40, Test: recall: 0.033417, ndcg: 0.020087
+2024-05-16 03:46:49, Top_80, Val:  recall: 0.042833, ndcg: 0.019887
+2024-05-16 03:46:49, Top_80, Test: recall: 0.044083, ndcg: 0.022350
+top20 as the final evaluation standard
+epoch: 31, loss: 13.09177, item_loss: 9.12997, bundle_loss: 0.00456: 100% 55/55 [00:44<00:00,  1.22it/s]
+epoch: 32, loss: 12.99746, item_loss: 9.06129, bundle_loss: 0.00063: 100% 55/55 [00:30<00:00,  1.82it/s]
+epoch: 33, loss: 13.03490, item_loss: 9.09833, bundle_loss: 0.00000:  98% 54/55 [00:32<00:00,  2.14it/s]
+  0% 0/2 [00:00<?, ?it/s]
+ 50% 1/2 [00:02<00:02,  2.30s/it]
+100% 2/2 [00:02<00:00,  1.49s/it]
+
+  0% 0/4 [00:00<?, ?it/s]
+ 25% 1/4 [00:03<00:10,  3.61s/it]
+ 50% 2/4 [00:03<00:03,  1.71s/it]
+ 75% 3/4 [00:04<00:01,  1.09s/it]
+100% 4/4 [00:05<00:00,  1.31s/it]
+2024-05-16 03:48:02, Top_5, Val:  recall: 0.014000, ndcg: 0.011232
+2024-05-16 03:48:02, Top_5, Test: recall: 0.015583, ndcg: 0.014464
+2024-05-16 03:48:02, Top_10, Val:  recall: 0.019417, ndcg: 0.013415
+2024-05-16 03:48:02, Top_10, Test: recall: 0.019958, ndcg: 0.016224
+2024-05-16 03:48:02, Top_20, Val:  recall: 0.024000, ndcg: 0.014846
+2024-05-16 03:48:02, Top_20, Test: recall: 0.024708, ndcg: 0.017715
+2024-05-16 03:48:02, Top_40, Val:  recall: 0.031917, ndcg: 0.016836
+2024-05-16 03:48:02, Top_40, Test: recall: 0.033333, ndcg: 0.019902
+2024-05-16 03:48:02, Top_80, Val:  recall: 0.041917, ndcg: 0.018991
+2024-05-16 03:48:02, Top_80, Test: recall: 0.044042, ndcg: 0.022144
+top20 as the final evaluation standard
+epoch: 33, loss: 13.03490, item_loss: 9.09833, bundle_loss: 0.00000: 100% 55/55 [00:41<00:00,  1.32it/s]
+epoch: 34, loss: 13.02303, item_loss: 9.12552, bundle_loss: 0.00276: 100% 55/55 [00:32<00:00,  1.69it/s]
+epoch: 35, loss: 13.08041, item_loss: 9.13820, bundle_loss: 0.00000:  98% 54/55 [00:30<00:00,  2.09it/s]
+  0% 0/2 [00:00<?, ?it/s]
+ 50% 1/2 [00:04<00:04,  4.03s/it]
+100% 2/2 [00:05<00:00,  2.52s/it]
+
+  0% 0/4 [00:00<?, ?it/s]
+ 25% 1/4 [00:03<00:11,  3.73s/it]
+ 50% 2/4 [00:04<00:03,  1.75s/it]
+ 75% 3/4 [00:04<00:01,  1.11s/it]
+100% 4/4 [00:05<00:00,  1.29s/it]
+2024-05-16 03:49:17, Top_5, Val:  recall: 0.013833, ndcg: 0.011571
+2024-05-16 03:49:17, Top_5, Test: recall: 0.015958, ndcg: 0.014797
+2024-05-16 03:49:17, Top_10, Val:  recall: 0.019000, ndcg: 0.013662
+2024-05-16 03:49:17, Top_10, Test: recall: 0.019875, ndcg: 0.016377
+2024-05-16 03:49:17, Top_20, Val:  recall: 0.022833, ndcg: 0.014907
+2024-05-16 03:49:17, Top_20, Test: recall: 0.024375, ndcg: 0.017785
+2024-05-16 03:49:17, Top_40, Val:  recall: 0.032583, ndcg: 0.017358
+2024-05-16 03:49:17, Top_40, Test: recall: 0.032250, ndcg: 0.019778
+2024-05-16 03:49:17, Top_80, Val:  recall: 0.041583, ndcg: 0.019281
+2024-05-16 03:49:17, Top_80, Test: recall: 0.041875, ndcg: 0.021823
+top20 as the final evaluation standard
+epoch: 35, loss: 13.08041, item_loss: 9.13820, bundle_loss: 0.00000: 100% 55/55 [00:41<00:00,  1.33it/s]
+epoch: 36, loss: 13.05372, item_loss: 9.13832, bundle_loss: 0.00041: 100% 55/55 [00:30<00:00,  1.79it/s]
+epoch: 37, loss: 13.02999, item_loss: 9.11440, bundle_loss: 0.00000:  98% 54/55 [00:30<00:00,  2.16it/s]
+  0% 0/2 [00:00<?, ?it/s]
+ 50% 1/2 [00:04<00:04,  4.07s/it]
+100% 2/2 [00:05<00:00,  2.59s/it]
+
+  0% 0/4 [00:00<?, ?it/s]
+ 25% 1/4 [00:06<00:20,  6.80s/it]
+ 50% 2/4 [00:07<00:06,  3.07s/it]
+ 75% 3/4 [00:07<00:01,  1.88s/it]
+100% 4/4 [00:08<00:00,  2.21s/it]
+2024-05-16 03:50:33, Top_5, Val:  recall: 0.014500, ndcg: 0.011960
+2024-05-16 03:50:33, Top_5, Test: recall: 0.016167, ndcg: 0.014521
+2024-05-16 03:50:33, Top_10, Val:  recall: 0.019250, ndcg: 0.013859
+2024-05-16 03:50:33, Top_10, Test: recall: 0.020333, ndcg: 0.016130
+2024-05-16 03:50:33, Top_20, Val:  recall: 0.023083, ndcg: 0.015079
+2024-05-16 03:50:33, Top_20, Test: recall: 0.024208, ndcg: 0.017335
+2024-05-16 03:50:33, Top_40, Val:  recall: 0.031833, ndcg: 0.017280
+2024-05-16 03:50:33, Top_40, Test: recall: 0.032875, ndcg: 0.019498
+2024-05-16 03:50:33, Top_80, Val:  recall: 0.040583, ndcg: 0.019144
+2024-05-16 03:50:33, Top_80, Test: recall: 0.043667, ndcg: 0.021774
+top20 as the final evaluation standard
+epoch: 37, loss: 13.02999, item_loss: 9.11440, bundle_loss: 0.00000: 100% 55/55 [00:44<00:00,  1.22it/s]
+epoch: 38, loss: 13.05401, item_loss: 9.17929, bundle_loss: 0.00000: 100% 55/55 [00:30<00:00,  1.79it/s]
+epoch: 39, loss: 13.02795, item_loss: 9.15282, bundle_loss: 0.00005:  98% 54/55 [00:34<00:00,  2.09it/s]
+  0% 0/2 [00:00<?, ?it/s]
+ 50% 1/2 [00:02<00:02,  2.44s/it]
+100% 2/2 [00:03<00:00,  1.57s/it]
+
+  0% 0/4 [00:00<?, ?it/s]
+ 25% 1/4 [00:03<00:10,  3.66s/it]
+ 50% 2/4 [00:04<00:03,  1.72s/it]
+ 75% 3/4 [00:04<00:01,  1.10s/it]
+100% 4/4 [00:05<00:00,  1.27s/it]
+2024-05-16 03:51:48, Top_5, Val:  recall: 0.014250, ndcg: 0.012555
+2024-05-16 03:51:48, Top_5, Test: recall: 0.015875, ndcg: 0.014342
+2024-05-16 03:51:48, Top_10, Val:  recall: 0.019500, ndcg: 0.014664
+2024-05-16 03:51:48, Top_10, Test: recall: 0.020208, ndcg: 0.016064
+2024-05-16 03:51:48, Top_20, Val:  recall: 0.022167, ndcg: 0.015518
+2024-05-16 03:51:48, Top_20, Test: recall: 0.024125, ndcg: 0.017276
+2024-05-16 03:51:48, Top_40, Val:  recall: 0.030667, ndcg: 0.017672
+2024-05-16 03:51:48, Top_40, Test: recall: 0.032208, ndcg: 0.019304
+2024-05-16 03:51:48, Top_80, Val:  recall: 0.040583, ndcg: 0.019784
+2024-05-16 03:51:48, Top_80, Test: recall: 0.042500, ndcg: 0.021481
+top20 as the final evaluation standard
+epoch: 39, loss: 13.02795, item_loss: 9.15282, bundle_loss: 0.00005: 100% 55/55 [00:42<00:00,  1.29it/s]
+epoch: 40, loss: 13.12149, item_loss: 9.17981, bundle_loss: 0.02764: 100% 55/55 [00:31<00:00,  1.75it/s]
+epoch: 41, loss: 12.86348, item_loss: 9.04318, bundle_loss: 0.00012:  98% 54/55 [00:30<00:00,  2.12it/s]
+  0% 0/2 [00:00<?, ?it/s]
+ 50% 1/2 [00:03<00:03,  3.57s/it]
+100% 2/2 [00:04<00:00,  2.32s/it]
+
+  0% 0/4 [00:00<?, ?it/s]
+ 25% 1/4 [00:05<00:15,  5.31s/it]
+ 50% 2/4 [00:05<00:04,  2.40s/it]
+ 75% 3/4 [00:06<00:01,  1.47s/it]
+100% 4/4 [00:06<00:00,  1.68s/it]
+2024-05-16 03:53:02, Top_5, Val:  recall: 0.014000, ndcg: 0.012545
+2024-05-16 03:53:02, Top_5, Test: recall: 0.015750, ndcg: 0.014262
+2024-05-16 03:53:02, Top_10, Val:  recall: 0.019250, ndcg: 0.014669
+2024-05-16 03:53:02, Top_10, Test: recall: 0.019708, ndcg: 0.015830
+2024-05-16 03:53:02, Top_20, Val:  recall: 0.022667, ndcg: 0.015749
+2024-05-16 03:53:02, Top_20, Test: recall: 0.024000, ndcg: 0.017192
+2024-05-16 03:53:02, Top_40, Val:  recall: 0.029667, ndcg: 0.017531
+2024-05-16 03:53:02, Top_40, Test: recall: 0.031958, ndcg: 0.019222
+2024-05-16 03:53:02, Top_80, Val:  recall: 0.040500, ndcg: 0.019830
+2024-05-16 03:53:02, Top_80, Test: recall: 0.042708, ndcg: 0.021485
+top20 as the final evaluation standard
+epoch: 41, loss: 12.86348, item_loss: 9.04318, bundle_loss: 0.00012: 100% 55/55 [00:41<00:00,  1.31it/s]
+epoch: 42, loss: 12.87012, item_loss: 9.07927, bundle_loss: 0.00000: 100% 55/55 [00:30<00:00,  1.79it/s]
+epoch: 43, loss: 12.96839, item_loss: 9.12166, bundle_loss: 0.00519:  98% 54/55 [00:30<00:00,  2.17it/s]
+  0% 0/2 [00:00<?, ?it/s]
+ 50% 1/2 [00:03<00:03,  3.24s/it]
+100% 2/2 [00:04<00:00,  2.15s/it]
+
+  0% 0/4 [00:00<?, ?it/s]
+ 25% 1/4 [00:06<00:20,  6.81s/it]
+ 50% 2/4 [00:07<00:06,  3.06s/it]
+ 75% 3/4 [00:07<00:01,  1.87s/it]
+100% 4/4 [00:08<00:00,  2.19s/it]
+2024-05-16 03:54:17, Top_5, Val:  recall: 0.014417, ndcg: 0.012506
+2024-05-16 03:54:17, Top_5, Test: recall: 0.015375, ndcg: 0.013905
+2024-05-16 03:54:17, Top_10, Val:  recall: 0.019333, ndcg: 0.014466
+2024-05-16 03:54:17, Top_10, Test: recall: 0.019292, ndcg: 0.015487
+2024-05-16 03:54:17, Top_20, Val:  recall: 0.022167, ndcg: 0.015362
+2024-05-16 03:54:17, Top_20, Test: recall: 0.023542, ndcg: 0.016853
+2024-05-16 03:54:17, Top_40, Val:  recall: 0.029750, ndcg: 0.017290
+2024-05-16 03:54:17, Top_40, Test: recall: 0.030958, ndcg: 0.018730
+2024-05-16 03:54:17, Top_80, Val:  recall: 0.041250, ndcg: 0.019736
+2024-05-16 03:54:17, Top_80, Test: recall: 0.042292, ndcg: 0.021109
+top20 as the final evaluation standard
+epoch: 43, loss: 12.96839, item_loss: 9.12166, bundle_loss: 0.00519: 100% 55/55 [00:43<00:00,  1.25it/s]
+epoch: 44, loss: 12.99405, item_loss: 9.11360, bundle_loss: 0.00000: 100% 55/55 [00:30<00:00,  1.80it/s]
+epoch: 45, loss: 12.94750, item_loss: 9.08728, bundle_loss: 0.00000:  98% 54/55 [00:32<00:00,  2.15it/s]
+  0% 0/2 [00:00<?, ?it/s]
+ 50% 1/2 [00:02<00:02,  2.22s/it]
+100% 2/2 [00:02<00:00,  1.44s/it]
+
+  0% 0/4 [00:00<?, ?it/s]
+ 25% 1/4 [00:03<00:11,  3.83s/it]
+ 50% 2/4 [00:04<00:03,  1.81s/it]
+ 75% 3/4 [00:04<00:01,  1.18s/it]
+100% 4/4 [00:05<00:00,  1.41s/it]
+2024-05-16 03:55:30, Top_5, Val:  recall: 0.014000, ndcg: 0.012706
+2024-05-16 03:55:30, Top_5, Test: recall: 0.015583, ndcg: 0.014088
+2024-05-16 03:55:30, Top_10, Val:  recall: 0.020000, ndcg: 0.015084
+2024-05-16 03:55:30, Top_10, Test: recall: 0.020208, ndcg: 0.015939
+2024-05-16 03:55:30, Top_20, Val:  recall: 0.023000, ndcg: 0.016048
+2024-05-16 03:55:30, Top_20, Test: recall: 0.024542, ndcg: 0.017287
+2024-05-16 03:55:30, Top_40, Val:  recall: 0.030167, ndcg: 0.017848
+2024-05-16 03:55:30, Top_40, Test: recall: 0.031667, ndcg: 0.019085
+2024-05-16 03:55:30, Top_80, Val:  recall: 0.041000, ndcg: 0.020144
+2024-05-16 03:55:30, Top_80, Test: recall: 0.042542, ndcg: 0.021364
+top20 as the final evaluation standard
+epoch: 45, loss: 12.94750, item_loss: 9.08728, bundle_loss: 0.00000: 100% 55/55 [00:41<00:00,  1.32it/s]
+epoch: 46, loss: 13.01444, item_loss: 9.15689, bundle_loss: 0.00057: 100% 55/55 [00:33<00:00,  1.62it/s]
+epoch: 47, loss: 12.97476, item_loss: 9.12487, bundle_loss: 0.00026:  98% 54/55 [00:30<00:00,  2.08it/s]
+  0% 0/2 [00:00<?, ?it/s]
+ 50% 1/2 [00:02<00:02,  2.72s/it]
+100% 2/2 [00:03<00:00,  1.69s/it]
+
+  0% 0/4 [00:00<?, ?it/s]
+ 25% 1/4 [00:03<00:10,  3.63s/it]
+ 50% 2/4 [00:03<00:03,  1.71s/it]
+ 75% 3/4 [00:04<00:01,  1.09s/it]
+100% 4/4 [00:05<00:00,  1.26s/it]
+2024-05-16 03:56:45, Top_5, Val:  recall: 0.014333, ndcg: 0.012594
+2024-05-16 03:56:45, Top_5, Test: recall: 0.015583, ndcg: 0.014090
+2024-05-16 03:56:45, Top_10, Val:  recall: 0.019667, ndcg: 0.014694
+2024-05-16 03:56:45, Top_10, Test: recall: 0.020000, ndcg: 0.015856
+2024-05-16 03:56:45, Top_20, Val:  recall: 0.023417, ndcg: 0.015873
+2024-05-16 03:56:45, Top_20, Test: recall: 0.024167, ndcg: 0.017177
+2024-05-16 03:56:45, Top_40, Val:  recall: 0.029917, ndcg: 0.017505
+2024-05-16 03:56:45, Top_40, Test: recall: 0.031500, ndcg: 0.019044
+2024-05-16 03:56:45, Top_80, Val:  recall: 0.041000, ndcg: 0.019835
+2024-05-16 03:56:45, Top_80, Test: recall: 0.041542, ndcg: 0.021153
+top20 as the final evaluation standard
+epoch: 47, loss: 12.97476, item_loss: 9.12487, bundle_loss: 0.00026: 100% 55/55 [00:39<00:00,  1.39it/s]
+epoch: 48, loss: 13.02145, item_loss: 9.12640, bundle_loss: 0.01721: 100% 55/55 [00:31<00:00,  1.77it/s]
+epoch: 49, loss: 12.94502, item_loss: 9.10237, bundle_loss: 0.00106:  98% 54/55 [00:30<00:00,  2.17it/s]
+  0% 0/2 [00:00<?, ?it/s]
+ 50% 1/2 [00:03<00:03,  3.44s/it]
+100% 2/2 [00:04<00:00,  2.24s/it]
+
+  0% 0/4 [00:00<?, ?it/s]
+ 25% 1/4 [00:06<00:20,  6.75s/it]
+ 50% 2/4 [00:07<00:06,  3.08s/it]
+ 75% 3/4 [00:07<00:01,  1.91s/it]
+100% 4/4 [00:08<00:00,  2.23s/it]
+2024-05-16 03:58:01, Top_5, Val:  recall: 0.014167, ndcg: 0.012687
+2024-05-16 03:58:01, Top_5, Test: recall: 0.015667, ndcg: 0.014175
+2024-05-16 03:58:01, Top_10, Val:  recall: 0.018500, ndcg: 0.014394
+2024-05-16 03:58:01, Top_10, Test: recall: 0.020250, ndcg: 0.015987
+2024-05-16 03:58:01, Top_20, Val:  recall: 0.024083, ndcg: 0.016167
+2024-05-16 03:58:01, Top_20, Test: recall: 0.024792, ndcg: 0.017371
+2024-05-16 03:58:01, Top_40, Val:  recall: 0.030333, ndcg: 0.017735
+2024-05-16 03:58:01, Top_40, Test: recall: 0.032250, ndcg: 0.019245
+2024-05-16 03:58:01, Top_80, Val:  recall: 0.041250, ndcg: 0.020004
+2024-05-16 03:58:01, Top_80, Test: recall: 0.041625, ndcg: 0.021220
+top20 as the final evaluation standard
+epoch: 49, loss: 12.94502, item_loss: 9.10237, bundle_loss: 0.00106: 100% 55/55 [00:44<00:00,  1.24it/s]
+2024-05-16 03:58:04.930565: E external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:9261] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+2024-05-16 03:58:04.930615: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:607] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+2024-05-16 03:58:04.932010: E external/local_xla/xla/stream_executor/cuda/cuda_blas.cc:1515] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+2024-05-16 03:58:04.939240: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2024-05-16 03:58:05.972535: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+load config file done!
+Train: 200
+Val/Test: 121
+Val/Test: 121
+/usr/local/lib/python3.10/dist-packages/torch/utils/data/dataloader.py:558: UserWarning: This DataLoader will create 10 worker processes in total. Our suggested max number of worker in current system is 2, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  warnings.warn(_create_warning_msg(
+/usr/local/lib/python3.10/dist-packages/torch/utils/data/dataloader.py:558: UserWarning: This DataLoader will create 20 worker processes in total. Our suggested max number of worker in current system is 2, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  warnings.warn(_create_warning_msg(
+{'data_path': '/content/drive/MyDrive/datasets/', 'batch_size_train': 256, 'batch_size_test': 256, 'topk': [10, 20, 40, 80], 'neg_num': 1, 'embedding_sizes': [64], 'num_layerss': [1], 'lrs': [0.001], 'l2_regs': [1e-05], 'epochs': 100, 'test_interval': 2, 'gpu': '0', 'dataset': 'spotify', 'model': 'CLHE', 'info': '', 'lr': 0.001, 'reg': 1e-05, 'item_augment': 'MD', 'bundle_ratio': 0.05, 'bundle_augment': 'ID', 'dropout_rate': 0.2, 'noise_weight': 0.02, 'cl_temp': 0.05, 'cl_alpha': 0.1, 'bundle_cl_temp': 0.2, 'bundle_cl_alpha': 0.5, 'attention': '', 'trans_layer': 1, 'num_token': 200, 'seed': 2023, 'epoch': -1, 'device': device(type='cuda', index=0), 'num_users': 118994, 'num_bundles': 20000, 'num_items': 254155, 'l2_reg': 1e-05, 'embedding_size': 64, 'num_layers': 1}
+/usr/local/lib/python3.10/dist-packages/torch/utils/data/dataloader.py:558: UserWarning: This DataLoader will create 10 worker processes in total. Our suggested max number of worker in current system is 2, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  warnings.warn(_create_warning_msg(
+/usr/lib/python3.10/multiprocessing/popen_fork.py:66: RuntimeWarning: os.fork() was called. os.fork() is incompatible with multithreaded code, and JAX is multithreaded, so this will likely lead to a deadlock.
+  self.pid = os.fork()
+  0% 0/55 [00:00<?, ?it/s]run.sh: line 7: 29348 Killed                  python3 -u train.py -g 0 --dataset="spotify" --model="CLHE" --item_augment="MD" --bundle_augment="ID" --bundle_ratio=0.05 --bundle_cl_temp=0.2 --bundle_cl_alpha=0.5 --cl_temp=0.05 --cl_alpha=0.1
+2024-05-16 04:00:19.314245: E external/local_xla/xla/stream_executor/cuda/cuda_dnn.cc:9261] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+2024-05-16 04:00:19.314292: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:607] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+2024-05-16 04:00:19.320893: E external/local_xla/xla/stream_executor/cuda/cuda_blas.cc:1515] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+2024-05-16 04:00:19.339308: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2024-05-16 04:00:21.470880: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+load config file done!
+Train: 200
+Val/Test: 118
+Val/Test: 117
+/usr/local/lib/python3.10/dist-packages/torch/utils/data/dataloader.py:558: UserWarning: This DataLoader will create 10 worker processes in total. Our suggested max number of worker in current system is 2, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  warnings.warn(_create_warning_msg(
+/usr/local/lib/python3.10/dist-packages/torch/utils/data/dataloader.py:558: UserWarning: This DataLoader will create 20 worker processes in total. Our suggested max number of worker in current system is 2, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  warnings.warn(_create_warning_msg(
+{'data_path': '/content/drive/MyDrive/datasets/', 'batch_size_train': 256, 'batch_size_test': 256, 'topk': [10, 20, 40, 80], 'neg_num': 1, 'embedding_sizes': [64], 'num_layerss': [1], 'lrs': [0.001], 'l2_regs': [1e-05], 'epochs': 100, 'test_interval': 2, 'gpu': '0', 'dataset': 'spotify_sparse', 'model': 'CLHE', 'info': '', 'lr': 0.001, 'reg': 1e-05, 'item_augment': 'MD', 'bundle_ratio': 0.05, 'bundle_augment': 'ID', 'dropout_rate': 0.2, 'noise_weight': 0.02, 'cl_temp': 0.2, 'cl_alpha': 0.1, 'bundle_cl_temp': 1.0, 'bundle_cl_alpha': 1.0, 'attention': '', 'trans_layer': 1, 'num_token': 200, 'seed': 2023, 'epoch': -1, 'device': device(type='cuda', index=0), 'num_users': 118899, 'num_bundles': 12486, 'num_items': 213325, 'l2_reg': 1e-05, 'embedding_size': 64, 'num_layers': 1}
+/usr/local/lib/python3.10/dist-packages/torch/utils/data/dataloader.py:558: UserWarning: This DataLoader will create 10 worker processes in total. Our suggested max number of worker in current system is 2, which is smaller than what this DataLoader is going to create. Please be aware that excessive worker creation might get DataLoader running slow or even freeze, lower the worker number to avoid potential slowness/freeze if necessary.
+  warnings.warn(_create_warning_msg(
+/usr/lib/python3.10/multiprocessing/popen_fork.py:66: RuntimeWarning: os.fork() was called. os.fork() is incompatible with multithreaded code, and JAX is multithreaded, so this will likely lead to a deadlock.
+  self.pid = os.fork()
+  0% 0/35 [00:00<?, ?it/s]ERROR: Unexpected bus error encountered in worker. This might be caused by insufficient shared memory (shm).
+ ERROR: Unexpected bus error encountered in worker. This might be caused by insufficient shared memory (shm).
+ ERROR: Unexpected bus error encountered in worker. This might be caused by insufficient shared memory (shm).
+ ERROR: Unexpected bus error encountered in worker. This might be caused by insufficient shared memory (shm).
+ ERROR: Unexpected bus error encountered in worker. This might be caused by insufficient shared memory (shm).
+ ERROR: Unexpected bus error encountered in worker. This might be caused by insufficient shared memory (shm).
+ ERROR: Unexpected bus error encountered in worker. This might be caused by insufficient shared memory (shm).
+ ERROR: Unexpected bus error encountered in worker. This might be caused by insufficient shared memory (shm).
+ ERROR: Unexpected bus error encountered in worker. This might be caused by insufficient shared memory (shm).
+ ERROR: Unexpected bus error encountered in worker. This might be caused by insufficient shared memory (shm).
+  0% 0/35 [00:12<?, ?it/s]
+Traceback (most recent call last):
+  File "/content/CLHE/train.py", line 360, in <module>
+    main()
+  File "/content/CLHE/train.py", line 167, in main
+    losses = model(batch)
+  File "/usr/local/lib/python3.10/dist-packages/torch/nn/modules/module.py", line 1511, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/usr/local/lib/python3.10/dist-packages/torch/nn/modules/module.py", line 1520, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/content/CLHE/models/CLHE.py", line 260, in forward
+    feat_bundle_view = self.encoder(seq_full)  # [bs, n_token, d]
+  File "/usr/local/lib/python3.10/dist-packages/torch/nn/modules/module.py", line 1511, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/usr/local/lib/python3.10/dist-packages/torch/nn/modules/module.py", line 1520, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/content/CLHE/models/CLHE.py", line 160, in forward
+    seq_modify.masked_fill_(modify_mask, 0)
+  File "/usr/local/lib/python3.10/dist-packages/torch/utils/data/_utils/signal_handling.py", line 66, in handler
+    _error_if_any_worker_fails()
+RuntimeError: DataLoader worker (pid 30325) is killed by signal: Bus error. It is possible that dataloader's workers are out of shared memory. Please try to raise your shared memory limit.
