@@ -3,6 +3,133 @@ import torch.nn.functional as F
 from torch_geometric.nn import GATConv
 import torch.optim as optim
 
+
+#Getting the data
+pairs = []
+
+with open("/kaggle/input/clhe-pog/pog/ui_full.txt", 'r') as f:
+    for line in f:
+        # Split the line into bundle ID and item IDs
+        ids = list(map(int, line.strip().split(',')))
+        user_id = ids[0]
+        item_ids = ids[1:]
+
+        # Create pairs of bundle_id and each item_id
+        for item_id in item_ids:
+            pairs.append([user_id, item_id])
+#     pairs = list(set(pairs))
+#     Extract the first two integers from each line for indices
+    indices = np.array([[pair[0], pair[1]] for pair in pairs], dtype=np.int32)
+    values = np.ones(len(pairs), dtype=np.float32)
+
+    u_i_graph = sp.coo_matrix(
+        (values, (indices[:, 0], indices[:, 1])), shape=(x, y)).tocsr()
+
+u_i_pairs =[]
+x= 17449
+y = 48676
+def get_ui():
+    with open("/kaggle/input/clhe-pog/pog/ui_full.txt", 'r') as f:
+        for line in f:
+            # Split the line into bundle ID and item IDs
+            ids = list(map(int, line.strip().split(',')))
+            user_id = ids[0]
+            item_ids = ids[1:]
+
+            # Create pairs of bundle_id and each item_id
+            for item_id in item_ids:
+                u_i_pairs.append((user_id, item_id))
+        pairs = list(set(u_i_pairs))
+    #     Extract the first two integers from each line for indices
+        indices = np.array([[pair[0], pair[1]] for pair in u_i_pairs], dtype=np.int32)
+        values = np.ones(len(u_i_pairs), dtype=np.float32)
+
+    u_i_graph = sp.coo_matrix(
+        (values, (indices[:, 0], indices[:, 1])), shape=(x, y)).tocsr()
+
+    return u_i_pairs, u_i_graph
+u_i_pairs, ui_graph = get_ui()
+
+       
+def laplace_transform(graph):
+    rowsum_sqrt = sp.diags(1 / (np.sqrt(graph.sum(axis=1).A.ravel()) + 1e-8))
+    colsum_sqrt = sp.diags(1 / (np.sqrt(graph.sum(axis=0).A.ravel()) + 1e-8))
+    graph = rowsum_sqrt @ graph @ colsum_sqrt
+
+    return graph
+def to_tensor(graph):
+    graph = graph.tocoo()
+    values = graph.data
+    indices = np.vstack((graph.row, graph.col))
+    graph = torch.sparse.FloatTensor(torch.LongTensor(indices), torch.FloatTensor(values), torch.Size(graph.shape))
+
+    return graph
+
+def get_item_level_graph_ori():
+        item_level_graph = sp.bmat([[sp.csr_matrix((ui_graph.shape[0], ui_graph.shape[0])), ui_graph],
+                                    [ui_graph.T, sp.csr_matrix((ui_graph.shape[1], ui_graph.shape[1]))]])
+        item_level_graph_ori = to_tensor(laplace_transform(item_level_graph))
+        return item_level_graph_ori
+
+graph = graph.coalesce()
+uigraph = to_tensor(ui_graph)
+uigraph = uigraph.coalesce()
+uigraph.shape
+
+ui_tensor = torch.sparse_coo_tensor(uigraph.indices(), uigraph.values(), uigraph.shape)
+ui_tensor = ui_tensor.to_dense()
+uigraph.values().shape
+
+from torch_geometric.data import Data, DataLoader
+import torch.optim as optim
+# model = GAT(in_channels=64, out_channels=64, heads=2,concat=False)
+class Model(nn.Module):
+    def __init__(self, in_channels, out_channels, heads):
+        super().__init__()
+        self.GAT = GATConv(in_channels=64, out_channels=64, heads=2)
+        self.users_feature = nn.Parameter(torch.FloatTensor(x, 64))
+        nn.init.xavier_normal_(users_feature)
+        self.items_feature = nn.Parameter(torch.FloatTensor(y, 64))
+        nn.init.xavier_normal_(items_feature)
+        
+        
+    def forward(self, edge_index):
+        ui_feat = torch.cat([self.users_feature,self.items_feature], dim = 0)
+        return self.GAT(ui_feat, edge_index)
+    def get_ui(self):
+        return self.users_feature, self.items_feature
+
+criterion = torch.nn.MSELoss()
+model = Model(in_channels=64, out_channels=64, heads=2)
+optimizer = optim.Adam(model.parameters(), lr=0.005, weight_decay=5e-4)
+
+uigraph.indices().max()
+
+def train():
+    model.train()
+    total_loss = 0 
+#     for batch in loader:
+    optimizer.zero_grad()
+    print(ui_feat.shape, uigraph.indices().shape)
+    print(uigraph.indices())
+    out = model(torch.tensor(uigraph.indices()))
+    # Compute the loss using only the edges in the edge_index
+    loss = criterion(out[uigraph.indices()[1]], uigraph.values().view(-1, 1))
+    loss.backward()
+    optimizer.step()
+    total_loss += loss.item()
+    return total_loss
+#     return total_loss / len(loader)
+
+# Train the model for a number of epochs
+num_epochs = 200
+for epoch in range(1, num_epochs + 1):
+    loss = train()
+    if epoch % 5 == 0:
+        print(f'Epoch {epoch}, Loss: {loss:.4f}')
+
+
+### Running GAT in kaggle
 class GAT(MessagePassing):
     def __init__ (
         self,
