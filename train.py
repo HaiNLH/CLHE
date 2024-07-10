@@ -167,7 +167,7 @@ def main():
             losses = model(batch)
 
             losses['loss'].backward(retain_graph=False)
-            optimizer.step()
+            optimizer.step()                    
 
             for l in losses:
                 if l not in avg_losses:
@@ -178,7 +178,7 @@ def main():
             pbar.set_description("epoch: %d, " % (epoch) +
                                  ", ".join([
                                      "%s: %.5f" % (l, losses[l].detach()) for l in losses
-                                 ]))
+                                    ]))
 
             if (batch_anchor+1) % test_interval_bs == 0:
                 metrics = {}

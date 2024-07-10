@@ -1,0 +1,5 @@
+chỗ e mũ, e ngã check lại 
+- modality fusion: có thể thay đoạn này
+self-attention
+- self-attention cho từng item trong bundle
+- data có thường có category, `

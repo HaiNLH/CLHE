@@ -1,0 +1,2 @@
+- cần image resampling lại 
+- báo 2-3 nhóm đầu, dùng thư viện 

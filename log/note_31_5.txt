@@ -1,0 +1,17 @@
+Review:
+- Review lại abstract
+ - Phần Experiment hỗn loạn:
+	+ Cite của figure còn bị sai
+	+ Tại sao ko cho top 10 DGMAE
+	+ Sửa lại công thức, simplify công thức 
+- Significance test chưa có?
+
+- Bundle construction:
+	+ Che ngẫu nhiên (số lượng item) trong một bundle 
+	+ reconstruct ngẫu nhiên, keywword: arbitrary
+- Slide hệ thống lại:
+	+ các thông tin report từ trước đến giờ
+	+ Cần xem lại data
+	+ Sử dụng bộ data polyvore
+- iFashion: 
+	
