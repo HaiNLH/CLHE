@@ -141,14 +141,15 @@ class HierachicalEncoder(nn.Module):
         features.append(self.item_embeddings)
 
         ##---Remove CF feature from UI
-        # cf_feature_full = self.cf_transformation(self.cf_feature)
-        # cf_feature_full[self.cold_indices_cf] = mm_feature_full[self.cold_indices_cf]
-        # features.append(cf_feature_full)
+        cf_feature_full = self.cf_transformation(self.cf_feature)
+        cf_feature_full[self.cold_indices_cf] = mm_feature_full[self.cold_indices_cf]
+        features.append(cf_feature_full)
 
         features = torch.stack(features, dim=-2)  # [bs, #modality, d]
 
         # multimodal fusion >>>
-        final_feature = self.selfAttention(F.normalize(features, dim=-1))
+        final_feature = F.normalize(features, dim=-1).mean(dim=-2)
+        # final_feature = self.selfAttention(F.normalize(features, dim=-1))
         # multimodal fusion <<<
 
         return final_feature
@@ -172,18 +173,20 @@ class HierachicalEncoder(nn.Module):
         features.append(bi_feature)
 
         #---Remove CF feature from UI
-        # cf_feature_full = self.cf_transformation(self.cf_feature)
-        # cf_feature_full[self.cold_indices_cf] = mm_feature_full[self.cold_indices_cf]
-        # cf_feature = cf_feature_full[seq_modify]
-        # features.append(cf_feature)
+        cf_feature_full = self.cf_transformation(self.cf_feature)
+        cf_feature_full[self.cold_indices_cf] = mm_feature_full[self.cold_indices_cf]
+        cf_feature = cf_feature_full[seq_modify]
+        features.append(cf_feature)
 
         features = torch.stack(features, dim=-2)  # [bs, n_token, #modality, d]
         bs, n_token, N_modal, d = features.shape
 
         # multimodal fusion >>>
-        final_feature = self.selfAttention(
-            F.normalize(features.view(-1, N_modal, d), dim=-1))
+        final_feature = F.normalize(features.view(-1, N_modal, d), dim=-1).mean(dim=-2)
         final_feature = final_feature.view(bs, n_token, d)
+        # final_feature = self.selfAttention(
+        #     F.normalize(features.view(-1, N_modal, d), dim=-1))
+        # final_feature = final_feature.view(bs, n_token, d)
         # multimodal fusion <<<
 
         return final_feature
@@ -210,9 +213,9 @@ class HierachicalEncoder(nn.Module):
             mask_bool = random_tensor < dropout_ratio  # the remainders are true
             masked_feat = features.masked_fill(mask_bool.unsqueeze(-1), 0)
 
-            # multimodal fusion >>>
-            final_feature = self.selfAttention(
-                F.normalize(masked_feat, dim=-1))
+            final_feature = F.normalize(masked_feat, dim=-1).mean(dim=-2)
+            # final_feature = self.selfAttention(
+            #     F.normalize(masked_feat, dim=-1))
             # multimodal fusion <<<
             return final_feature
 
