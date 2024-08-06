@@ -148,9 +148,11 @@ class Datasets():
         batch_size_train = conf['batch_size_train']
         batch_size_test = conf['batch_size_test']
 
-        self.num_users, self.num_bundles, self.num_items = self.get_data_size()
+        self.num_users, self.num_bundles, self.num_items, self.num_cates= self.get_data_size()
 
         u_i_pairs, u_i_graph = self.get_ui()
+        i_c_pairs, i_c_graph = self.get_ic()
+        print("get graph ic successed")
 
         b_i_pairs_train, b_i_graph_train = self.get_bi_train()
         b_i_pairs_val_i, b_i_graph_val_i, b_i_pairs_val_gt, b_i_graph_val_gt = self.get_bi(
@@ -164,7 +166,7 @@ class Datasets():
             [b_i_pairs_train, b_i_pairs_val_i, b_i_pairs_test_i],
             shape=(self.num_bundles, self.num_items),
             tag="BI(seen)")
-        self.graphs = [u_i_graph, b_i_graph_train, b_i_graph_seen]
+        self.graphs = [u_i_graph, b_i_graph_train, b_i_graph_seen, i_c_graph]
 
         self.features = self.get_features()
 
@@ -197,7 +199,7 @@ class Datasets():
             name = name.split("_")[0]
         with open(os.path.join(self.path, self.name, 'count.json'), 'r') as f:
             self.stat = json.loads(f.read())
-        return self.stat["#U"], self.stat["#B"], self.stat["#I"]
+        return self.stat["#U"], self.stat["#B"], self.stat["#I"], self.stat["#C"]
 
     def get_features(self):
         try:
@@ -226,7 +228,16 @@ class Datasets():
             (values, (indice[:, 0], indice[:, 1])), shape=(self.num_users, self.num_items))
 
         return u_i_pairs, u_i_graph
+    
+    def get_ic(self):
+        i_c_pairs = list2pairs(os.path.join(self.path, self.name, 'item_cate.txt'))
 
+        indice = np.array(i_c_pairs, dtype=np.int32)
+        values = np.ones(len(i_c_pairs), dtype=np.float32)
+        i_c_graph = sp.csr_matrix(
+            (values, (indice[:, 0], indice[:, 1])), shape=(self.num_items, self.num_cates))
+
+        return i_c_pairs, i_c_graph
     def get_bi_train(self):
 
         b_i_pairs = list2pairs(os.path.join(self.path, self.name, 'bi_train.txt'))

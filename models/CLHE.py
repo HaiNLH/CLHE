@@ -44,7 +44,7 @@ class HierachicalEncoder(nn.Module):
         self.num_user = self.conf["num_users"]
         self.num_bundle = self.conf["num_bundles"]
         self.num_item = self.conf["num_items"]
-        self.num_cate = self.conf["num_cate"]
+        self.num_cate = self.conf["num_cates"]
         self.embedding_size = 64
         self.ui_graph, self.bi_graph_train, self.bi_graph_seen, self.ic_graph = raw_graph
         print(self.ic_graph)
