@@ -229,7 +229,7 @@ class CLHE(nn.Module):
         self.num_bundle = self.conf["num_bundles"]
         self.num_item = self.conf["num_items"]
         self.embedding_size = 64
-        self.ui_graph, self.bi_graph_train, self.bi_graph_seen = raw_graph
+        self.ui_graph, self.bi_graph_train, self.bi_graph_seen, self.ic_graph= raw_graph
         self.item_augmentation = self.conf["item_augment"]
 
         self.encoder = HierachicalEncoder(conf, raw_graph, features)
