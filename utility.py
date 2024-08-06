@@ -153,7 +153,7 @@ class Datasets():
         u_i_pairs, u_i_graph = self.get_ui()
         i_c_pairs, i_c_graph = self.get_ic()
         print("get graph ic successed")
-
+        print(i_c_graph)
         b_i_pairs_train, b_i_graph_train = self.get_bi_train()
         b_i_pairs_val_i, b_i_graph_val_i, b_i_pairs_val_gt, b_i_graph_val_gt = self.get_bi(
             "valid")
