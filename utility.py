@@ -174,9 +174,9 @@ class Datasets():
             conf, b_i_pairs_train, b_i_graph_train, self.features, self.num_bundles, b_i_for_neg_sample, b_b_for_neg_sample, conf["neg_num"])
 
         self.bundle_val_data = BundleTestDataset(conf, b_i_pairs_val_i, b_i_graph_val_i, b_i_pairs_val_gt, b_i_graph_val_gt,
-                                                 self.num_bundles, self.num_items, self.num_cates)
+                                                 self.num_bundles, self.num_items)
         self.bundle_test_data = BundleTestDataset(conf, b_i_pairs_test_i, b_i_graph_test_i, b_i_pairs_test_gt, b_i_graph_test_gt,
-                                                  self.num_bundles, self.num_items, self.num_cates)
+                                                  self.num_bundles, self.num_items)
 
         self.train_loader = DataLoader(
             self.bundle_train_data, batch_size=batch_size_train, shuffle=True, num_workers=10)
@@ -199,6 +199,7 @@ class Datasets():
             name = name.split("_")[0]
         with open(os.path.join(self.path, self.name, 'count.json'), 'r') as f:
             self.stat = json.loads(f.read())
+        print(self.stat["#U"], self.stat["#B"], self.stat["#I"], self.stat["#C"])
         return self.stat["#U"], self.stat["#B"], self.stat["#I"], self.stat["#C"]
 
     def get_features(self):
