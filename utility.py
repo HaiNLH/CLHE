@@ -237,7 +237,7 @@ class Datasets():
         values = np.ones(len(i_c_pairs), dtype=np.float32)
         i_c_graph = sp.csr_matrix(
             (values, (indice[:, 0], indice[:, 1])), shape=(self.num_items, self.num_cates))
-
+        print(i_c_pairs)
         return i_c_pairs, i_c_graph
     def get_bi_train(self):
 
