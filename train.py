@@ -94,7 +94,7 @@ def main():
     conf["num_users"] = dataset.num_users
     conf["num_bundles"] = dataset.num_bundles
     conf["num_items"] = dataset.num_items
-    conf["num-cate"] = dataset.num_cates
+    conf["num_cates"] = dataset.num_cates
 
     lr = paras['lr'] if "lr" in paras else conf['lrs'][0]
     l2_reg = paras['reg'] if "reg" in paras else conf['l2_regs'][0]
