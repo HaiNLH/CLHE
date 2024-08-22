@@ -290,7 +290,7 @@ class CLHE(nn.Module):
                     item_features.view(-1, self.embedding_size), item_features.view(-1, self.embedding_size), self.cl_temp)
             elif self.item_augmentation == "FN":
                 item_ft = self.encoder(batch, all=True)
-                tmp = BunCa(self.conf, self.raw_graph, item_ft).propagate()
+                _,tmp = BunCa(self.conf, self.raw_graph, item_ft).propagate()
                 item_features = tmp[items_in_batch]
                 sub1 = self.cl_projector(
                     self.noise_weight * torch.randn_like(item_features) + item_features)
@@ -388,9 +388,7 @@ class BunCa(nn.Module):
         self.num_items = conf["num_items"]
         self.num_cates = conf["num_cates"]
         self.items_feat = items_feat
-        self.contrast_weight = conf['contrast_weight']
-        self.extra_layer = conf["extra_layer"]
-        self.hyper_threshold = conf["hyperth"]
+
 
         self.ui_graph, self.bi_graph_train, self.bi_graph_seen, self.ic_graph= raw_graph
         self.bc_graph = self.bi_graph_train@self.ic_graph
@@ -434,6 +432,7 @@ class BunCa(nn.Module):
                                     [bi_graph, ii_graph]])
         
         self.item_level_graph = to_tensor(laplace_transform(item_level_graph)).to(device)
+        return self.item_level_graph
     def get_item_level_graph_ori(self, threshold):
         bi_graph_seen = self.bi_graph_seen
         device = self.device
@@ -444,6 +443,7 @@ class BunCa(nn.Module):
                                     [bi_graph_seen, ii_graph]])
         
         self.item_level_graph_ori = to_tensor(laplace_transform(item_level_graph)).to(device)
+        return self.item_level_graph_ori
 
     def get_item_agg_graph(self):
         ic_graph = self.ic_graph
@@ -498,7 +498,7 @@ class BunCa(nn.Module):
         # if test:
         #     CL_bundles_feature, CL_cates_feature = self.one_propagate(self.cate_level_graph, self.bundles_feature, self.cates_feature, self.item_level_dropout, test)
         # else:
-        CL_bundles_feature, CL_cates_feature = self.one_propagate(self.cate_level_graph, self.bundles_feature, self.cates_feature, self.item_level_dropout, test)
+        CL_bundles_feature, CL_cates_feature = self.one_propagate(self.get_cate_level_graph, self.bundles_feature, self.cates_feature, self.item_level_dropout, test)
         
         CL_items_feature = self.get_CL_item_rep(CL_cates_feature,test)
 
