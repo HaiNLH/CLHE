@@ -289,7 +289,9 @@ class CLHE(nn.Module):
                 item_loss = self.cl_alpha * cl_loss_function(
                     item_features.view(-1, self.embedding_size), item_features.view(-1, self.embedding_size), self.cl_temp)
             elif self.item_augmentation == "FN":
-                item_features = self.encoder(batch, all=True)[items_in_batch]
+                item_ft = self.encoder(batch, all=True)
+                tmp = BunCa(self.conf, self.raw_graph, item_ft).propagate()
+                item_features = tmp[items_in_batch]
                 sub1 = self.cl_projector(
                     self.noise_weight * torch.randn_like(item_features) + item_features)
                 sub2 = self.cl_projector(
@@ -298,10 +300,10 @@ class CLHE(nn.Module):
                     sub1.view(-1, self.embedding_size), sub2.view(-1, self.embedding_size), self.cl_temp)
             elif self.item_augmentation == "MD":
                 sub1, sub2 = self.encoder.generate_two_subs(self.dropout_rate)
-                
-
-                _, items1_feature = self.BunCa.propagate(test=False)
-                _, items2_feature = self.BunCa.propagate(test=False)
+                bunca_model1 = BunCa(self.conf, self.raw_graph, sub1)
+                bunca_model2 = BunCa(self.conf, self.raw_graph,sub2)
+                _, items1_feature = bunca_model1.propagate()
+                _, items2_feature = bunca_model2.propagate()
                 
                 sub1 = items1_feature[items_in_batch]
                 sub2 = items2_feature[items_in_batch]
