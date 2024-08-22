@@ -153,7 +153,7 @@ class Datasets():
         u_i_pairs, u_i_graph = self.get_ui()
         i_c_pairs, i_c_graph = self.get_ic()
         print("get graph ic successed")
-        print(i_c_graph)
+
         b_i_pairs_train, b_i_graph_train = self.get_bi_train()
         b_i_pairs_val_i, b_i_graph_val_i, b_i_pairs_val_gt, b_i_graph_val_gt = self.get_bi(
             "valid")
@@ -219,7 +219,7 @@ class Datasets():
         cf_feature = torch.load(os.path.join(
             self.path, self.name, 'item_cf_feature.pt'), map_location=self.device)
         return (content_feature, description_feature, cf_feature)
-
+   
     def get_ui(self):
         u_i_pairs = list2pairs(os.path.join(self.path, self.name, 'ui_full.txt'))
 

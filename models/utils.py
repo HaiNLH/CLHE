@@ -183,7 +183,7 @@ class TransformerEncoder(nn.Module):
 
         for layer in range(self.conf['n_layer']):
             x = self.attn_encode[layer](
-                x,
+                x, 
                 mask=mask,
                 dims=dims
             )
