@@ -227,6 +227,7 @@ class CLHE(nn.Module):
         self.conf = conf
         device = self.conf["device"]
         self.device = device
+        self.raw_graph = raw_graph
         self.num_user = self.conf["num_users"]
         self.num_bundle = self.conf["num_bundles"]
         self.num_item = self.conf["num_items"]
