@@ -291,7 +291,7 @@ class CLHE(nn.Module):
                     item_features.view(-1, self.embedding_size), item_features.view(-1, self.embedding_size), self.cl_temp)
             elif self.item_augmentation == "FN":
                 item_ft = self.encoder(batch, all=True)
-                _,tmp = BunCa(self.conf, self.raw_graph, item_ft).propagate()
+                _,tmp = BunCa(self.conf, self.raw_graph, item_ft,self.device).propagate().to(self.device)
                 item_features = tmp[items_in_batch]
                 sub1 = self.cl_projector(
                     self.noise_weight * torch.randn_like(item_features) + item_features)
@@ -376,10 +376,9 @@ def np_edge_dropout(values, dropout_ratio):
 #Idea is to reconstruct the part getting item embedding learning from connection U-C C-I => U-I, B-U, U-I
 #Getting item rep after using self attention => Information from User and Bundle and Category
 class BunCa(nn.Module):
-    def __init__(self,conf, raw_graph, items_feat):
+    def __init__(self,conf, raw_graph, items_feat,device):
         super().__init__()
         self.conf = conf
-        device = self.conf["device"]
         self.device = device
 
         self.embedding_size = conf["embedding_size"]
@@ -394,12 +393,14 @@ class BunCa(nn.Module):
         self.ui_graph, self.bi_graph_train, self.bi_graph_seen, self.ic_graph= raw_graph
         self.bc_graph = self.bi_graph_train@self.ic_graph
         self.num_layers = self.conf["num_layers"]
+        self.init_emb()
+        self.init_md_dropouts()
 
 
     def init_md_dropouts(self):
-        self.item_level_dropout = nn.Dropout(self.conf["item_level_ratio"], True)
-        self.bundle_level_dropout = nn.Dropout(self.conf["bundle_level_ratio"], True)
-        self.bundle_agg_dropout = nn.Dropout(self.conf["bundle_agg_ratio"], True)
+        self.item_level_dropout = nn.Dropout(0.2, True)
+        self.bundle_level_dropout = nn.Dropout(0.2, True)
+        self.bundle_agg_dropout = nn.Dropout(0.2, True)
 
     def init_emb(self):
         self.users_feature = nn.Parameter(torch.FloatTensor(self.num_users, self.embedding_size))
@@ -421,7 +422,7 @@ class BunCa(nn.Module):
                                       [ic_graph.T, sp.csr_matrix((ic_graph.shape[1], ic_graph.shape[1]))]])
         self.ic_propagate_graph_ori = to_tensor(laplace_transform(ic_propagate_graph)).to(device)
         self.cate_level_graph = to_tensor(laplace_transform(cate_level_graph)).to(device)
-        self.ic_propagate_graph = to_tensor(laplace_transform(ic_propagate_graph).to(device))
+        self.ic_propagate_graph = to_tensor(laplace_transform(ic_propagate_graph)).to(device)
 
     def get_item_level_graph(self, threshold):
         bi_graph = self.bi_graph_train
@@ -467,7 +468,7 @@ class BunCa(nn.Module):
         all_features = [features]
 
         for i in range(self.num_layers):
-            features = torch.spmm(graph, features)
+            features = torch.spmm(graph, features).to(self.device)
             if self.conf["aug_type"] == "MD" and not test:  # !!! important
                 features = mess_dropout(features)
 
@@ -499,7 +500,8 @@ class BunCa(nn.Module):
         # if test:
         #     CL_bundles_feature, CL_cates_feature = self.one_propagate(self.cate_level_graph, self.bundles_feature, self.cates_feature, self.item_level_dropout, test)
         # else:
-        CL_bundles_feature, CL_cates_feature = self.one_propagate(self.get_cate_level_graph, self.bundles_feature, self.cates_feature, self.item_level_dropout, test)
+        self.get_cate_level_graph()
+        CL_bundles_feature, CL_cates_feature = self.one_propagate(self.cate_level_graph, self.bundles_feature, self.cates_feature, self.item_level_dropout, test)
         
         CL_items_feature = self.get_CL_item_rep(CL_cates_feature,test)
 
@@ -507,7 +509,8 @@ class BunCa(nn.Module):
         # if test:
         #     IL_bundles_feature, IL_item_features = self.one_propagate(self.get_item_level_graph_ori, self.bundles_feature, self.items_feature, self.bundle_level_dropout, test)
         # else:
-        IL_bundles_feature, IL_item_features = self.one_propagate(self.get_item_level_graph, self.bundles_feature, self.items_feature, self.bundle_level_dropout, test)
+        self.get_item_level_graph()
+        IL_bundles_feature, IL_item_features = self.one_propagate(self.item_level_graph, self.bundles_feature, self.items_feature, self.bundle_level_dropout, test)
         
         bundles_feature = [CL_bundles_feature, IL_bundles_feature]
         items_feature  = [CL_items_feature, IL_item_features]
