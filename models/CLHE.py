@@ -291,7 +291,10 @@ class CLHE(nn.Module):
                     item_features.view(-1, self.embedding_size), item_features.view(-1, self.embedding_size), self.cl_temp)
             elif self.item_augmentation == "FN":
                 item_ft = self.encoder(batch, all=True)
-                _,tmp = BunCa(self.conf, self.raw_graph, item_ft,self.device).propagate().to(self.device)
+                _,tmp = BunCa(self.conf, self.raw_graph, item_ft,self.device).propagate()
+                print(tmp.shape)
+                print(item_ft.shape)
+                print(items_in_batch.long)
                 item_features = tmp[items_in_batch]
                 sub1 = self.cl_projector(
                     self.noise_weight * torch.randn_like(item_features) + item_features)
@@ -387,7 +390,7 @@ class BunCa(nn.Module):
         self.num_bundles = conf["num_bundles"]
         self.num_items = conf["num_items"]
         self.num_cates = conf["num_cates"]
-        self.items_feat = items_feat
+        self.items_feature  = items_feat
 
 
         self.ui_graph, self.bi_graph_train, self.bi_graph_seen, self.ic_graph= raw_graph
@@ -395,7 +398,8 @@ class BunCa(nn.Module):
         self.num_layers = self.conf["num_layers"]
         self.init_emb()
         self.init_md_dropouts()
-
+        self.get_item_agg_graph()
+        self.get_item_agg_graph()
 
     def init_md_dropouts(self):
         self.item_level_dropout = nn.Dropout(0.2, True)
@@ -424,28 +428,20 @@ class BunCa(nn.Module):
         self.cate_level_graph = to_tensor(laplace_transform(cate_level_graph)).to(device)
         self.ic_propagate_graph = to_tensor(laplace_transform(ic_propagate_graph)).to(device)
 
-    def get_item_level_graph(self, threshold):
+    def get_item_level_graph(self, threshold=0):
         bi_graph = self.bi_graph_train
         device = self.device
+        print(bi_graph.shape)
 
         bb_graph = (bi_graph @ bi_graph.T) >threshold
         ii_graph = (bi_graph.T @ bi_graph) > threshold
+        print(ii_graph.shape)
+        print(bb_graph.shape)
         item_level_graph = sp.bmat([[bb_graph, bi_graph],
-                                    [bi_graph, ii_graph]])
+                                    [bi_graph.T, ii_graph]])
         
         self.item_level_graph = to_tensor(laplace_transform(item_level_graph)).to(device)
         return self.item_level_graph
-    def get_item_level_graph_ori(self, threshold):
-        bi_graph_seen = self.bi_graph_seen
-        device = self.device
-
-        bb_graph = (bi_graph_seen @ bi_graph_seen.T) >threshold
-        ii_graph = (bi_graph_seen.T @ bi_graph_seen) > threshold
-        item_level_graph = sp.bmat([[bb_graph, bi_graph_seen],
-                                    [bi_graph_seen, ii_graph]])
-        
-        self.item_level_graph_ori = to_tensor(laplace_transform(item_level_graph)).to(device)
-        return self.item_level_graph_ori
 
     def get_item_agg_graph(self):
         ic_graph = self.ic_graph
@@ -469,8 +465,7 @@ class BunCa(nn.Module):
 
         for i in range(self.num_layers):
             features = torch.spmm(graph, features).to(self.device)
-            if self.conf["aug_type"] == "MD" and not test:  # !!! important
-                features = mess_dropout(features)
+
 
             features = features / (i + 2)
             all_features.append(F.normalize(features, p=2, dim=1))
@@ -512,6 +507,9 @@ class BunCa(nn.Module):
         self.get_item_level_graph()
         IL_bundles_feature, IL_item_features = self.one_propagate(self.item_level_graph, self.bundles_feature, self.items_feature, self.bundle_level_dropout, test)
         
-        bundles_feature = [CL_bundles_feature, IL_bundles_feature]
-        items_feature  = [CL_items_feature, IL_item_features]
+        # bundles_feature = [CL_bundles_feature, IL_bundles_feature]
+        # items_feature  = [CL_items_feature, IL_item_features]
+
+        bundles_feature = torch.cat([CL_bundles_feature, IL_bundles_feature], dim=-1)
+        items_feature = torch.cat([CL_items_feature, IL_item_features], dim=-1)
         return bundles_feature, items_feature
