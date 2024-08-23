@@ -434,12 +434,8 @@ class BunCa(nn.Module):
     def get_item_level_graph(self, threshold=0):
         bi_graph = self.bi_graph_train
         device = self.device
-        print(bi_graph.shape)
-
         bb_graph = (bi_graph @ bi_graph.T) >threshold
         ii_graph = (bi_graph.T @ bi_graph) > threshold
-        print(ii_graph.shape)
-        print(bb_graph.shape)
         item_level_graph = sp.bmat([[bb_graph, bi_graph],
                                     [bi_graph.T, ii_graph]])
         
