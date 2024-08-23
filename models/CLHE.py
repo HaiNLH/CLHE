@@ -288,14 +288,17 @@ class CLHE(nn.Module):
             elif self.item_augmentation == "NA":
                 item_features = self.encoder(batch, all=True)[items_in_batch]
                 item_loss = self.cl_alpha * cl_loss_function(
-                    item_features.view(-1, self.embedding_size), item_features.view(-1, self.embedding_size), self.cl_temp)
+                item_features.view(-1, self.embedding_size), item_features.view(-1, self.embedding_size), self.cl_temp)
             elif self.item_augmentation == "FN":
                 item_ft = self.encoder(batch, all=True)
-                _,tmp = BunCa(self.conf, self.raw_graph, item_ft,self.device).propagate()
-                print(tmp.shape)
-                print(item_ft.shape)
-                print(items_in_batch.long)
+                tmp = BunCa(self.conf, self.raw_graph, item_ft,self.device).propagate()
+                # print(tmp.shape)
+                # print(item_ft.shape)
+                # print(items_in_batch.long)
                 item_features = tmp[items_in_batch]
+                # item_f = item_ft[items_in_batch]
+                # print(item_features.shape)
+                # print(item_f.shape)
                 sub1 = self.cl_projector(
                     self.noise_weight * torch.randn_like(item_features) + item_features)
                 sub2 = self.cl_projector(
@@ -306,8 +309,8 @@ class CLHE(nn.Module):
                 sub1, sub2 = self.encoder.generate_two_subs(self.dropout_rate)
                 bunca_model1 = BunCa(self.conf, self.raw_graph, sub1)
                 bunca_model2 = BunCa(self.conf, self.raw_graph,sub2)
-                _, items1_feature = bunca_model1.propagate()
-                _, items2_feature = bunca_model2.propagate()
+                items1_feature = bunca_model1.propagate()
+                items2_feature = bunca_model2.propagate()
                 
                 sub1 = items1_feature[items_in_batch]
                 sub2 = items2_feature[items_in_batch]
@@ -510,6 +513,6 @@ class BunCa(nn.Module):
         # bundles_feature = [CL_bundles_feature, IL_bundles_feature]
         # items_feature  = [CL_items_feature, IL_item_features]
 
-        bundles_feature = torch.cat([CL_bundles_feature, IL_bundles_feature], dim=-1)
-        items_feature = torch.cat([CL_items_feature, IL_item_features], dim=-1)
-        return bundles_feature, items_feature
+        # bundles_feature = CL_bundles_feature @ W_bundle1 + IL_bundles_feature @ W_bundle2
+        items_feature = CL_items_feature * 0.6 + IL_item_features * 0.4
+        return items_feature
