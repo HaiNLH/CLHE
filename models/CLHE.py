@@ -463,13 +463,13 @@ class BunCa(nn.Module):
         all_features = [features]
 
         for i in range(self.num_layers):
-            features = torch.spmm(graph, features).to(self.device)
-
-
-            features = features / (i + 2)
-            all_features.append(F.normalize(features, p=2, dim=1))
-
-        all_features = torch.stack(all_features, 1)
+          features  = features.to(self.device)
+          print(features.device)
+          print(graph.device)
+          features = torch.spmm(graph, features)
+          features = features / (i + 2)
+          all_features.append(F.normalize(features, p=2, dim=1))
+        all_features = torch.stack(all_features, 1).to(self.device)
         if coefs is not None:
             all_features = all_features * coefs
         all_features = torch.sum(all_features, dim=1).squeeze(1)
