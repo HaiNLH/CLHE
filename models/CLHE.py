@@ -459,19 +459,29 @@ class BunCa(nn.Module):
         self.bundle_agg_graph = to_tensor(bc_graph).to(device)
 
     def one_propagate(self, graph, A_feature, B_feature, mess_dropout, test, coefs=None):
+        A_feature = A_feature.to(self.device)
+        B_feature = B_feature.to(self.device)
+        # print("a_feature: ",A_feature.device)
+        # print("b_feature: ",B_feature.device)
+       
         features = torch.cat((A_feature, B_feature), 0)
         all_features = [features]
 
         for i in range(self.num_layers):
           features  = features.to(self.device)
-          print(features.device)
-          print(graph.device)
+          # print(features.device)
+          # print(graph.device)
           features = torch.spmm(graph, features)
           features = features / (i + 2)
           all_features.append(F.normalize(features, p=2, dim=1))
+        for i in range(len(all_features)):
+          all_features[i] = all_features[i].to(self.device)
+          # print(all_features[i].device)
         all_features = torch.stack(all_features, 1).to(self.device)
+        # print("all_feature: ", all_features.device)
         if coefs is not None:
             all_features = all_features * coefs
+            # print("all_feature2: ",all_features.device)
         all_features = torch.sum(all_features, dim=1).squeeze(1)
 
         A_feature, B_feature = torch.split(all_features, (A_feature.shape[0], B_feature.shape[0]), 0)
