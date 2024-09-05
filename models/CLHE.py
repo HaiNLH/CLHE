@@ -255,12 +255,15 @@ class CLHE(nn.Module):
         elif self.item_augmentation in ["FN"]:
             self.noise_weight = conf['noise_weight']
         self.init_emb()
-        self.item_cate_feat = self.ic_graph @ self.cate_feature
+        dense_ic = self.convert_sparse(self.ic_graph)
+        self.item_cate_feat = dense_ic @ self.cate_feature
         self.item_cate_feat = F.normalize(self.item_cate_feat, dim = -1)
 
     def init_emb(self):
         self.cate_feature = nn.Parameter(torch.FloatTensor(self.num_cate, self.embedding_size))
-    
+    def convert_sparse(self, sparse):
+        dense_mat = sparse.toarray()
+        dense_tensor= torch.tensor(dense_mat)
     def forward(self, batch):
         idx, full, seq_full, modify, seq_modify = batch  # x: [bs, #items]
         mask = seq_full == self.num_item
