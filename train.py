@@ -137,6 +137,7 @@ def main():
     try:
         model = getattr(models, conf['model'])(
             conf, dataset.graphs, dataset.features).to(device)
+        model.to(device)
     except:
         raise ValueError("Unimplemented model %s" % (conf["model"]))
 
