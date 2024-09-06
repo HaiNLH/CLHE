@@ -260,11 +260,11 @@ class CLHE(nn.Module):
         self.item_cate_feat = (F.normalize(self.item_cate_feat, dim = -1)).to(self.device)
         print(self.item_cate_feat.device)
     def init_emb(self):
-        self.cate_feature = nn.Parameter(torch.FloatTensor(self.num_cate, self.embedding_size))
+        self.cate_feature = nn.Parameter(torch.FloatTensor(self.num_cate, self.embedding_size)).to(self.device)
     def convert_sparse(self, sparse):
         dense_mat = sparse.toarray()
         dense_tensor= torch.tensor(dense_mat)
-        return dense_tensor
+        return dense_tensor.to(self.device)
     def forward(self, batch):
         idx, full, seq_full, modify, seq_modify = batch  # x: [bs, #items]
         mask = seq_full == self.num_item

@@ -167,7 +167,7 @@ def main():
 
             losses = model(batch)
 
-            losses['loss'].backward(retain_graph=False)
+            losses['loss'].backward(retain_graph=True)
             optimizer.step()
 
             for l in losses:
