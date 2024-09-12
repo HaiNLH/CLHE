@@ -25,7 +25,7 @@ def list2pairs(file):
             for i_id in l[1:]:
                 pairs.append([b_id, i_id])
     return np.array(pairs)
-def get_graph(path):
+def get_graph(path, x, y):
     pairs = list2pairs(path)
 
     indice = np.array(pairs, dtype=np.int32)
@@ -82,6 +82,9 @@ def get_cmd():
 def get_stat(path):
     with open(path, 'r') as f:
         stat = json.loads(f.read())
+        
+        print("done load json")
+    print(stat)
     print(stat["#U"], stat["#B"], stat["#I"], stat["#C"])
     return stat["#U"], stat["#B"], stat["#I"], stat["#C"]
 
@@ -89,20 +92,19 @@ def get_stat(path):
 
 if __name__ == '__main__':
 
-    paras = get_cmd().__dict__
-    dataset_name = paras["dataset"]
-
+    dataset_name = "pog"
+    data_path ='/content/drive/MyDrive/datasets'
     sep = ','
-
-    users, bundles, items, cates = get_stat(f'datasets/{dataset_name}/count.json')
-    dir = f'datasets/{dataset_name}'
+    print(f'{data_path}/{dataset_name}')
+    users, bundles, items, cates = get_stat(f'{data_path}/{dataset_name}/count.json')
+    dir = f'{data_path}/{dataset_name}'
     path = [dir + '/bi_train.txt',
             dir + '/item_cate.txt',
             dir + '/ui_full.txt']
 
-    raw_graph = [get_graph(path[0], bundles, items, sep),
-                 get_graph(path[1], items, cates, sep),
-                 get_graph(path[2], users, items, sep)]
+    raw_graph = [get_graph(path[0], bundles, items),
+                 get_graph(path[1], items, cates),
+                 get_graph(path[2], users, items)]
 
     bi, ic, ui = raw_graph
 
