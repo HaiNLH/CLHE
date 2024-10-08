@@ -272,7 +272,7 @@ class CLHE(nn.Module):
     def get_cate_embbed(self, co_oc = True):
         dataset_name = 'pog'
         if co_oc == True:
-            cbc_cooc = sp.load_npz(f'/datasets/{dataset_name}/cbc_cooc.npz')
+            cbc_cooc = sp.load_npz(f'/content/drive/MyDrive/datasets/{dataset_name}/cbc_cooc.npz')
             svd = TruncatedSVD(n_components=self.embedding_size)
             cate_embeddings = svd.fit_transform(cbc_cooc) 
             cate_embeddings_tensor = torch.FloatTensor(cate_embeddings).to(self.device)
