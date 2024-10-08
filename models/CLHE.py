@@ -254,6 +254,8 @@ class CLHE(nn.Module):
             self.dropout = nn.Dropout(p=self.dropout_rate)
         elif self.item_augmentation in ["FN"]:
             self.noise_weight = conf['noise_weight']
+        
+        #get item_cate_feat
         self.init_emb()
         dense_ic = self.convert_sparse(self.ic_graph)
         self.item_cate_feat = dense_ic @ self.cate_feature
