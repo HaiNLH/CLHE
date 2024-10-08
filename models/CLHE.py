@@ -233,10 +233,6 @@ class CLHE(nn.Module):
         self.item_augmentation = self.conf["item_augment"]
 
         #getting cooc matrix
-        self.ibi_edge_index = torch.tensor(
-            np.load("datasets/{}/n_neigh_ibi.npy".format(conf["dataset"]), allow_pickle=True)).to(self.device)
-        self.cbc_edge_index = torch.tensor(
-            np.load("datasets/{}/n_neigh_cbc.npy".format(conf["dataset"]), allow_pickle=True)).to(self.device)
         self.encoder = HierachicalEncoder(conf, raw_graph, features)
         # decoder has the similar structure of the encoder
         self.decoder = HierachicalEncoder(conf, raw_graph, features)
@@ -279,9 +275,10 @@ class CLHE(nn.Module):
             cbc_cooc = sp.load_npz(f'/datasets/{dataset_name}/cbc_cooc.npz')
             svd = TruncatedSVD(n_components=self.embedding_size)
             cate_embeddings = svd.fit_transform(cbc_cooc) 
+            cate_embeddings_tensor = torch.FloatTensor(cate_embeddings).to(self.device)
             print(cate_embeddings.shape)
-            self.cate_feature = cate_embeddings
-            print("Creating c_embed from cooc matrix")
+            self.cate_feature = cate_embeddings_tensor
+            print("Done creating c_embed from cooc matrix")
         else:
             self.init_emb()
             print(self.item_cate_feat.device)
