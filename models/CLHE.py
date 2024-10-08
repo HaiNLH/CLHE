@@ -4,7 +4,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from models.utils import TransformerEncoder
 from collections import OrderedDict
-
+from sklearn.decomposition import TruncatedSVD
+import scipy.sparse as sp
 eps = 1e-9
 
 
@@ -260,12 +261,11 @@ class CLHE(nn.Module):
         elif self.item_augmentation in ["FN"]:
             self.noise_weight = conf['noise_weight']
         
+        self.get_cate_embbed(True)
         #get item_cate_feat
-        self.init_emb()
         dense_ic = self.convert_sparse(self.ic_graph)
         self.item_cate_feat = dense_ic @ self.cate_feature
         self.item_cate_feat = (F.normalize(self.item_cate_feat, dim = -1)).to(self.device)
-        print(self.item_cate_feat.device)
 
     def init_emb(self):
         self.cate_feature = nn.Parameter(torch.FloatTensor(self.num_cate, self.embedding_size)).to(self.device)
@@ -273,6 +273,19 @@ class CLHE(nn.Module):
         dense_mat = sparse.toarray()
         dense_tensor= torch.tensor(dense_mat)
         return dense_tensor.to(self.device)
+    def get_cate_embbed(self, co_oc = True):
+        dataset_name = 'pog'
+        if co_oc == True:
+            cbc_cooc = sp.load_npz(f'/datasets/{dataset_name}/cbc_cooc.npz')
+            svd = TruncatedSVD(n_components=self.embedding_size)
+            cate_embeddings = svd.fit_transform(cbc_cooc) 
+            print(cate_embeddings.shape)
+            self.cate_feature = cate_embeddings
+            print("Creating c_embed from cooc matrix")
+        else:
+            self.init_emb()
+            print(self.item_cate_feat.device)
+            print("Random initialize c_embed")
     def forward(self, batch):
         idx, full, seq_full, modify, seq_modify = batch  # x: [bs, #items]
         mask = seq_full == self.num_item
