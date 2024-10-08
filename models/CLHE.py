@@ -231,6 +231,11 @@ class CLHE(nn.Module):
         self.ui_graph, self.bi_graph_train, self.bi_graph_seen, self.ic_graph = raw_graph
         self.item_augmentation = self.conf["item_augment"]
 
+        #getting cooc matrix
+        self.ibi_edge_index = torch.tensor(
+            np.load("datasets/{}/n_neigh_ibi.npy".format(conf["dataset"]), allow_pickle=True)).to(self.device)
+        self.cbc_edge_index = torch.tensor(
+            np.load("datasets/{}/n_neigh_cbc.npy".format(conf["dataset"]), allow_pickle=True)).to(self.device)
         self.encoder = HierachicalEncoder(conf, raw_graph, features)
         # decoder has the similar structure of the encoder
         self.decoder = HierachicalEncoder(conf, raw_graph, features)
