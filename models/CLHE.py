@@ -308,7 +308,8 @@ class CLHE(nn.Module):
                 item_loss = self.cl_alpha * cl_loss_function(
                     sub1.view(-1, self.embedding_size), sub2.view(-1, self.embedding_size), self.cl_temp)
             elif self.item_augmentation == "NA":
-                item_features = self.encoder(batch, all=True)[items_in_batch]
+                tmp = F.normalize(self.encoder(batch, all=True) + self.item_cate_feat,dim = -1).to(self.device)
+                item_features = tmp[items_in_batch]
                 item_loss = self.cl_alpha * cl_loss_function(
                     item_features.view(-1, self.embedding_size), item_features.view(-1, self.embedding_size), self.cl_temp)
             elif self.item_augmentation == "FN":
