@@ -16,9 +16,9 @@ def pairs2csr(pairs, shape):
     return sp.csr_matrix(
         (values, (indice[:, 0], indice[:, 1])), shape=shape)
 
-def list2pairs(file):
+def list2pairs(path):
     pairs = []
-    with open(file, "r", encoding="utf-8") as f:
+    with open(os.path.join(path), "r", encoding="utf-8") as f:
         for line in f:
             l = [int(i) for i in line.split(", ")]
             b_id = l[0]
@@ -92,8 +92,10 @@ def get_stat(path):
 
 if __name__ == '__main__':
 
-    dataset_name = "pog"
-    data_path ='/content/drive/MyDrive/datasets'
+    paras = get_cmd().__dict__
+    dataset_name = paras["dataset"]
+    # data_path ='/content/drive/MyDrive/datasets'
+    data_path = 'D:\DS-KT\Bundle_data\datasets'
     sep = ','
     print(f'{data_path}/{dataset_name}')
     users, bundles, items, cates = get_stat(f'{data_path}/{dataset_name}/count.json')

@@ -16,7 +16,7 @@ from utility import Datasets
 import models
 
 
-def setup_seed(seed=2023):
+def setup_seed(seed=2024):
     random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
     np.random.seed(seed)
@@ -67,7 +67,7 @@ def get_cmd():
     parser.add_argument("--num_token", default=200, type=int,
                         help="the number of tokens (items in the bundle)")
     
-    parser.add_argument("--seed", default=2023, type=int, help="")
+    parser.add_argument("--seed", default=2024, type=int, help="")
     parser.add_argument("--epoch", default=-1, type=int, help="")
 
     args = parser.parse_args()
@@ -86,7 +86,9 @@ def main():
 
     os.environ['CUDA_VISIBLE_DEVICES'] = conf["gpu"]
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    print(device)
     conf["device"] = device
+    print(conf)
 
     setup_seed(conf["seed"])
 

@@ -249,6 +249,8 @@ class CLHE(nn.Module):
 
         self.bundle_cl_temp = conf['bundle_cl_temp']
         self.bundle_cl_alpha = conf['bundle_cl_alpha']
+
+
         self.cl_projector = nn.Linear(self.embedding_size, self.embedding_size)
         init(self.cl_projector)
         if self.item_augmentation in ["FD", "MD"]:
@@ -257,11 +259,13 @@ class CLHE(nn.Module):
         elif self.item_augmentation in ["FN"]:
             self.noise_weight = conf['noise_weight']
         
+        
+        #get item_cate_feat>>>
         self.get_cate_embbed(True)
-        #get item_cate_feat
         dense_ic = self.convert_sparse(self.ic_graph)
         self.item_cate_feat = dense_ic @ self.cate_feature
         self.item_cate_feat = (F.normalize(self.item_cate_feat, dim = -1)).to(self.device)
+        #get item_cate_feat<<<
 
     def init_emb(self):
         self.cate_feature = nn.Parameter(torch.FloatTensor(self.num_cate, self.embedding_size)).to(self.device)
@@ -271,8 +275,9 @@ class CLHE(nn.Module):
         return dense_tensor.to(self.device)
     def get_cate_embbed(self, co_oc = True):
         dataset_name = 'pog'
+        path = self.conf['data_path']
         if co_oc == True:
-            cbc_cooc = sp.load_npz(f'/content/drive/MyDrive/datasets/{dataset_name}/cbc_cooc.npz')
+            cbc_cooc = sp.load_npz(f'{path}/{dataset_name}/cbc_cooc.npz')
             svd = TruncatedSVD(n_components=self.embedding_size)
             cate_embeddings = svd.fit_transform(cbc_cooc) 
             cate_embeddings_tensor = torch.FloatTensor(cate_embeddings).to(self.device)
@@ -283,6 +288,7 @@ class CLHE(nn.Module):
             self.init_emb()
             print(self.item_cate_feat.device)
             print("Random initialize c_embed")
+
     def forward(self, batch):
         idx, full, seq_full, modify, seq_modify = batch  # x: [bs, #items]
         mask = seq_full == self.num_item
@@ -338,10 +344,17 @@ class CLHE(nn.Module):
                 bundle_feature.view(-1, self.embedding_size), bundle_feature2.view(-1, self.embedding_size), self.bundle_cl_temp)
         # bundle-level contrastive learning <<<
 
+        #cate-level contrastive learning>>>
+        # cate_loss = torch.tensor(0).to(self.device)
+        # if self.cate_cl_alpha > 0:
+        #     cate_loss = self.cate_cl_alpha*cl_loss_function()
+
+        #cate-level contrastive learning<<<
         return {
-            'loss': loss + item_loss + bundle_loss,
+            'loss': loss + item_loss + bundle_loss ,
             'item_loss': item_loss.detach(),
             'bundle_loss': bundle_loss.detach()
+            # 'cate_loss': cate_loss.detach()
         }
 
     def evaluate(self, _, batch):
