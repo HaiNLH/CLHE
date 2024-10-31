@@ -2,6 +2,9 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
+from torch_geometric.nn import MessagePassing
+from torch_sparse import SparseTensor, matmul
 from models.utils import TransformerEncoder
 from collections import OrderedDict
 from sklearn.decomposition import TruncatedSVD
@@ -360,3 +363,35 @@ class CLHE(nn.Module):
 
     def propagate(self, test=False):
         return None
+
+class LightGCN(nn.Module):
+    def __init__(self, num_users, num_items, num_bundles, num_cates, embedding_size, num_layer, add_self_loops):
+        super(LightGCN, self).__init__()
+        self.num_users = num_users
+        self.num_items = num_items
+        self.num_bundles = num_bundles
+        self.num_cates = num_cates
+        self.embedding_size = self.embedding_size
+        self.num_layers = num_layer
+        self.add_self_loops = add_self_loops
+        self.init_embed()
+
+        #init embedding || use from previous (testing 2 conditions)
+        #If init xavier
+    def init_embed(self):
+        self.user_embedding = nn.Embedding(self.num_users, self.embedding_size)
+        self.item_embedding = nn.Embedding(self.num_items, self.embedding_size)
+        self.bundle_embedding = nn.Embedding(self.num_bundles, self.embedding_size)
+        self.cate_embedding = nn.Embedding(self.num_cates, self.embedding_size)
+        nn.init.xavier_uniform_(self.user_embedding.weight)
+        nn.init.xavier_uniform_(self.item_embedding.weight)
+        nn.init.xavier_uniform_(self.bundle_embedding)
+        nn.init.xavier_uniform_(self.cate_embedding)
+    
+    def forward(self,edge_index: SparseTensor):
+
+        #Norrmalize adj matrix
+        edge_indix_norm = gcn_norm(edge_index, add_self_loops = self.add_self.loops)
+
+    
+        
