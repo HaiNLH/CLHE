@@ -5,7 +5,6 @@ import torch.nn.functional as F
 
 from torch_geometric.nn import MessagePassing
 from torch_geometric.nn import GCNConv
-from torch_geometric.utils import gcn_norm
 from models.utils import TransformerEncoder
 from collections import OrderedDict
 from sklearn.decomposition import TruncatedSVD
@@ -353,7 +352,8 @@ class CLHE(nn.Module):
         items_emb, cates_emb = self.lightgcn[:self.num_item], self.lightgcn[self.num_item:]
         items = items_emb[items_in_batch]
         items_emb_cate = item_features
-
+        items = F.normalize(items, dim=-1)
+        items_emb_cate = F.normalize(items_emb_cate, dim=-1)
         cate_loss = torch.tensor(0).to(self.device)
         cate_loss = 0.1*cl_loss_function(items.view(-1,self.embedding_size),items_emb_cate.view(-1,self.embedding_size),0.2)
         return {

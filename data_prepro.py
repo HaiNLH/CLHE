@@ -15,16 +15,17 @@ def get_cmd():
 if __name__ =='__main__':
     paras = get_cmd().__dict__
     dataset_name = paras["dataset"]
-    path_ibi = f"datasets/{dataset_name}/ibi_cooc.npz"
-    path_cbc = f"datasets/{dataset_name}/cbc_cooc.npz"
-    path_iui = f"datasets/{dataset_name}/iui_cooc.npz"
-    path_bib = f"datasets/{dataset_name}/bib_cooc.npz"
-    path_ici = f"datasets/{dataset_name}/ici_cooc.npz"
-    save_path_ibi = f"datasets/{dataset_name}/n_neigh_ibi"
-    save_path_cbc = f"datasets/{dataset_name}/n_neigh_cbc"
-    save_path_iui = f"datasets/{dataset_name}/n_neigh_iui"
-    save_path_bib = f"datasets/{dataset_name}/n_neigh_bib"
-    save_path_ici = f"datasets/{dataset_name}/n_neigh_ici"
+    datapath = '/content/drive/MyDrive/datasets'
+    path_ibi = f"{datapath}/{dataset_name}/ibi_cooc.npz"
+    path_cbc = f"{datapath}/{dataset_name}/cbc_cooc.npz"
+    path_iui = f"{datapath}/{dataset_name}/iui_cooc.npz"
+    path_bib = f"{datapath}/{dataset_name}/bib_cooc.npz"
+    path_ici = f"{datapath}/{dataset_name}/ici_cooc.npz"
+    save_path_ibi = f"{datapath}/{dataset_name}/n_neigh_ibi"
+    save_path_cbc = f"{datapath}//{dataset_name}/n_neigh_cbc"
+    save_path_iui = f"{datapath}/{dataset_name}/n_neigh_iui"
+    save_path_bib = f"{datapath}/{dataset_name}/n_neigh_bib"
+    save_path_ici = f"{datapath}/{dataset_name}/n_neigh_ici"
 
     ibi = load_sp_mat(path_ibi)
     print("ibi edge:", ibi.getnnz())
@@ -41,7 +42,7 @@ if __name__ =='__main__':
     ii_b_max = int(ibi.max())
     print(f"max i-i interactions through b: {ii_b_max}")
     cc_b_max = int(cbc.max())
-    print(f"max c-c interactions through u: {cc_b_max}")
+    print(f"max c-c interactions through b: {cc_b_max}")
     bb_i_max = int(bib.max())
     print(f"max b-b interactions through i: {bb_i_max}")
     ii_u_max = int(iui.max())
