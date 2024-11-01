@@ -308,7 +308,7 @@ class CLHE(nn.Module):
         loss = recon_loss_function(logits, full)  # main_loss
 
         # # item-level contrastive learning >>>
-        items_in_batch = torch.argwhere(full.sum(dim=0)).squeeze()
+        items_in_batch = torch.argwhere(full.sum(dim=0)).squeeze() #return position with condition 
         item_loss = torch.tensor(0).to(self.device)
         if self.cl_alpha > 0:
             if self.item_augmentation == "FD":
@@ -320,6 +320,7 @@ class CLHE(nn.Module):
             elif self.item_augmentation == "NA":
                 tmp = F.normalize(self.encoder(batch, all=True) + self.item_cate_feat,dim = -1).to(self.device)
                 item_features = tmp[items_in_batch]
+                print(item_features.size())
                 item_loss = self.cl_alpha * cl_loss_function(
                     item_features.view(-1, self.embedding_size), item_features.view(-1, self.embedding_size), self.cl_temp)
             elif self.item_augmentation == "FN":
@@ -350,12 +351,16 @@ class CLHE(nn.Module):
 
         # cate-level LightGCN >>>
         items_emb, cates_emb = self.lightgcn[:self.num_item], self.lightgcn[self.num_item:]
-        
-        cate_loss = 0.2*cl_loss_function(items_emb.view(-1,self.embedding_size),)
+        items = items_emb[items_in_batch]
+        items_emb_cate = item_features
+
+        cate_loss = torch.tensor(0).to(self.device)
+        cate_loss = 0.1*cl_loss_function(items.view(-1,self.embedding_size),items_emb_cate.view(-1,self.embedding_size),0.2)
         return {
-            'loss': loss + item_loss + bundle_loss,
+            'loss': loss + item_loss + bundle_loss +cate_loss,
             'item_loss': item_loss.detach(),
-            'bundle_loss': bundle_loss.detach()
+            'bundle_loss': bundle_loss.detach(),
+            'cate_loss': cate_loss.detach()
         }
 
     def evaluate(self, _, batch):
