@@ -19,10 +19,12 @@ if __name__ =='__main__':
     path_cbc = f"datasets/{dataset_name}/cbc_cooc.npz"
     path_iui = f"datasets/{dataset_name}/iui_cooc.npz"
     path_bib = f"datasets/{dataset_name}/bib_cooc.npz"
+    path_ici = f"datasets/{dataset_name}/ici_cooc.npz"
     save_path_ibi = f"datasets/{dataset_name}/n_neigh_ibi"
     save_path_cbc = f"datasets/{dataset_name}/n_neigh_cbc"
     save_path_iui = f"datasets/{dataset_name}/n_neigh_iui"
     save_path_bib = f"datasets/{dataset_name}/n_neigh_bib"
+    save_path_ici = f"datasets/{dataset_name}/n_neigh_ici"
 
     ibi = load_sp_mat(path_ibi)
     print("ibi edge:", ibi.getnnz())
@@ -32,6 +34,8 @@ if __name__ =='__main__':
     print("iui edge:", iui.getnnz())
     bib = load_sp_mat(path_bib)
     print("bib edge:", bib.getnnz())
+    ici = load_sp_mat(path_ici)
+    print("ici_edge: ", ici.getnnz())
     
     print("statistic")
     ii_b_max = int(ibi.max())
@@ -42,6 +46,8 @@ if __name__ =='__main__':
     print(f"max b-b interactions through i: {bb_i_max}")
     ii_u_max = int(iui.max())
     print(f"max i-i interactions through u: {ii_u_max}")
+    ii_c_max = int(ici.max())
+    print(f"max i-i interactions through c: {ii_c_max}")
     n_items = ibi.shape[0]
     n_bundles = bib.shape[0]
     n_cates = cbc.shape[0]
@@ -61,21 +67,25 @@ if __name__ =='__main__':
     diag_filter_ibi = ibi.multiply(diag_filter_i)
     diag_filter_bib = bib.multiply(diag_filter_b)
     diag_filter_cbc = cbc.multiply(diag_filter_c)
+    diag_filter_ici = ici.multiply(diag_filter_i)
 
     neighbor_iui = iui - diag_filter_iui.tocsc()
     neighbor_ibi = ibi - diag_filter_ibi.tocsc()
     neighbor_bib = bib - diag_filter_bib.tocsc()
     neighbor_cbc = cbc - diag_filter_cbc.tocsc()
+    neighbor_ici = ici - diag_filter_ici.tocsc()
 
     n_iui = neighbor_iui.tocoo()
     n_ibi = neighbor_ibi.tocoo()
     n_bib = neighbor_bib.tocoo()
     n_cbc = neighbor_cbc.tocoo()
+    n_ici = neighbor_ici.tocoo()
     
     ibi_edge_index = torch.tensor([list(n_ibi.row), list(n_ibi.col)], dtype=torch.int64)
     iui_edge_index = torch.tensor([list(n_iui.row), list(n_iui.col)], dtype=torch.int64)
     bib_edge_index = torch.tensor([list(n_bib.row), list(n_bib.col)], dtype=torch.int64)
     cbc_edge_index = torch.tensor([list(n_cbc.row), list(n_cbc.col)], dtype=torch.int64)
+    ici_edge_index = torch.tensor([list(n_ici.row),list(n_ici.col)], dtype = torch.int64)
 
     # --------------------- saving --------------------------
 
@@ -83,3 +93,4 @@ if __name__ =='__main__':
     np.save(save_path_iui, iui_edge_index)
     np.save(save_path_cbc, cbc_edge_index)
     np.save(save_path_bib, bib_edge_index)
+    np.save(save_path_ici, ici_edge_index)

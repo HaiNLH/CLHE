@@ -4,7 +4,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from torch_geometric.nn import MessagePassing
-from torch_sparse import SparseTensor, matmul
+from torch_geometric.nn import GCNConv
+from torch_geometric.utils import gcn_norm
 from models.utils import TransformerEncoder
 from collections import OrderedDict
 from sklearn.decomposition import TruncatedSVD
@@ -266,12 +267,18 @@ class CLHE(nn.Module):
         self.item_cate_feat = dense_ic @ self.cate_feature
         self.item_cate_feat = (F.normalize(self.item_cate_feat, dim = -1)).to(self.device)
 
+        #LightGCN for Cate
+        self.ici_edge_index = torch.tensor(np.load("datasets/{}/n_neigh_ici.npy".format(conf["dataset"]), allow_pickle=True)).to(self.device)
+        self.lightgcn = LightGCNModule(num_nodes=self.num_item + self.num_cate, embedding_dim=self.embedding_size, num_layers=3, edge_index=self.ici_edge_index)
+
     def init_emb(self):
         self.cate_feature = nn.Parameter(torch.FloatTensor(self.num_cate, self.embedding_size)).to(self.device)
+    
     def convert_sparse(self, sparse):
         dense_mat = sparse.toarray()
         dense_tensor= torch.tensor(dense_mat)
         return dense_tensor.to(self.device)
+
     def get_cate_embbed(self, co_oc = True):
         dataset_name = 'pog'
         if co_oc == True:
@@ -341,6 +348,10 @@ class CLHE(nn.Module):
                 bundle_feature.view(-1, self.embedding_size), bundle_feature2.view(-1, self.embedding_size), self.bundle_cl_temp)
         # bundle-level contrastive learning <<<
 
+        # cate-level LightGCN >>>
+        items_emb, cates_emb = self.lightgcn[:self.num_item], self.lightgcn[self.num_item:]
+        
+        cate_loss = 0.2*cl_loss_function(items_emb.view(-1,self.embedding_size),)
         return {
             'loss': loss + item_loss + bundle_loss,
             'item_loss': item_loss.detach(),
@@ -364,34 +375,86 @@ class CLHE(nn.Module):
     def propagate(self, test=False):
         return None
 
-class LightGCN(nn.Module):
-    def __init__(self, num_users, num_items, num_bundles, num_cates, embedding_size, num_layer, add_self_loops):
-        super(LightGCN, self).__init__()
-        self.num_users = num_users
-        self.num_items = num_items
-        self.num_bundles = num_bundles
-        self.num_cates = num_cates
-        self.embedding_size = self.embedding_size
-        self.num_layers = num_layer
-        self.add_self_loops = add_self_loops
-        self.init_embed()
+# class LightGCN(nn.Module):
+#     def __init__(self, num_users, num_items, num_bundles, num_cates, embedding_size, num_layer, add_self_loops):
+#         super(LightGCN, self).__init__()
+#         self.num_users = num_users
+#         self.num_items = num_items
+#         self.num_bundles = num_bundles
+#         self.num_cates = num_cates
+#         self.embedding_size = self.embedding_size
+#         self.num_layers = num_layer
+#         self.add_self_loops = add_self_loops
+#         self.init_embed()
 
-        #init embedding || use from previous (testing 2 conditions)
-        #If init xavier
-    def init_embed(self):
-        self.user_embedding = nn.Embedding(self.num_users, self.embedding_size)
-        self.item_embedding = nn.Embedding(self.num_items, self.embedding_size)
-        self.bundle_embedding = nn.Embedding(self.num_bundles, self.embedding_size)
-        self.cate_embedding = nn.Embedding(self.num_cates, self.embedding_size)
-        nn.init.xavier_uniform_(self.user_embedding.weight)
-        nn.init.xavier_uniform_(self.item_embedding.weight)
-        nn.init.xavier_uniform_(self.bundle_embedding)
-        nn.init.xavier_uniform_(self.cate_embedding)
+#         #init embedding || use from previous (testing 2 conditions)
+#         #If init xavier
+#     def init_embed(self):
+#         self.user_embedding = nn.Embedding(self.num_users, self.embedding_size)
+#         self.item_embedding = nn.Embedding(self.num_items, self.embedding_size)
+#         self.bundle_embedding = nn.Embedding(self.num_bundles, self.embedding_size)
+#         self.cate_embedding = nn.Embedding(self.num_cates, self.embedding_size)
+#         nn.init.xavier_uniform_(self.user_embedding.weight)
+#         nn.init.xavier_uniform_(self.item_embedding.weight)
+#         nn.init.xavier_uniform_(self.bundle_embedding)
+#         nn.init.xavier_uniform_(self.cate_embedding)
     
-    def forward(self,edge_index: SparseTensor):
+#     def forward(self,edge_index):
 
-        #Norrmalize adj matrix
-        edge_indix_norm = gcn_norm(edge_index, add_self_loops = self.add_self.loops)
+#         #Norrmalize adj matrix
+#         edge_index_norm = gcn_norm(edge_index, add_self_loops=self.add_self_loops)
+        
+#         #Init concat embeddings of 2 objects
+#         emb_0 = torch.cat([self.user_embedding.weigth, self.item_embedding.weight])
+#         ems = [emb_0]
+#         emb_k = emb_0
+#         #Message passing (N layer)
+#         for i in range(self.num_layers):
+#             emb_k = self.propagate(edge_index_norm, x = emb_k)
+#             embs.append(emb_k)
+
+#         # Stack embeddings across all layers and average them
+#         embs = torch.stack(embs, dim=1)  # Shape: [num_nodes, n+1, embedding_dim]
+#         emb_final = torch.mean(embs, dim=1)  # Final embeddings by averaging over N layers
+        
+#         # Split back into user and item embeddings
+#         users_emb_final, items_emb_final = torch.split(emb_final, [self.num_users, self.num_items])
+#         return users_emb_final, self.user_embedding.weight, items_emb_final, self.item_embedding.weight
+    
+#     def message(self, x_neigh):
+#         return x_neigh
+#     def message_and_aggregate(self, adj_t,x):
+#         return matmul(adj_t,x)
+    
+class LightGCNModule(nn.Module):
+    def __init__(self, num_nodes, embedding_dim, num_layers, edge_index):
+        super(LightGCNModule, self).__init__()
+        self.num_layers = num_layers
+        self.edge_index = edge_index  # Edge index for graph structure
+        self.embeddings = nn.Embedding(num_nodes, embedding_dim)
+        
+        # Define GCN layers without non-linearity for LightGCN behavior
+        self.convs = nn.ModuleList([GCNConv(embedding_dim, embedding_dim, add_self_loops=False) for _ in range(num_layers)])
+        
+        # Initialize embeddings
+        nn.init.xavier_uniform_(self.embeddings.weight)
+
+    def propagate(self):
+        x = self.embeddings.weight  # Initial embeddings
+        all_embeddings = [x]
+
+        # Propagation over multiple layers
+        for conv in self.convs:
+            x = conv(x, self.edge_index)  # Apply GCNConv (without activation)
+            all_embeddings.append(x)
+
+        # Average embeddings from all layers
+        final_embedding = torch.mean(torch.stack(all_embeddings), dim=0)
+        return final_embedding
+
+    def forward(self):
+        # Forward method to return final embeddings after propagation
+        return self.propagate()
 
     
         
