@@ -35,6 +35,14 @@ def cl_loss_function(a, b, temp=0.2):
     labels = torch.arange(a.shape[0]).to(a.device)
     return infonce_criterion(logits, labels)
 
+def filter(bundle_cate, item_cate):
+    filter_mat =  torch.zeros(item_cate.shape[1],dtype = torch.bool)
+    filter_mat[bundle_cate] = True #bundle cate -> position 
+    filter_mat = 1 - filter_mat.to(torch.long)
+    item_mask = item_cate @ filter_mat 
+    filter_items = torch.nonzero(item_mask, as_tuple=False).squeeze()
+    return filter_items
+
 
 class HierachicalEncoder(nn.Module):
     def __init__(self, conf, raw_graph, features):
@@ -232,7 +240,6 @@ class CLHE(nn.Module):
         self.ui_graph, self.bi_graph_train, self.bi_graph_seen, self.ic_graph = raw_graph
         self.item_augmentation = self.conf["item_augment"]
 
-        #getting cooc matrix
         self.encoder = HierachicalEncoder(conf, raw_graph, features)
         # decoder has the similar structure of the encoder
         self.decoder = HierachicalEncoder(conf, raw_graph, features)
@@ -373,3 +380,4 @@ class CLHE(nn.Module):
 
     def propagate(self, test=False):
         return None
+    
