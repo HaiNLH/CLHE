@@ -291,8 +291,8 @@ def test(model, dataloader, cate, conf):
         print("Seq_b_i_input:",seq_b_i_input.shape)
         print(seq_b_i_input)
         pred_i = pred_i - 1e8 * b_i_input.to(device)  # mask
-        # if cate_filter == True:
-        #     pred_i = filter_cate(pred_i, b_i_input,cate).to(device)
+        if cate_filter == True:
+            pred_i = filter_cate(pred_i, b_i_input,cate).to(device)
         
         tmp_metrics = get_metrics(
             tmp_metrics, b_i_gt.to(device), pred_i, conf["topk"])
@@ -304,12 +304,16 @@ def test(model, dataloader, cate, conf):
             metrics[m][topk] = res[0] / res[1]
 
     return metrics
-# def filter_cate(pred, cate):
-#     ic_mat = cate
-#     cate_match_mat = bc_mat @ ic_mat.T
-#     cate_match_mat = (cate_match_mat>0).astype(int)
-#     filter_pred = pred * (1-cate_match_mat[bi_input])
-#     return filter_pred
+def filter_cate(pred_i,b_i_input, cate):
+    batch_bundle_cate = b_i_input @ cate.T  # shape: (bs, n_c)
+
+    category_match_mask = batch_bundle_cate @ cate.T  # shape: (bs, n_i)
+
+    category_match_mask = (category_match_mask > 0).int()  #one hot
+
+    masked_pred_i = pred_i - 1e8 * category_match_mask.to(pred_i.device)  # Apply masking in batch
+
+    return masked_pred_i
 
 def get_metrics(metrics, grd, pred, topks):
     tmp = {"recall": {}, "ndcg": {}}
