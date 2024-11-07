@@ -185,8 +185,8 @@ def main():
 
             if (batch_anchor+1) % test_interval_bs == 0:
                 metrics = {}
-                metrics["val"] = test(model, dataset.val_loader, dataset.get_cate_info(), conf)
-                metrics["test"] = test(model, dataset.test_loader, dataset.get_cate_info(),conf)
+                metrics["val"] = test(model, dataset.val_loader, dataset.ic_graph, conf)
+                metrics["test"] = test(model, dataset.test_loader, dataset.ic_graph,conf)
                 best_metrics, best_perform, best_epoch, is_better = log_metrics(
                     conf, model, metrics, run, log_path, checkpoint_model_path, checkpoint_conf_path, epoch, batch_anchor, best_metrics, best_perform, best_epoch)
 
@@ -305,13 +305,11 @@ def test(model, dataloader, cate, conf):
 
     return metrics
 def filter_cate(pred_i,b_i_input, cate):
-    batch_bundle_cate = b_i_input @ cate.T  # shape: (bs, n_c)
-
-    category_match_mask = batch_bundle_cate @ cate.T  # shape: (bs, n_i)
-
+    cate  = cate.todense()
+    batch_bundle_cate = b_i_input @ cate.T  # shape: (#b, n_c)
+    category_match_mask = batch_bundle_cate @ cate.T  # shape: (#b, n_i)
     category_match_mask = (category_match_mask > 0).int()  #one hot
-
-    masked_pred_i = pred_i - 1e8 * category_match_mask.to(pred_i.device)  # Apply masking in batch
+    masked_pred_i = pred_i - 1e8 * category_match_mask.to(pred_i.device)  # Apply masking
 
     return masked_pred_i
 
