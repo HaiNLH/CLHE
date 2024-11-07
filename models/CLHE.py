@@ -270,6 +270,7 @@ class CLHE(nn.Module):
         #get item_cate_feat>>>
         self.get_cate_embbed(True)
         dense_ic = self.convert_sparse(self.ic_graph)
+        self.ic = dense_ic
         self.item_cate_feat = dense_ic @ self.cate_feature
         self.item_cate_feat = (F.normalize(self.item_cate_feat, dim = -1)).to(self.device)
         #get item_cate_feat<<<
@@ -374,7 +375,7 @@ class CLHE(nn.Module):
 
         feat_retrival_view = self.decoder(
             (idx, x, seq_x, None, None), all=True)
-        item_cate = self.ic_graph[seq_x]
+        item_cate = self.ic[seq_x]
         same_cate_mask = (item_cate @ item_cate.T)
         print(same_cate_mask)
         logits = bundle_feature @ feat_retrival_view.transpose(0, 1)
