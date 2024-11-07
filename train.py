@@ -185,8 +185,8 @@ def main():
 
             if (batch_anchor+1) % test_interval_bs == 0:
                 metrics = {}
-                metrics["val"] = test(model, dataset.val_loader, conf)
-                metrics["test"] = test(model, dataset.test_loader, conf)
+                metrics["val"] = test(model, dataset.val_loader, dataset.get_cate_info(), conf)
+                metrics["test"] = test(model, dataset.test_loader, dataset.get_cate_info(),conf)
                 best_metrics, best_perform, best_epoch, is_better = log_metrics(
                     conf, model, metrics, run, log_path, checkpoint_model_path, checkpoint_conf_path, epoch, batch_anchor, best_metrics, best_perform, best_epoch)
 
@@ -273,7 +273,7 @@ def log_metrics(conf, model, metrics, run, log_path, checkpoint_model_path, chec
     return best_metrics, best_perform, best_epoch, is_better
 
 
-def test(model, dataloader, conf):
+def test(model, dataloader, cate, conf):
     tmp_metrics = {}
     for m in ["recall", "ndcg"]:
         tmp_metrics[m] = {}
@@ -284,10 +284,16 @@ def test(model, dataloader, conf):
     model.eval()
     rs = model.propagate()
     pbar = tqdm(dataloader, total=len(dataloader))
+    cate_filter = True
     for index, b_i_input, seq_b_i_input, b_i_gt in pbar:
         pred_i = model.evaluate(
             rs, (index.to(device), b_i_input.to(device), seq_b_i_input.to(device)))
+        print("Seq_b_i_input:",seq_b_i_input.shape)
+        print(seq_b_i_input)
         pred_i = pred_i - 1e8 * b_i_input.to(device)  # mask
+        # if cate_filter == True:
+        #     pred_i = filter_cate(pred_i, b_i_input,cate).to(device)
+        
         tmp_metrics = get_metrics(
             tmp_metrics, b_i_gt.to(device), pred_i, conf["topk"])
 
@@ -298,7 +304,12 @@ def test(model, dataloader, conf):
             metrics[m][topk] = res[0] / res[1]
 
     return metrics
-
+# def filter_cate(pred, cate):
+#     ic_mat = cate
+#     cate_match_mat = bc_mat @ ic_mat.T
+#     cate_match_mat = (cate_match_mat>0).astype(int)
+#     filter_pred = pred * (1-cate_match_mat[bi_input])
+#     return filter_pred
 
 def get_metrics(metrics, grd, pred, topks):
     tmp = {"recall": {}, "ndcg": {}}

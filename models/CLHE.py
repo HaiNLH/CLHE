@@ -370,17 +370,19 @@ class CLHE(nn.Module):
         mask = seq_x == self.num_item
         print(seq_x)
         feat_bundle_view = self.encoder(seq_x)
-
         bundle_feature = self.bundle_encode(feat_bundle_view, mask=mask)
-
         feat_retrival_view = self.decoder(
             (idx, x, seq_x, None, None), all=True)
-        item_cate = self.ic[seq_x]
-        same_cate_mask = (item_cate @ item_cate.T)
-        print(same_cate_mask)
-        logits = bundle_feature @ feat_retrival_view.transpose(0, 1)
-        filtered = logits @ filter() #use seq X to get filter item
-        return filtered
+        #Mask all item with exist cate>>>
+        #seq_x: item-pairs, ic: #i x #c 
+        # item_cate = self.ic[seq_x]
+        # same_cate_mask = (item_cate @ item_cate.T)
+        # print(same_cate_mask)
+        #<<<Mask all item with exist cate 
+
+        logits = bundle_feature @ feat_retrival_view.transpose(0, 1) #itemxitem
+        print(logits.shape)
+        return logits
 
     def propagate(self, test=False):
         return None
