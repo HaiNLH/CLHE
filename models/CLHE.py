@@ -367,17 +367,21 @@ class CLHE(nn.Module):
     def evaluate(self, _, batch):
         idx, x, seq_x = batch
         mask = seq_x == self.num_item
+        print(seq_x)
         feat_bundle_view = self.encoder(seq_x)
 
         bundle_feature = self.bundle_encode(feat_bundle_view, mask=mask)
 
         feat_retrival_view = self.decoder(
             (idx, x, seq_x, None, None), all=True)
-
+        item_cate = self.ic_graph[seq_x]
+        same_cate_mask = (item_cate @ item_cate.T)
+        print(same_cate_mask)
         logits = bundle_feature @ feat_retrival_view.transpose(0, 1)
-
-        return logits
+        filtered = logits @ filter() #use seq X to get filter item
+        return filtered
 
     def propagate(self, test=False):
         return None
+        
     
