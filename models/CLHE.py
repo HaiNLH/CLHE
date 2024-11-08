@@ -293,7 +293,7 @@ class CLHE(nn.Module):
             print(self.item_cate_feat.device)
             print("Random initialize c_embed")
     def forward(self, batch):
-        idx, full, seq_full, modify, seq_modify = batch  # x: [bs, #items]
+        idx, full, seq_full, modify,  seq_modify = batch  # x: [bs, #items]
         mask = seq_full == self.num_item
         feat_bundle_view = self.encoder(seq_full)  # [bs, n_token, d]
 

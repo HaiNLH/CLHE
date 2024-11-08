@@ -122,13 +122,15 @@ def main():
     settings = []
     if conf["info"] != "":
         settings += [conf["info"]]
-
+    setting += [conf['seed']]
+    setting += '{item_augment}'
     settings += ["Epoch%d" % (conf['epochs']), str(conf["batch_size_train"]),
                  str(lr), str(l2_reg), str(embedding_size)]
 
     conf["num_layers"] = num_layers
 
     setting = "_".join(settings)
+    
     log_path = log_path + "/" + setting
     run_path = run_path + "/" + setting
     checkpoint_model_path = checkpoint_model_path + "/" + setting
@@ -166,8 +168,9 @@ def main():
             batch_anchor = epoch_anchor + batch_i
 
             losses = model(batch)
-
-            losses['loss'].backward(retain_graph=True)
+            
+            #Change to false to reduce mem usage
+            losses['loss'].backward(retain_graph=False)
             optimizer.step()
 
             for l in losses:
