@@ -289,11 +289,18 @@ def test(model, dataloader, cate, conf):
         pred_i = model.evaluate(
             rs, (index.to(device), b_i_input.to(device), seq_b_i_input.to(device)))
         print("Seq_b_i_input:",seq_b_i_input.shape)
-        print(seq_b_i_input)
+        print("pred: shape ", pred_i.shape)
         pred_i = pred_i - 1e8 * b_i_input.to(device)  # mask
         if cate_filter == True:
             pred_i = filter_cate(pred_i, b_i_input,cate).to(device)
         
+        top_k = 5
+        _, recommended_items = torch.topk(pred_i, k=top_k, dim=-1)
+        
+        # Print the bundle index along with the recommended items
+        for i, bundle_idx in enumerate(index):
+            print(f"Bundle index: {bundle_idx}, Top 10 recommended items: {recommended_items[i].tolist()}")
+
         tmp_metrics = get_metrics(
             tmp_metrics, b_i_gt.to(device), pred_i, conf["topk"])
 
@@ -304,10 +311,11 @@ def test(model, dataloader, cate, conf):
             metrics[m][topk] = res[0] / res[1]
 
     return metrics
-def filter_cate(pred_i,b_i_input, cate):
-    cate  = cate.todense()
-    batch_bundle_cate = b_i_input @ cate.T  # shape: (#b, n_c)
-    category_match_mask = batch_bundle_cate @ cate.T  # shape: (#b, n_i)
+def filter_cate(pred_i,b_i_input, item_cate):
+    item_cate  = item_cate.todense()
+    print(b_i_input.shape)
+    batch_bundle_cate = b_i_input @ item_cate  # shape: (#b, n_c)
+    category_match_mask = batch_bundle_cate @ item_cate.T  # shape: (#b, n_i)
     category_match_mask = (category_match_mask > 0).int()  #one hot
     masked_pred_i = pred_i - 1e8 * category_match_mask.to(pred_i.device)  # Apply masking
 
