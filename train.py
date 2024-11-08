@@ -67,7 +67,7 @@ def get_cmd():
     parser.add_argument("--num_token", default=200, type=int,
                         help="the number of tokens (items in the bundle)")
     
-    parser.add_argument("--seed", default=2024, type=int, help="")
+    parser.add_argument("--seed", default=2023, type=int, help="")
     parser.add_argument("--epoch", default=-1, type=int, help="")
 
     args = parser.parse_args()
@@ -124,6 +124,7 @@ def main():
     settings = []
     if conf["info"] != "":
         settings += [conf["info"]]
+    settings += [str(conf['seed'])]
 
     settings += ["Epoch%d" % (conf['epochs']), str(conf["batch_size_train"]),
                  str(lr), str(l2_reg), str(embedding_size)]

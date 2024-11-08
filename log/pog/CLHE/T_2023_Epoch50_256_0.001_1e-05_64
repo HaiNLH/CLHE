@@ -1,0 +1,91 @@
+{'data_path': 'D:\\DS-KT\\Bundle_data\\datasets', 'batch_size_train': 256, 'batch_size_test': 1024, 'topk': [5, 10, 20, 40, 80], 'neg_num': 1, 'embedding_sizes': [64], 'num_layerss': [1], 'lrs': [0.001], 'l2_regs': [1e-05], 'epochs': 50, 'test_interval': 2, 'gpu': '0', 'dataset': 'pog', 'model': 'CLHE', 'info': '', 'lr': 0.001, 'reg': 1e-05, 'item_augment': 'NA', 'bundle_ratio': 0.5, 'bundle_augment': 'ID', 'dropout_rate': 0.2, 'noise_weight': 0.02, 'cl_temp': 0.5, 'cl_alpha': 2.0, 'bundle_cl_temp': 0.01, 'bundle_cl_alpha': 0.5, 'attention': '', 'trans_layer': 1, 'num_token': 200, 'seed': 2023, 'epoch': -1, 'device': device(type='cuda', index=0), 'num_users': 17449, 'num_bundles': 20000, 'num_items': 48676, 'num_cates': 72, 'l2_reg': 1e-05, 'embedding_size': 64, 'num_layers': 1}
+2024-11-08 13:04:29, Top_5, Val:  recall: 0.011250, ndcg: 0.009918
+2024-11-08 13:04:29, Top_5, Test: recall: 0.009250, ndcg: 0.007411
+2024-11-08 13:04:29, Top_10, Val:  recall: 0.018167, ndcg: 0.012654
+2024-11-08 13:04:29, Top_10, Test: recall: 0.015583, ndcg: 0.009929
+2024-11-08 13:04:29, Top_20, Val:  recall: 0.027000, ndcg: 0.015385
+2024-11-08 13:04:29, Top_20, Test: recall: 0.024667, ndcg: 0.012747
+2024-11-08 13:04:29, Top_40, Val:  recall: 0.035750, ndcg: 0.017621
+2024-11-08 13:04:29, Top_40, Test: recall: 0.038750, ndcg: 0.016325
+2024-11-08 13:04:29, Top_80, Val:  recall: 0.054250, ndcg: 0.021547
+2024-11-08 13:04:29, Top_80, Test: recall: 0.055542, ndcg: 0.019866
+2024-11-08 13:04:29, Best in epoch 1, TOP 5: REC_V=0.01125, NDCG_V=0.00992
+2024-11-08 13:04:29, Best in epoch 1, TOP 5: REC_T=0.00925, NDCG_T=0.00741
+2024-11-08 13:04:29, Best in epoch 1, TOP 10: REC_V=0.01817, NDCG_V=0.01265
+2024-11-08 13:04:29, Best in epoch 1, TOP 10: REC_T=0.01558, NDCG_T=0.00993
+2024-11-08 13:04:29, Best in epoch 1, TOP 20: REC_V=0.02700, NDCG_V=0.01538
+2024-11-08 13:04:29, Best in epoch 1, TOP 20: REC_T=0.02467, NDCG_T=0.01275
+2024-11-08 13:04:29, Best in epoch 1, TOP 40: REC_V=0.03575, NDCG_V=0.01762
+2024-11-08 13:04:29, Best in epoch 1, TOP 40: REC_T=0.03875, NDCG_T=0.01633
+2024-11-08 13:04:29, Best in epoch 1, TOP 80: REC_V=0.05425, NDCG_V=0.02155
+2024-11-08 13:04:29, Best in epoch 1, TOP 80: REC_T=0.05554, NDCG_T=0.01987
+2024-11-08 13:07:16, Top_5, Val:  recall: 0.015000, ndcg: 0.013418
+2024-11-08 13:07:16, Top_5, Test: recall: 0.015083, ndcg: 0.013049
+2024-11-08 13:07:16, Top_10, Val:  recall: 0.020417, ndcg: 0.015544
+2024-11-08 13:07:16, Top_10, Test: recall: 0.020250, ndcg: 0.015147
+2024-11-08 13:07:16, Top_20, Val:  recall: 0.026167, ndcg: 0.017351
+2024-11-08 13:07:16, Top_20, Test: recall: 0.029458, ndcg: 0.018063
+2024-11-08 13:07:16, Top_40, Val:  recall: 0.033667, ndcg: 0.019233
+2024-11-08 13:07:16, Top_40, Test: recall: 0.037833, ndcg: 0.020198
+2024-11-08 13:07:16, Top_80, Val:  recall: 0.045583, ndcg: 0.021763
+2024-11-08 13:07:16, Top_80, Test: recall: 0.047750, ndcg: 0.022333
+2024-11-08 13:10:03, Top_5, Val:  recall: 0.016167, ndcg: 0.014508
+2024-11-08 13:10:03, Top_5, Test: recall: 0.016417, ndcg: 0.014985
+2024-11-08 13:10:03, Top_10, Val:  recall: 0.019250, ndcg: 0.015723
+2024-11-08 13:10:03, Top_10, Test: recall: 0.021375, ndcg: 0.016996
+2024-11-08 13:10:03, Top_20, Val:  recall: 0.024917, ndcg: 0.017486
+2024-11-08 13:10:03, Top_20, Test: recall: 0.027500, ndcg: 0.018948
+2024-11-08 13:10:03, Top_40, Val:  recall: 0.031083, ndcg: 0.019089
+2024-11-08 13:10:03, Top_40, Test: recall: 0.034667, ndcg: 0.020771
+2024-11-08 13:10:03, Top_80, Val:  recall: 0.042083, ndcg: 0.021436
+2024-11-08 13:10:03, Top_80, Test: recall: 0.044208, ndcg: 0.022790
+2024-11-08 13:13:05, Top_5, Val:  recall: 0.015250, ndcg: 0.013280
+2024-11-08 13:13:05, Top_5, Test: recall: 0.015167, ndcg: 0.013627
+2024-11-08 13:13:05, Top_10, Val:  recall: 0.019333, ndcg: 0.014920
+2024-11-08 13:13:05, Top_10, Test: recall: 0.020500, ndcg: 0.015813
+2024-11-08 13:13:05, Top_20, Val:  recall: 0.024000, ndcg: 0.016368
+2024-11-08 13:13:05, Top_20, Test: recall: 0.025458, ndcg: 0.017396
+2024-11-08 13:13:05, Top_40, Val:  recall: 0.028667, ndcg: 0.017556
+2024-11-08 13:13:05, Top_40, Test: recall: 0.031333, ndcg: 0.018888
+2024-11-08 13:13:05, Top_80, Val:  recall: 0.036083, ndcg: 0.019139
+2024-11-08 13:13:05, Top_80, Test: recall: 0.041625, ndcg: 0.021077
+2024-11-08 13:15:53, Top_5, Val:  recall: 0.018333, ndcg: 0.015749
+2024-11-08 13:15:53, Top_5, Test: recall: 0.019458, ndcg: 0.017483
+2024-11-08 13:15:53, Top_10, Val:  recall: 0.022750, ndcg: 0.017452
+2024-11-08 13:15:53, Top_10, Test: recall: 0.027125, ndcg: 0.020601
+2024-11-08 13:15:53, Top_20, Val:  recall: 0.028500, ndcg: 0.019253
+2024-11-08 13:15:53, Top_20, Test: recall: 0.035000, ndcg: 0.023139
+2024-11-08 13:15:53, Top_40, Val:  recall: 0.040917, ndcg: 0.022368
+2024-11-08 13:15:53, Top_40, Test: recall: 0.046667, ndcg: 0.026078
+2024-11-08 13:15:53, Top_80, Val:  recall: 0.054583, ndcg: 0.025320
+2024-11-08 13:15:53, Top_80, Test: recall: 0.061083, ndcg: 0.029105
+2024-11-08 13:15:53, Best in epoch 9, TOP 5: REC_V=0.01833, NDCG_V=0.01575
+2024-11-08 13:15:53, Best in epoch 9, TOP 5: REC_T=0.01946, NDCG_T=0.01748
+2024-11-08 13:15:53, Best in epoch 9, TOP 10: REC_V=0.02275, NDCG_V=0.01745
+2024-11-08 13:15:53, Best in epoch 9, TOP 10: REC_T=0.02713, NDCG_T=0.02060
+2024-11-08 13:15:53, Best in epoch 9, TOP 20: REC_V=0.02850, NDCG_V=0.01925
+2024-11-08 13:15:53, Best in epoch 9, TOP 20: REC_T=0.03500, NDCG_T=0.02314
+2024-11-08 13:15:53, Best in epoch 9, TOP 40: REC_V=0.04092, NDCG_V=0.02237
+2024-11-08 13:15:53, Best in epoch 9, TOP 40: REC_T=0.04667, NDCG_T=0.02608
+2024-11-08 13:15:53, Best in epoch 9, TOP 80: REC_V=0.05458, NDCG_V=0.02532
+2024-11-08 13:15:53, Best in epoch 9, TOP 80: REC_T=0.06108, NDCG_T=0.02910
+2024-11-08 13:18:41, Top_5, Val:  recall: 0.018417, ndcg: 0.015363
+2024-11-08 13:18:41, Top_5, Test: recall: 0.019583, ndcg: 0.016984
+2024-11-08 13:18:41, Top_10, Val:  recall: 0.021417, ndcg: 0.016529
+2024-11-08 13:18:41, Top_10, Test: recall: 0.026083, ndcg: 0.019594
+2024-11-08 13:18:41, Top_20, Val:  recall: 0.027583, ndcg: 0.018495
+2024-11-08 13:18:41, Top_20, Test: recall: 0.032500, ndcg: 0.021649
+2024-11-08 13:18:41, Top_40, Val:  recall: 0.037500, ndcg: 0.021004
+2024-11-08 13:18:41, Top_40, Test: recall: 0.042792, ndcg: 0.024292
+2024-11-08 13:18:41, Top_80, Val:  recall: 0.052083, ndcg: 0.024125
+2024-11-08 13:18:41, Top_80, Test: recall: 0.057500, ndcg: 0.027384
+2024-11-08 13:21:29, Top_5, Val:  recall: 0.017917, ndcg: 0.015439
+2024-11-08 13:21:29, Top_5, Test: recall: 0.018417, ndcg: 0.016899
+2024-11-08 13:21:29, Top_10, Val:  recall: 0.021250, ndcg: 0.016792
+2024-11-08 13:21:29, Top_10, Test: recall: 0.025167, ndcg: 0.019622
+2024-11-08 13:21:29, Top_20, Val:  recall: 0.026833, ndcg: 0.018529
+2024-11-08 13:21:29, Top_20, Test: recall: 0.032542, ndcg: 0.021954
+2024-11-08 13:21:29, Top_40, Val:  recall: 0.035167, ndcg: 0.020661
+2024-11-08 13:21:29, Top_40, Test: recall: 0.042750, ndcg: 0.024548
+2024-11-08 13:21:29, Top_80, Val:  recall: 0.049083, ndcg: 0.023638
+2024-11-08 13:21:29, Top_80, Test: recall: 0.057625, ndcg: 0.027730

@@ -184,8 +184,6 @@ class Datasets():
             self.bundle_val_data, batch_size=batch_size_test, shuffle=False, num_workers=20)
         self.test_loader = DataLoader(
             self.bundle_test_data, batch_size=batch_size_test, shuffle=False, num_workers=20)
-    def get_cate_info(self):
-        return self.i_c_graph
     def combine_graph(self, pairs_list, shape, tag):
         pairs = np.concatenate(pairs_list, axis=0)
         indice = np.array(pairs, dtype=np.int32)
