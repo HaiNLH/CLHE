@@ -66,7 +66,8 @@ def get_cmd():
                         help="the number of layers for layernorm")
     parser.add_argument("--num_token", default=200, type=int,
                         help="the number of tokens (items in the bundle)")
-    
+    parser.add_argument("--cate_filter", default=False, type=bool,
+                        help="Activate filter category")
     parser.add_argument("--seed", default=2024, type=int, help="")
     parser.add_argument("--epoch", default=-1, type=int, help="")
 
@@ -102,7 +103,8 @@ def main():
     l2_reg = paras['reg'] if "reg" in paras else conf['l2_regs'][0]
     embedding_size = paras['embedding_size'] if "embedding_size" in paras else conf['embedding_sizes'][0]
     num_layers = paras['num_layers'] if "num_layers" in paras else conf['num_layerss'][0]
-
+    cate_filter = paras['cate_filter'] if 'cate_filter' in paras else conf['cate_filter'][0]
+    
     log_path = "./log/%s/%s" % (conf["dataset"], conf["model"])
     run_path = "./runs/%s/%s" % (conf["dataset"], conf["model"])
     checkpoint_model_path = "./checkpoints/%s/%s/model" % (
@@ -120,7 +122,7 @@ def main():
 
     conf["l2_reg"] = l2_reg
     conf["embedding_size"] = embedding_size
-
+    conf['cate_filter'] = cate_filter
     settings = []
     if conf["info"] != "":
         settings += [conf["info"]]
@@ -284,7 +286,7 @@ def test(model, dataloader, cate, conf):
     model.eval()
     rs = model.propagate()
     pbar = tqdm(dataloader, total=len(dataloader))
-    cate_filter = True
+    cate_filter = conf['cate_filter']
     for index, b_i_input, seq_b_i_input, b_i_gt in pbar:
         pred_i = model.evaluate(
             rs, (index.to(device), b_i_input.to(device), seq_b_i_input.to(device)))
@@ -299,7 +301,7 @@ def test(model, dataloader, cate, conf):
         
         # Print the bundle index along with the recommended items
         for i, bundle_idx in enumerate(index):
-            print(f"Bundle index: {bundle_idx}, Top 10 recommended items: {recommended_items[i].tolist()}")
+            print(f"Bundle index: {bundle_idx}, Top 5 recommended items: {recommended_items[i].tolist()}")
 
         tmp_metrics = get_metrics(
             tmp_metrics, b_i_gt.to(device), pred_i, conf["topk"])
@@ -316,7 +318,7 @@ def filter_cate(pred_i,b_i_input, item_cate):
     print(b_i_input.shape)
     batch_bundle_cate = b_i_input @ item_cate  # shape: (#b, n_c)
     category_match_mask = batch_bundle_cate @ item_cate.T  # shape: (#b, n_i)
-    category_match_mask = (category_match_mask > 0).int()  #one hot
+    category_match_mask = (category_match_mask > 0).int()  
     masked_pred_i = pred_i - 1e8 * category_match_mask.to(pred_i.device)  # Apply masking
 
     return masked_pred_i
