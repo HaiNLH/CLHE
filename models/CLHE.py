@@ -254,7 +254,7 @@ class CLHE(nn.Module):
         self.item_augmentation = self.conf["item_augment"]
         self.extra_layer = conf["extra_layer"]
         self.a_self_loop = self.conf["self_loop"]
-        self.n_head = self.conf["nhead"]
+        self.n_head = self.conf["n_head"]
         self.encoder = HierachicalEncoder(conf, raw_graph, features)
         # decoder has the similar structure of the encoder
         self.decoder = HierachicalEncoder(conf, raw_graph, features)
@@ -271,8 +271,8 @@ class CLHE(nn.Module):
 
         self.bundle_cl_temp = conf['bundle_cl_temp']
         self.bundle_cl_alpha = conf['bundle_cl_alpha']
-        self.cbc_edge_index = torch.tensor(np.load("datasets/{}/n_neigh_cbc.npy".format(conf["dataset"]), allow_pickle = True )).to(self.device)
-        self.cbc_gat_conv = Amatrix(in_dim = 64, out_dim = 64, n_layer = 1, drop_out = 0.1, head = self.n_head, concat=False, self_loop = self.a_self_loop, extra_layer = self.extra_layer)
+        self.cbc_edge_index = torch.tensor(np.load("/content/drive/MyDrive/datasets/{}/n_neigh_cbc.npy".format(conf["dataset"]), allow_pickle = True )).to(self.device)
+        self.cbc_gat_conv = Amatrix(in_dim = 64, out_dim = 64, n_layer = 1, dropout = 0.1, heads = self.n_head, concat=False, self_loop = self.a_self_loop, extra_layer = self.extra_layer)
 
         self.cl_projector = nn.Linear(self.embedding_size, self.embedding_size)
         init(self.cl_projector)
