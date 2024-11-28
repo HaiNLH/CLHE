@@ -6,6 +6,7 @@ from models.utils import TransformerEncoder
 from collections import OrderedDict
 from sklearn.decomposition import TruncatedSVD
 import scipy.sparse as sp
+from models.Asym import AsymMatrix
 eps = 1e-9
 
 
@@ -23,8 +24,19 @@ def recon_loss_function(recon_x, x):
     negLogLike = -torch.mean(negLogLike)
     return negLogLike
 
+def to_tensor(graph):
+    graph = graph.tocoo()
+    values = graph.data
+    indices = np.vstack((graph.row, graph.col))
+    graph = torch.sparse.FloatTensor(torch.LongTensor(indices), torch.FloatTensor(values), torch.Size(graph.shape))
 
+    return graph
 infonce_criterion = nn.CrossEntropyLoss()
+
+def np_edge_dropout(values, dropout_ratio):
+    mask = np.random.choice([0, 1], size=(len(values),), p=[dropout_ratio, 1 - dropout_ratio])
+    values = mask * values
+    return values
 
 
 def cl_loss_function(a, b, temp=0.2):
@@ -236,7 +248,7 @@ class CLHE(nn.Module):
         self.num_bundle = self.conf["num_bundles"]
         self.num_item = self.conf["num_items"]
         self.num_cate  = self.conf["num_cates"]
-        self.embedding_size = 64
+        self.embedding_size = conf['embedding_size']
         self.ui_graph, self.bi_graph_train, self.bi_graph_seen, self.ic_graph = raw_graph
         self.item_augmentation = self.conf["item_augment"]
 
@@ -257,6 +269,7 @@ class CLHE(nn.Module):
         self.bundle_cl_temp = conf['bundle_cl_temp']
         self.bundle_cl_alpha = conf['bundle_cl_alpha']
 
+        self.cbc_gat_conv = Amatrix
 
         self.cl_projector = nn.Linear(self.embedding_size, self.embedding_size)
         init(self.cl_projector)
@@ -270,7 +283,7 @@ class CLHE(nn.Module):
         #get item_cate_feat>>>
         self.get_cate_embbed(True)
         dense_ic = self.convert_sparse(self.ic_graph)
-        self.ic = dense_ic
+        # self.ic = dense_ic
         self.item_cate_feat = dense_ic @ self.cate_feature
         self.item_cate_feat = (F.normalize(self.item_cate_feat, dim = -1)).to(self.device)
         #get item_cate_feat<<<
@@ -387,4 +400,36 @@ class CLHE(nn.Module):
     def propagate(self, test=False):
         return None
         
-    
+class Amatrix(nn.Module):
+    def __init__(self, in_dim, out_dim, n_layer=1, dropout=0.0, heads=2, concat=False, self_loop=True,
+                 extra_layer=False):
+        super(Amatrix, self).__init__()
+        self.num_layer = n_layer
+        self.dropout = dropout
+        self.in_dim = in_dim
+        self.out_dim = out_dim
+        self.heads = heads
+        self.concat = concat
+        self.self_loop = self_loop
+        self.extra_layer = extra_layer
+        self.convs = nn.ModuleList([AsymMatrix(in_channels=self.in_dim,
+                                               out_channels=self.out_dim,
+                                               dropout=self.dropout,
+                                               heads=self.heads,
+                                               concat=self.concat,
+                                               add_self_loops=self.self_loop,
+                                               extra_layer=self.extra_layer)
+                                    for _ in range(self.num_layer)])
+
+    def forward(self, x, edge_index, return_attention_weights=True):
+        feats = [x]
+        attns = []
+
+        for conv in self.convs:
+            x, attn = conv(x, edge_index, return_attention_weights=return_attention_weights)
+            feats.append(x)
+            attns.append(attn)
+
+        feat = torch.stack(feats, dim=1)
+        x = torch.mean(feat, dim=1)
+        return x, attns
