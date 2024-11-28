@@ -15,7 +15,7 @@ def get_cmd():
 if __name__ =='__main__':
     paras = get_cmd().__dict__
     dataset_name = paras["dataset"]
-    data_path = '/content/drive/MyDrive/datasets'
+    data_path = '/content/drive/MyDrive'
     path_ibi = f"{data_path}/datasets/{dataset_name}/ibi_cooc.npz"
     path_cbc = f"{data_path}/datasets/{dataset_name}/cbc_cooc.npz"
     path_iui = f"{data_path}/datasets/{dataset_name}/iui_cooc.npz"

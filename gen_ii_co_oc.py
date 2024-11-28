@@ -94,8 +94,8 @@ if __name__ == '__main__':
 
     paras = get_cmd().__dict__
     dataset_name = paras["dataset"]
-    # data_path ='/content/drive/MyDrive/datasets'
-    data_path = 'D:\DS-KT\Bundle_data\datasets'
+    data_path ='/content/drive/MyDrive/datasets'
+    # data_path = 'D:\DS-KT\Bundle_data\datasets'
     sep = ','
     print(f'{data_path}/{dataset_name}')
     users, bundles, items, cates = get_stat(f'{data_path}/{dataset_name}/count.json')
