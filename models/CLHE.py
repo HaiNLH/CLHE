@@ -418,7 +418,7 @@ class CLHE(nn.Module):
     def evaluate(self, _, batch):
         idx, x, seq_x = batch
         mask = seq_x == self.num_item
-        print(seq_x)
+        # print(seq_x)
         feat_bundle_view = self.encoder(seq_x)
         bundle_feature = self.bundle_encode(feat_bundle_view, mask=mask)
         feat_retrival_view = self.decoder(
@@ -442,7 +442,7 @@ class CLHE(nn.Module):
         #agg cate -> item
         cl_item_cate = self.get_CL_item_rep(cate_ft, test)
 
-        return cate_feat
+        return cl_item_cate
         
 class Amatrix(nn.Module):
     def __init__(self, in_dim, out_dim, n_layer=1, dropout=0.0, heads=2, concat=False, self_loop=True,
