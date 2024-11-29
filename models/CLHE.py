@@ -285,11 +285,14 @@ class CLHE(nn.Module):
         
         #get item_cate_feat>>>
         self.get_cate_embbed(True)
-        dense_ic = self.convert_sparse(self.ic_graph)
-        # self.ic = dense_ic
-        self.item_cate_feat = dense_ic @ self.cate_feature
-        self.item_cate_feat = (F.normalize(self.item_cate_feat, dim = -1)).to(self.device)
+        # dense_ic = self.convert_sparse(self.ic_graph)
+        # # self.ic = dense_ic
+        # self.item_cate_feat = dense_ic @ self.cate_feature
+        # self.item_cate_feat = (F.normalize(self.item_cate_feat, dim = -1)).to(self.device)
+        self.get_item_agg_graph()
         #get item_cate_feat<<<
+
+
 
     def init_emb(self):
         self.cate_feature = nn.Parameter(torch.FloatTensor(self.num_cate, self.embedding_size)).to(self.device)
@@ -297,7 +300,8 @@ class CLHE(nn.Module):
         dense_mat = sparse.toarray()
         dense_tensor= torch.tensor(dense_mat)
         return dense_tensor.to(self.device)
-    def get_cate_embbed(self, co_oc = True):
+    
+    def get_cate_embbed(self, co_oc = False):
         dataset_name = 'pog'
         path = self.conf['data_path']
         if co_oc == True:
@@ -312,6 +316,34 @@ class CLHE(nn.Module):
             self.init_emb()
             print(self.item_cate_feat.device)
             print("Random initialize c_embed")
+
+    def get_item_agg_graph(self):
+        ic_graph = self.ic_graph
+        device = self.device
+
+        #temp removing ED
+        # if self.conf["aug_type"] == "ED":
+        #     modification_ratio = self.conf["bundle_agg_ratio"]
+        #     graph = self.ic_graph.tocoo()
+        #     values = np_edge_dropout(graph.data, modification_ratio)
+        #     ic_graph = sp.coo_matrix((values, (graph.row, graph.col)), shape=graph.shape).tocsr()
+
+        item_size = ic_graph.sum(axis=1) + 1e-8
+        ic_graph = sp.diags(1 / item_size.A.ravel()) @ ic_graph
+        self.item_agg_graph = to_tensor(ic_graph).to(device)
+
+    def get_CL_item_rep(self, CL_cates_feature, test):
+        if test:
+            IL_users_feature = torch.matmul(self.item_agg_graph, CL_cates_feature)
+        else:
+            IL_users_feature = torch.matmul(self.item_agg_graph, CL_cates_feature)
+
+        # simple embedding dropout on bundle embeddings
+        # if self.conf["bundle_agg_ratio"] != 0 and self.conf["aug_type"] == "MD" and not test:
+        #     CL_cates_feature = self.bundle_agg_dropout(IL_users_feature)
+
+        return CL_cates_feature
+    
 
     def forward(self, batch):
         idx, full, seq_full, modify, seq_modify = batch  # x: [bs, #items]
@@ -330,6 +362,8 @@ class CLHE(nn.Module):
         # # item-level contrastive learning >>>
         items_in_batch = torch.argwhere(full.sum(dim=0)).squeeze()
         item_loss = torch.tensor(0).to(self.device)
+        self.item_cate_feat = self.propagate()
+        item_cate_feat = (F.normalize(self.item_cate_feat, dim = -1)).to(self.device)
         if self.cl_alpha > 0:
             if self.item_augmentation == "FD":
                 item_features = self.encoder(batch, all=True)[items_in_batch]
@@ -338,7 +372,7 @@ class CLHE(nn.Module):
                 item_loss = self.cl_alpha * cl_loss_function(
                     sub1.view(-1, self.embedding_size), sub2.view(-1, self.embedding_size), self.cl_temp)
             elif self.item_augmentation == "NA":
-                tmp = F.normalize(self.encoder(batch, all=True) + self.item_cate_feat,dim = -1).to(self.device)
+                tmp = F.normalize(self.encoder(batch, all=True) + item_cate_feat,dim = -1).to(self.device)
                 item_features = tmp[items_in_batch]
                 item_loss = self.cl_alpha * cl_loss_function(
                     item_features.view(-1, self.embedding_size), item_features.view(-1, self.embedding_size), self.cl_temp)
@@ -401,7 +435,14 @@ class CLHE(nn.Module):
         return logits
 
     def propagate(self, test=False):
-        return None
+        a = 0.5
+        cate_feat, _ = self.cbc_gat_conv(self.cate_feature, self.cbc_edge_index, return_attention_weights=True)
+        cate_ft = cate_feat*a + self.cate_feature*(1-a)
+        print(cate_feat.shape)
+        #agg cate -> item
+        cl_item_cate = self.get_CL_item_rep(cate_ft, test)
+
+        return cate_feat
         
 class Amatrix(nn.Module):
     def __init__(self, in_dim, out_dim, n_layer=1, dropout=0.0, heads=2, concat=False, self_loop=True,
