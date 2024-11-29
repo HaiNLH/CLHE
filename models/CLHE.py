@@ -438,13 +438,24 @@ class CLHE(nn.Module):
         return logits
 
     def propagate(self, test=False):
+
         a = 0.5
+        print("Checking input tensors...")
+        print("self.cate_feature NaNs:", torch.isnan(self.cate_feature).any())
+
+        # Perform GAT convolution
         cate_feat, _ = self.cbc_gat_conv(self.cate_feature, self.cbc_edge_index, return_attention_weights=True)
-        cate_ft = cate_feat*a + self.cate_feature*(1-a)
-        # print("cate_feat_shape: ", cate_feat.shape)
-        #agg cate -> item
+        print("cate_feat NaNs after GAT:", torch.isnan(cate_feat).any())
+
+        # Weighted combination
+        cate_ft = cate_feat * a + self.cate_feature * (1 - a)
+        cate_ft = torch.nan_to_num(cate_ft, nan=0.0)  # Handle NaNs explicitly
+        print("cate_ft NaNs after combination:", torch.isnan(cate_ft).any())
+
+        # Aggregate category to item
         cl_item_cate = self.get_CL_item_rep(cate_ft, test)
-        # print("cl_item_ft_shape: ", cl_item_cate.shape)
+        print("cl_item_cate NaNs:", torch.isnan(cl_item_cate).any())
+
         return cl_item_cate
         
 class Amatrix(nn.Module):
