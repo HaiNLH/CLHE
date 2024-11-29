@@ -187,8 +187,8 @@ def main():
 
             if (batch_anchor+1) % test_interval_bs == 0:
                 metrics = {}
-                metrics["val"] = test(model, dataset.val_loader, dataset.ic_graph, conf)
-                metrics["test"] = test(model, dataset.test_loader, dataset.ic_graph,conf)
+                metrics["val"] = test(model, dataset.val_loader, conf)
+                metrics["test"] = test(model, dataset.test_loader,conf)
                 best_metrics, best_perform, best_epoch, is_better = log_metrics(
                     conf, model, metrics, run, log_path, checkpoint_model_path, checkpoint_conf_path, epoch, batch_anchor, best_metrics, best_perform, best_epoch)
 
@@ -275,7 +275,7 @@ def log_metrics(conf, model, metrics, run, log_path, checkpoint_model_path, chec
     return best_metrics, best_perform, best_epoch, is_better
 
 
-def test(model, dataloader, cate, conf):
+def test(model, dataloader, conf):
     tmp_metrics = {}
     for m in ["recall", "ndcg"]:
         tmp_metrics[m] = {}
@@ -286,25 +286,12 @@ def test(model, dataloader, cate, conf):
     model.eval()
     rs = model.propagate()
     pbar = tqdm(dataloader, total=len(dataloader))
-    cate_filter = conf['cate_filter']
     for index, b_i_input, seq_b_i_input, b_i_gt in pbar:
         pred_i = model.evaluate(
             rs, (index.to(device), b_i_input.to(device), seq_b_i_input.to(device)))
-        print("Seq_b_i_input:",seq_b_i_input.shape)
-        print("pred: shape ", pred_i.shape)
         pred_i = pred_i - 1e8 * b_i_input.to(device)  # mask
-        if cate_filter == True:
-            pred_i = filter_cate(pred_i, b_i_input,cate).to(device)
-        
-        top_k = 5
-        _, recommended_items = torch.topk(pred_i, k=top_k, dim=-1)
-        
-        # Print the bundle index along with the recommended items
-        # for i, bundle_idx in enumerate(index):
-        #     print(f"Bundle index: {bundle_idx}, Top 5 recommended items: {recommended_items[i].tolist()}")
-
-        # tmp_metrics = get_metrics(
-        #     tmp_metrics, b_i_gt.to(device), pred_i, conf["topk"])
+        tmp_metrics = get_metrics(
+            tmp_metrics, b_i_gt.to(device), pred_i, conf["topk"])
 
     metrics = {}
     for m, topk_res in tmp_metrics.items():
