@@ -367,6 +367,7 @@ class CLHE(nn.Module):
         item_loss = torch.tensor(0).to(self.device)
         self.item_cate_feat = self.propagate()
         item_cate_feat = (F.normalize(self.item_cate_feat, dim = -1)).to(self.device)
+        w1 = 0.7
         if self.cl_alpha > 0:
             if self.item_augmentation == "FD":
                 item_features = self.encoder(batch, all=True)[items_in_batch]
@@ -375,12 +376,12 @@ class CLHE(nn.Module):
                 item_loss = self.cl_alpha * cl_loss_function(
                     sub1.view(-1, self.embedding_size), sub2.view(-1, self.embedding_size), self.cl_temp)
             elif self.item_augmentation == "NA":
-                tmp = F.normalize(self.encoder(batch, all=True) + item_cate_feat,dim = -1).to(self.device)
+                tmp = F.normalize(self.encoder(batch, all=True)*w1 + self.item_cate_feat*(1-w1)).to(self.device)
                 item_features = tmp[items_in_batch]
                 item_loss = self.cl_alpha * cl_loss_function(
-                    item_features.view(-1, self.embedding_size), item_features.view(-1, self.embedding_size), self.cl_temp)
+                    item_features.view(-1, self.embedding_size), item_cate_feat[items_in_batch].view(-1, self.embedding_size), self.cl_temp)
             elif self.item_augmentation == "FN":
-                tmp = F.normalize(self.encoder(batch, all=True) + self.item_cate_feat,dim = -1).to(self.device)
+                tmp = F.normalize(self.encoder(batch, all=True)*w1 + self.item_cate_feat*(1-w1),dim = -1).to(self.device)
                 item_features = tmp[items_in_batch]
                 sub1 = self.cl_projector(
                     self.noise_weight * torch.randn_like(item_features) + item_features)
@@ -448,7 +449,7 @@ class CLHE(nn.Module):
 
         # Weighted combination
         cate_ft = cate_feat * a + self.cate_feature * (1 - a)
-        cate_ft = torch.nan_to_num(cate_ft, nan=0.0)  # Handle NaNs explicitly
+        # cate_ft = torch.nan_to_num(cate_ft, nan=0.0)  # Handle NaNs explicitly
         
 
         # Aggregate category to item
