@@ -367,7 +367,7 @@ class CLHE(nn.Module):
         item_loss = torch.tensor(0).to(self.device)
         self.item_cate_feat = self.propagate()
         item_cate_feat = (F.normalize(self.item_cate_feat, dim = -1)).to(self.device)
-        w1 = 0.5
+        w1 = 0.8
         if self.cl_alpha > 0:
             if self.item_augmentation == "FD":
                 item_features = self.encoder(batch, all=True)[items_in_batch]
