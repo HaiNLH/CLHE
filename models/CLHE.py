@@ -271,9 +271,7 @@ class CLHE(nn.Module):
 
         self.bundle_cl_temp = conf['bundle_cl_temp']
         self.bundle_cl_alpha = conf['bundle_cl_alpha']
-        self.cbc_edge_index = torch.tensor(np.load("/content/drive/MyDrive/datasets/{}/n_neigh_cbc.npy".format(conf["dataset"]), allow_pickle = True )).to(self.device)
-        self.cbc_gat_conv = Amatrix(in_dim = 64, out_dim = 64, n_layer = 1, dropout = 0.0, heads = self.n_head, concat=False, self_loop = self.a_self_loop, extra_layer = self.extra_layer)
-        print("see_result cbc:   ", self.cbc_gat_conv)
+        
         self.cl_projector = nn.Linear(self.embedding_size, self.embedding_size)
         init(self.cl_projector)
         if self.item_augmentation in ["FD", "MD"]:
@@ -290,12 +288,17 @@ class CLHE(nn.Module):
         # self.item_cate_feat = dense_ic @ self.cate_feature
         # self.item_cate_feat = (F.normalize(self.item_cate_feat, dim = -1)).to(self.device)
         self.get_item_agg_graph()
+        self.cbc_edge_index = torch.tensor(np.load("/content/drive/MyDrive/datasets/{}/n_neigh_cbc.npy".format(conf["dataset"]), allow_pickle = True )).to(self.device)
+        print("cbc_edge:   ", self.cbc_edge_index)
+        self.cbc_gat_conv = Amatrix(in_dim = 64, out_dim = 64, n_layer = 1, dropout = 0.0, heads = self.n_head, concat=False, self_loop = self.a_self_loop, extra_layer = self.extra_layer)
+        print("see_result cbc:   ", self.cbc_gat_conv)
         #get item_cate_feat<<<
 
 
 
     def init_emb(self):
         self.cate_feature = nn.Parameter(torch.FloatTensor(self.num_cate, self.embedding_size)).to(self.device)
+        nn.init.xavier_normal_(self.cate_feature)
     def convert_sparse(self, sparse):
         dense_mat = sparse.toarray()
         dense_tensor= torch.tensor(dense_mat)
