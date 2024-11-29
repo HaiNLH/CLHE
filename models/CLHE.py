@@ -434,7 +434,7 @@ class CLHE(nn.Module):
         #<<<Mask all item with exist cate 
 
         logits = bundle_feature @ feat_retrival_view.transpose(0, 1) #itemxitem
-        print(logits.shape)
+        # print(logits.shape)
         return logits
 
     def propagate(self, test=False):
