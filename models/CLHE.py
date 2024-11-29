@@ -438,10 +438,10 @@ class CLHE(nn.Module):
         a = 0.5
         cate_feat, _ = self.cbc_gat_conv(self.cate_feature, self.cbc_edge_index, return_attention_weights=True)
         cate_ft = cate_feat*a + self.cate_feature*(1-a)
-        print("cate_feat_shape: ", cate_feat.shape)
+        # print("cate_feat_shape: ", cate_feat.shape)
         #agg cate -> item
         cl_item_cate = self.get_CL_item_rep(cate_ft, test)
-        print("cl_item_ft_shape: ", cl_item_cate.shape)
+        # print("cl_item_ft_shape: ", cl_item_cate.shape)
         return cl_item_cate
         
 class Amatrix(nn.Module):
