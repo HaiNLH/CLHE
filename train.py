@@ -300,11 +300,11 @@ def test(model, dataloader, cate, conf):
         _, recommended_items = torch.topk(pred_i, k=top_k, dim=-1)
         
         # Print the bundle index along with the recommended items
-        for i, bundle_idx in enumerate(index):
-            print(f"Bundle index: {bundle_idx}, Top 5 recommended items: {recommended_items[i].tolist()}")
+        # for i, bundle_idx in enumerate(index):
+        #     print(f"Bundle index: {bundle_idx}, Top 5 recommended items: {recommended_items[i].tolist()}")
 
-        tmp_metrics = get_metrics(
-            tmp_metrics, b_i_gt.to(device), pred_i, conf["topk"])
+        # tmp_metrics = get_metrics(
+        #     tmp_metrics, b_i_gt.to(device), pred_i, conf["topk"])
 
     metrics = {}
     for m, topk_res in tmp_metrics.items():
@@ -315,7 +315,7 @@ def test(model, dataloader, cate, conf):
     return metrics
 def filter_cate(pred_i,b_i_input, item_cate):
     item_cate  = item_cate.todense()
-    print(b_i_input.shape)
+    # print(b_i_input.shape)
     batch_bundle_cate = b_i_input @ item_cate  # shape: (#b, n_c)
     category_match_mask = batch_bundle_cate @ item_cate.T  # shape: (#b, n_i)
     category_match_mask = (category_match_mask > 0).int()  
