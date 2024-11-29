@@ -440,7 +440,7 @@ class CLHE(nn.Module):
     def propagate(self, test=False):
 
         a = 0.5
-        print("Checking input tensors...")
+        
         
 
         # Perform GAT convolution
@@ -454,6 +454,7 @@ class CLHE(nn.Module):
         # Aggregate category to item
         cl_item_cate = self.get_CL_item_rep(cate_ft, test)
         #debugging
+        # print("Checking input tensors...")
         # print("self.cate_feature NaNs:", torch.isnan(self.cate_feature).any())
         # print("cate_feat NaNs after GAT:", torch.isnan(cate_feat).any())
         # print("cate_ft NaNs after combination:", torch.isnan(cate_ft).any())
