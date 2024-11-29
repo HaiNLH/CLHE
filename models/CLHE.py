@@ -314,7 +314,7 @@ class CLHE(nn.Module):
             print("Done creating c_embed from cooc matrix")
         else:
             self.init_emb()
-            print(self.item_cate_feat.device)
+            # print(self.item_cate_feat.device)
             print("Random initialize c_embed")
 
     def get_item_agg_graph(self):
