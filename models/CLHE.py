@@ -175,18 +175,18 @@ class HierachicalEncoder(nn.Module):
         
     def forward_cross(self,seq_modify):
         c_feature = self.c_encoder(self.content_feature)
-        print("c_feature:0", c_feature.shape)
+        # print("c_feature:0", c_feature.shape)
         t_feature = self.t_encoder(self.text_feature)
         cf_feature= self.cf_transformation(self.cf_feature)
 
         c_query = F.normalize(c_feature)
-        print("c_query shaeooooee",c_query.shape)
+        # print("c_query shaeooooee",c_query.shape)
         t_key = F.normalize(t_feature)
         cf_key = F.normalize(cf_feature)
 
-        t_attn = self.cross_attention(query = c_query, key =t_key, value = cf_key)
+        # t_attn = self.cross_attention(query = c_query, key =t_key, value = cf_key)
         cf_attn = self.cross_attention(query = c_query, key =cf_key, value = t_key)
-        fused_feature = F.normalize( t_attn + cf_attn, dim=-1)
+        fused_feature = F.normalize( cf_attn, dim=-1)
 
         return fused_feature
 
