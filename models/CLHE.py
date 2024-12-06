@@ -153,6 +153,28 @@ class HierachicalEncoder(nn.Module):
         y = features.mean(dim=-2)  # [bs, d]
 
         return y
+    def cross_attention(self, query,key,value):
+        q = self.w_q(query)
+        k = self.w_k(key)
+        v =self.w_v(value)
+        attn = (q@k.transpose(-1,-2))*(self.embedding_size ** -0.5)
+        attn = attn.softmax(dim = -1)
+        output = attn@v 
+        return output
+    def forward_cross(self, seq_modify):
+        c_feature = self.c_encoder(self.content_feature)
+        t_feature = self.t_encoder(self.text_feature)
+        cf_feature= self.cf_transformation(self.cf_feature)
+
+        c_query = c_feature[seq_modify]
+        t_key = t_feature[seq_modify]
+        cf_key = cf_feature[seq_modify]
+
+        t_attn = self.cross_attention(query = c_query, key =t_key, value = cf_key)
+        cf_attn = self.cross_attention(query = c_query, key =cf_key, value = t_key)
+        fused_feature = F.normalize(t_attn + cf_attn, dim=-1)
+
+        return fused_feature
 
     def forward_all(self):
         c_feature = self.c_encoder(self.content_feature)
@@ -176,7 +198,8 @@ class HierachicalEncoder(nn.Module):
 
     def forward(self, seq_modify, all=False):
         if all is True:
-            return self.forward_all()
+            # return self.forward_all()
+            return self.forward_cross(seq_modify)
 
         modify_mask = seq_modify == self.num_item
         seq_modify.masked_fill_(modify_mask, 0)
