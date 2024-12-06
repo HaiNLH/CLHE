@@ -154,24 +154,26 @@ class HierachicalEncoder(nn.Module):
 
         return y
     def cross_attention(self, query,key,value):
-        # q = self.w_q(query)
-        # k = self.w_k(key)
-        # v =self.w_v(value)
-        # attn = (q@ k.transpose(-1,-2))*(self.embedding_size ** -0.5)
-        # attn = attn.softmax(dim = -1)
-        # output = attn@v 
-        outputs = []
-        chunk_size =1024
-        for i in range(0, query.size(0), chunk_size):
-            q_chunk = query[i:i+chunk_size]
-            k_chunk = key[i:i+chunk_size]
-            v_chunk = value[i:i+chunk_size]
+        q = self.w_q(query)
+        k = self.w_k(key)
+        v =self.w_v(value)
+        attn = (q@ k.transpose(-1,-2))*(self.embedding_size ** -0.5)
+        attn = attn.softmax(dim = -1)
+        output = attn@ v 
+        output = output.mean(dim=-2)
+        # outputs = []
+        # chunk_size =10000
+        # for i in range(0, query.size(0), chunk_size):
+        #     q_chunk = query[i:i+chunk_size]
+        #     k_chunk = key[i:i+chunk_size]
+        #     v_chunk = value[i:i+chunk_size]
 
-            attn = q_chunk @ k_chunk.T
-            attn = attn.softmax(dim=-1)
-            output = attn @ v_chunk
-            outputs.append(output)
-        return torch.cat(outputs, dim=0)
+        #     attn = q_chunk @ k_chunk.T
+        #     attn = attn.softmax(dim=-1)
+        #     output = attn @ v_chunk
+        #     outputs.append(output)
+        # return torch.cat(outputs, dim=0)
+        return output
         
     def forward_cross(self,seq_modify):
         c_feature = self.c_encoder(self.content_feature)
@@ -179,14 +181,14 @@ class HierachicalEncoder(nn.Module):
         t_feature = self.t_encoder(self.text_feature)
         cf_feature= self.cf_transformation(self.cf_feature)
 
-        c_query = F.normalize(c_feature)
+        c_query = F.normalize(c_feature).unsqueeze(1) 
         # print("c_query shaeooooee",c_query.shape)
-        t_key = F.normalize(t_feature)
-        cf_key = F.normalize(cf_feature)
+        t_key = F.normalize(t_feature).unsqueeze(1) 
+        cf_key = F.normalize(cf_feature).unsqueeze(1) 
 
-        # t_attn = self.cross_attention(query = c_query, key =t_key, value = cf_key)
-        cf_attn = self.cross_attention(query = c_query, key =cf_key, value = t_key)
-        fused_feature = F.normalize( cf_attn, dim=-1)
+        t_attn = self.cross_attention(query = t_key, key =c_query, value = cf_key)
+        # cf_attn = self.cross_attention(query = c_query, key =cf_key, value = t_key)
+        fused_feature = F.normalize( t_attn, dim=-1)
 
         return fused_feature
 
@@ -413,7 +415,7 @@ class CLHE(nn.Module):
                 item_loss = self.cl_alpha * cl_loss_function(
                     sub1.view(-1, self.embedding_size), sub2.view(-1, self.embedding_size), self.cl_temp)
             elif self.item_augmentation == "NA":
-                tmp = F.normalize(self.encoder(batch, all=True)*w1 + item_cate_feat*(1-w1)).to(self.device)
+                tmp = F.normalize(self.encoder(batch, all=True)).to(self.device)
                 item_features = tmp[items_in_batch]
                 item_loss = self.cl_alpha * cl_loss_function(
                     item_features.view(-1, self.embedding_size),item_features.view(-1, self.embedding_size), self.cl_temp)
