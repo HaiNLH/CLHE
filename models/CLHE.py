@@ -416,7 +416,7 @@ class CLHE(nn.Module):
                 tmp = F.normalize(self.encoder(batch, all=True)*w1 + item_cate_feat*(1-w1)).to(self.device)
                 item_features = tmp[items_in_batch]
                 item_loss = self.cl_alpha * cl_loss_function(
-                    item_features.view(-1, self.embedding_size),item_cate_feat[items_in_batch].view(-1, self.embedding_size), self.cl_temp)
+                    item_features.view(-1, self.embedding_size),item_features.view(-1, self.embedding_size), self.cl_temp)
             elif self.item_augmentation == "FN":
                 tmp = F.normalize(self.encoder(batch, all=True)*w1 + item_cate_feat*(1-w1),dim = -1).to(self.device)
                 item_features = tmp[items_in_batch]
