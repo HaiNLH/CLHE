@@ -166,9 +166,9 @@ class HierachicalEncoder(nn.Module):
         t_feature = self.t_encoder(self.text_feature)
         cf_feature= self.cf_transformation(self.cf_feature)
 
-        c_query = c_feature
-        t_key = t_feature
-        cf_key = cf_feature
+        c_query = F.normalize(c_feature)
+        t_key = F.normalize(t_feature)
+        cf_key = F.normalize(cf_feature)
 
         t_attn = self.cross_attention(query = c_query, key =t_key, value = cf_key)
         cf_attn = self.cross_attention(query = c_query, key =cf_key, value = t_key)
