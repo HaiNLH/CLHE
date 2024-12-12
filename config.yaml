@@ -13,7 +13,7 @@ pog:
   seed: 2023
   self_loop: False
   extra_layer: True
-  epochs: 50 # number of epochs to train
+  epochs: 100 # number of epochs to train
   test_interval: 2 # by how many epochs to run the validation and testing.
 
 pog_dense:
