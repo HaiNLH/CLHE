@@ -186,7 +186,7 @@ class HierachicalEncoder(nn.Module):
         t_key = F.normalize(t_feature).unsqueeze(1) 
         cf_key = F.normalize(cf_feature).unsqueeze(1) 
 
-        t_attn = self.cross_attention(query = t_key, key =c_query, value = cf_key)
+        t_attn = self.cross_attention(query =cf_key , key =c_query, value = t_key)
         # cf_attn = self.cross_attention(query = c_query, key =cf_key, value = t_key)
         fused_feature = F.normalize( t_attn, dim=-1)
 
@@ -420,7 +420,8 @@ class CLHE(nn.Module):
                 item_loss = self.cl_alpha * cl_loss_function(
                     item_features.view(-1, self.embedding_size),item_features.view(-1, self.embedding_size), self.cl_temp)
             elif self.item_augmentation == "FN":
-                tmp = F.normalize(self.encoder(batch, all=True)*w1 + item_cate_feat*(1-w1),dim = -1).to(self.device)
+                # tmp = F.normalize(self.encoder(batch, all=True)*w1 + item_cate_feat*(1-w1),dim = -1).to(self.device)
+                tmp = F.normalize(self.encoder(batch, all=True),dim = -1).to(self.device)
                 item_features = tmp[items_in_batch]
                 sub1 = self.cl_projector(
                     self.noise_weight * torch.randn_like(item_features) + item_features)
