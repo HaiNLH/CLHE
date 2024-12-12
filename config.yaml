@@ -1,6 +1,6 @@
 pog:
   # data_path: 'D:\DS-KT\Bundle_data\datasets'
-  data_path: '/content/drive/MyDrive/datasets/'
+  data_path: './datasets'
   batch_size_train: 256 # the batch size for training
   batch_size_test: 1024 # the batch size for testing
   topk: [5, 10, 20, 40, 80] # the topks metrics for evaluation

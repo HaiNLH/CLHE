@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import torch
 import os
+import yaml
 import scipy.sparse as sp
 from sklearn.preprocessing import normalize
 from tqdm import tqdm
@@ -94,12 +95,18 @@ if __name__ == '__main__':
 
     paras = get_cmd().__dict__
     dataset_name = paras["dataset"]
-    data_path ='/content/drive/MyDrive/datasets'
+    conf = yaml.safe_load(open("./config.yaml"))
+    print("load config file done!")
+    path = conf['data_path']
+    name = conf['dataset']
+    data_path = os.path.join(path,name)
+    print(data_path)
+    # data_path ='/content/drive/MyDrive/datasets'
     # data_path = 'D:\DS-KT\Bundle_data\datasets'
     sep = ','
     print(f'{data_path}/{dataset_name}')
-    users, bundles, items, cates = get_stat(f'{data_path}/{dataset_name}/count.json')
-    dir = f'{data_path}/{dataset_name}'
+    users, bundles, items, cates = get_stat(f'{data_path}/count.json')
+    dir = f'{data_path}'
     path = [dir + '/bi_train.txt',
             dir + '/item_cate.txt',
             dir + '/ui_full.txt']

@@ -327,7 +327,7 @@ class CLHE(nn.Module):
         # self.item_cate_feat = dense_ic @ self.cate_feature
         # self.item_cate_feat = (F.normalize(self.item_cate_feat, dim = -1)).to(self.device)
         self.get_item_agg_graph()
-        self.cbc_edge_index = torch.tensor(np.load("/content/drive/MyDrive/datasets/{}/n_neigh_cbc.npy".format(conf["dataset"]), allow_pickle = True )).to(self.device)
+        self.cbc_edge_index = torch.tensor(np.load("datasets/{}/n_neigh_cbc.npy".format(conf["dataset"]), allow_pickle = True )).to(self.device)
         print("cbc_edge:   ", self.cbc_edge_index)
         self.cbc_gat_conv = Amatrix(in_dim = 64, out_dim = 64, n_layer = 1, dropout = 0.0, heads = self.n_head, concat=False, self_loop = self.a_self_loop, extra_layer = self.extra_layer)
         print("see_result cbc:   ", self.cbc_gat_conv)
