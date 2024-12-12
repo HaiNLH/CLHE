@@ -31,7 +31,7 @@ def get_cmd():
     parser = argparse.ArgumentParser()
     parser.add_argument("-g", "--gpu", default="0",
                         type=str, help="which gpu to use")
-    parser.add_argument("-d", "--dataset", default="spotify",
+    parser.add_argument("-d", "--dataset", default="pog",
                         type=str, help="which dataset to use")
     parser.add_argument("-m", "--model", default="",
                         type=str, help="which model to use")

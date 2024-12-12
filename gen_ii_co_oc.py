@@ -96,6 +96,7 @@ if __name__ == '__main__':
     paras = get_cmd().__dict__
     dataset_name = paras["dataset"]
     conf = yaml.safe_load(open("./config.yaml"))
+    conf = conf[dataset_name]
     print("load config file done!")
     path = conf['data_path']
     name = conf['dataset']
