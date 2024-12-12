@@ -21,7 +21,7 @@ if __name__ =='__main__':
     conf = conf[dataset_name]
     print("load config file done!")
     path = conf['data_path']
-    name = conf['dataset']
+    name = dataset_name
     data_path = os.path.join(path,name)
     print(data_path)
     
