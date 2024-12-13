@@ -1,5 +1,6 @@
 import numpy as np
 import torch
+import os
 import torch.nn as nn
 import torch.nn.functional as F
 from models.utils import TransformerEncoder
@@ -321,16 +322,19 @@ class CLHE(nn.Module):
         
         
         #get item_cate_feat>>>
-        self.get_cate_embbed(False)
-        # dense_ic = self.convert_sparse(self.ic_graph)
-        # # self.ic = dense_ic
-        # self.item_cate_feat = dense_ic @ self.cate_feature
-        # self.item_cate_feat = (F.normalize(self.item_cate_feat, dim = -1)).to(self.device)
-        self.get_item_agg_graph()
-        self.cbc_edge_index = torch.tensor(np.load("datasets/{}/n_neigh_cbc.npy".format(conf["dataset"]), allow_pickle = True )).to(self.device)
-        print("cbc_edge:   ", self.cbc_edge_index)
-        self.cbc_gat_conv = Amatrix(in_dim = 64, out_dim = 64, n_layer = 1, dropout = 0.0, heads = self.n_head, concat=False, self_loop = self.a_self_loop, extra_layer = self.extra_layer)
-        print("see_result cbc:   ", self.cbc_gat_conv)
+        self.get_cate_embbed(True)
+        dense_ic = self.convert_sparse(self.ic_graph)
+        self.ic = dense_ic
+        self.item_cate_feat = dense_ic @ self.cate_feature
+        self.item_cate_feat = (F.normalize(self.item_cate_feat, dim = -1)).to(self.device)
+    #     self.get_item_agg_graph()
+    #     self.cbc_edge_index = torch.tensor(
+    # np.load(
+    #     os.path.join(conf["data_path"], conf["dataset"], "n_neigh_cbc.npy"),
+    #     allow_pickle=True,)).to(self.device)
+    #     print("cbc_edge:   ", self.cbc_edge_index)
+    #     self.cbc_gat_conv = Amatrix(in_dim = 64, out_dim = 64, n_layer = 1, dropout = 0.0, heads = self.n_head, concat=False, self_loop = self.a_self_loop, extra_layer = self.extra_layer)
+    #     print("see_result cbc:   ", self.cbc_gat_conv)
         #get item_cate_feat<<<
 
 
@@ -404,8 +408,8 @@ class CLHE(nn.Module):
         # # item-level contrastive learning >>>
         items_in_batch = torch.argwhere(full.sum(dim=0)).squeeze()
         item_loss = torch.tensor(0).to(self.device)
-        self.item_cate_feat = self.propagate()
-        item_cate_feat = (F.normalize(self.item_cate_feat, dim = -1)).to(self.device)
+        # self.item_cate_feat = self.propagate()
+        # item_cate_feat = (F.normalize(self.item_cate_feat, dim = -1)).to(self.device)
         w1 = 0.7
         if self.cl_alpha > 0:
             if self.item_augmentation == "FD":
@@ -415,13 +419,14 @@ class CLHE(nn.Module):
                 item_loss = self.cl_alpha * cl_loss_function(
                     sub1.view(-1, self.embedding_size), sub2.view(-1, self.embedding_size), self.cl_temp)
             elif self.item_augmentation == "NA":
-                tmp = F.normalize(self.encoder(batch, all=True)).to(self.device)
+                tmp = F.normalize(self.encoder(batch, all=True)*w1 + self.item_cate_feat*(1-w1),dim = -1).to(self.device)
+                # tmp = F.normalize(self.encoder(batch, all=True)).to(self.device)
                 item_features = tmp[items_in_batch]
                 item_loss = self.cl_alpha * cl_loss_function(
                     item_features.view(-1, self.embedding_size),item_features.view(-1, self.embedding_size), self.cl_temp)
             elif self.item_augmentation == "FN":
-                # tmp = F.normalize(self.encoder(batch, all=True)*w1 + item_cate_feat*(1-w1),dim = -1).to(self.device)
-                tmp = F.normalize(self.encoder(batch, all=True),dim = -1).to(self.device)
+                tmp = F.normalize(self.encoder(batch, all=True)*w1 + self.item_cate_feat*(1-w1),dim = -1).to(self.device)
+                # tmp = F.normalize(self.encoder(batch, all=True),dim = -1).to(self.device)
                 item_features = tmp[items_in_batch]
                 sub1 = self.cl_projector(
                     self.noise_weight * torch.randn_like(item_features) + item_features)
