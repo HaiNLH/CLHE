@@ -436,7 +436,8 @@ class CLHE(nn.Module):
         dataset_name = 'pog'
         path = self.conf['data_path']
         cate_feat = sp.load_npz(f'{path}/{dataset_name}/cbc_cooc.npz')
-        self.cate_score = self.item_agg_graph @ cate_feat @ self.item_agg_graph.T
+        item_agg_graph_tensor = torch.tensor(self.item_agg_graph.toarray()).to(cate_feat.device)
+        self.cate_score = item_agg_graph_tensor @ cate_feat @ item_agg_graph_tensor.T
         logits = bundle_feature @ feat_retrival_view.transpose(0, 1) #itemxitem
         logits = logits * self.cate_score
         # print(logits.shape)
