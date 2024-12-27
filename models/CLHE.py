@@ -430,10 +430,13 @@ class CLHE(nn.Module):
         #Mask all item with exist cate>>>
         #seq_x: item-pairs, ic: #i x #c 
         # item_cate = self.ic[seq_x]
-        # same_cate_mask = (item_cate @ item_cate.T)
+        # same_cate_mask = (item_cate @ item_cate.T) 
         # print(same_cate_mask)
         #<<<Mask all item with exist cate 
-        cate_score = self.cate_feature
+        dataset_name = 'pog'
+        path = self.conf['data_path']
+        cate_feat = sp.load_npz(f'{path}/{dataset_name}/cbc_cooc.npz')
+        self.cate_score = self.item_agg_graph @ cate_feat @ self.item_agg_graph.T
         logits = bundle_feature @ feat_retrival_view.transpose(0, 1) #itemxitem
         logits = logits * self.cate_score
         # print(logits.shape)
@@ -445,7 +448,7 @@ class CLHE(nn.Module):
 
         # Perform GAT convolution
         cate_feat, _ = self.cbc_gat_conv(self.cate_feature, self.cbc_edge_index, return_attention_weights=True)
-        print(cate_feat)
+        print(cate_feat.shape)
         # Weighted combination
         cate_ft = cate_feat * a + self.cate_feature * (1 - a)
         
@@ -458,7 +461,7 @@ class CLHE(nn.Module):
         # print("cate_feat NaNs after GAT:", torch.isnan(cate_feat).any())
         # print("cate_ft NaNs after combination:", torch.isnan(cate_ft).any())
         # print("cl_item_cate NaNs:", torch.isnan(cl_item_cate).any())
-        self.cate_score = self.item_agg_graph @ cate_feat @ self.item_agg_graph.T
+        
         return cl_item_cate
         
 class Amatrix(nn.Module):
