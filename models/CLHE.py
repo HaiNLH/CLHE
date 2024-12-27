@@ -483,7 +483,7 @@ class CLHE(nn.Module):
         # print(logits.shape)
         return logits
 
-    def propagate(self, test=False):
+    # def propagate(self, test=False):
         # a = 0.8
         # # Perform GAT convolution
         # cate_feat, _ = self.cbc_gat_conv(self.cate_feature, self.cbc_edge_index, return_attention_weights=True)
