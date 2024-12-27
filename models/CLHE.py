@@ -365,12 +365,16 @@ class CLHE(nn.Module):
         # # item-level contrastive learning >>>
         items_in_batch = torch.argwhere(full.sum(dim=0)).squeeze()
         item_loss = torch.tensor(0).to(self.device)
-        self.item_cate_feat = self.propagate()
-        item_cate_feat = (F.normalize(self.item_cate_feat, dim = -1)).to(self.device)
+        # self.item_cate_feat = self.propagate()
+        # item_cate_feat = (F.normalize(self.item_cate_feat, dim = -1)).to(self.device)
         w1 = 0.7
         if self.cl_alpha > 0:
             if self.item_augmentation == "FD":
-                item_features = self.encoder(batch, all=True)[items_in_batch]
+                i_features = self.encoder(batch, all=True)
+                self.item_cate_feat = self.propagate(i_features)
+                item_cate_feat = (F.normalize(self.item_cate_feat, dim = -1)).to(self.device)
+
+                item_features = item_cate_feat[items_in_batch]
                 sub1 = self.cl_projector(self.dropout(item_features))
                 sub2 = self.cl_projector(self.dropout(item_features))
                 item_loss = self.cl_alpha * cl_loss_function(
@@ -438,15 +442,13 @@ class CLHE(nn.Module):
         # print(logits.shape)
         return logits
 
-    def propagate(self, test=False):
+    def propagate(self,item_feature, test=False):
 
         a = 0.8
         # Perform GAT convolution
         cate_feat, _ = self.cbc_gat_conv(self.cate_feature, self.cbc_edge_index, return_attention_weights=True)
-
         # Weighted combination
         cate_ft = cate_feat * a + self.cate_feature * (1 - a)
-        # cate_ft = torch.nan_to_num(cate_ft, nan=0.0)  # Handle NaNs explicitly
         
 
         # Aggregate category to item
