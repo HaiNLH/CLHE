@@ -365,27 +365,23 @@ class CLHE(nn.Module):
         # # item-level contrastive learning >>>
         items_in_batch = torch.argwhere(full.sum(dim=0)).squeeze()
         item_loss = torch.tensor(0).to(self.device)
-        # self.item_cate_feat = self.propagate()
-        # item_cate_feat = (F.normalize(self.item_cate_feat, dim = -1)).to(self.device)
+        self.item_cate_feat = self.propagate()
+        self.item_cate_feat = (F.normalize(self.item_cate_feat, dim = -1)).to(self.device)
         w1 = 0.7
         if self.cl_alpha > 0:
             if self.item_augmentation == "FD":
-                i_features = self.encoder(batch, all=True)
-                self.item_cate_feat = self.propagate(i_features)
-                item_cate_feat = (F.normalize(self.item_cate_feat, dim = -1)).to(self.device)
-
-                item_features = item_cate_feat[items_in_batch]
+                item_features = self.encoder(batch, all=True)[items_in_batch]
                 sub1 = self.cl_projector(self.dropout(item_features))
                 sub2 = self.cl_projector(self.dropout(item_features))
                 item_loss = self.cl_alpha * cl_loss_function(
                     sub1.view(-1, self.embedding_size), sub2.view(-1, self.embedding_size), self.cl_temp)
             elif self.item_augmentation == "NA":
-                tmp = F.normalize(self.encoder(batch, all=True)*w1 + item_cate_feat*(1-w1)).to(self.device)
+                tmp = F.normalize(self.encoder(batch, all=True)*w1 + self.item_cate_feat*(1-w1)).to(self.device)
                 item_features = tmp[items_in_batch]
                 item_loss = self.cl_alpha * cl_loss_function(
-                    item_features.view(-1, self.embedding_size),item_cate_feat[items_in_batch].view(-1, self.embedding_size), self.cl_temp)
+                    item_features.view(-1, self.embedding_size),self.item_cate_feat[items_in_batch].view(-1, self.embedding_size), self.cl_temp)
             elif self.item_augmentation == "FN":
-                tmp = F.normalize(self.encoder(batch, all=True)*w1 + item_cate_feat*(1-w1),dim = -1).to(self.device)
+                tmp = F.normalize(self.encoder(batch, all=True)*w1 + self.item_cate_feat*(1-w1),dim = -1).to(self.device)
                 item_features = tmp[items_in_batch]
                 sub1 = self.cl_projector(
                     self.noise_weight * torch.randn_like(item_features) + item_features)
@@ -437,29 +433,32 @@ class CLHE(nn.Module):
         # same_cate_mask = (item_cate @ item_cate.T)
         # print(same_cate_mask)
         #<<<Mask all item with exist cate 
-
+        cate_score = self.cate_feature
         logits = bundle_feature @ feat_retrival_view.transpose(0, 1) #itemxitem
+        logits = logits * self.cate_score
         # print(logits.shape)
         return logits
 
-    def propagate(self,item_feature, test=False):
+    def propagate(self, test=False):
 
         a = 0.8
+
         # Perform GAT convolution
         cate_feat, _ = self.cbc_gat_conv(self.cate_feature, self.cbc_edge_index, return_attention_weights=True)
+        print(cate_feat)
         # Weighted combination
         cate_ft = cate_feat * a + self.cate_feature * (1 - a)
         
 
         # Aggregate category to item
         cl_item_cate = self.get_CL_item_rep(cate_ft, test)
-        #debugging
+        
         # print("Checking input tensors...")
         # print("self.cate_feature NaNs:", torch.isnan(self.cate_feature).any())
         # print("cate_feat NaNs after GAT:", torch.isnan(cate_feat).any())
         # print("cate_ft NaNs after combination:", torch.isnan(cate_ft).any())
         # print("cl_item_cate NaNs:", torch.isnan(cl_item_cate).any())
-
+        self.cate_score = self.item_agg_graph @ cate_feat @ self.item_agg_graph.T
         return cl_item_cate
         
 class Amatrix(nn.Module):
