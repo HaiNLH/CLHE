@@ -483,7 +483,7 @@ class CLHE(nn.Module):
         # print(logits.shape)
         return logits
 
-    # def propagate(self, test=False):
+    def propagate(self, test=False):
         # a = 0.8
         # # Perform GAT convolution
         # cate_feat, _ = self.cbc_gat_conv(self.cate_feature, self.cbc_edge_index, return_attention_weights=True)
@@ -501,7 +501,7 @@ class CLHE(nn.Module):
         # # print("cate_feat NaNs after GAT:", torch.isnan(cate_feat).any())
         # # print("cate_ft NaNs after combination:", torch.isnan(cate_ft).any())
         # # print("cl_item_cate NaNs:", torch.isnan(cl_item_cate).any())
-
+        return None
         # return cl_item_cate
         
 # class Amatrix(nn.Module):
