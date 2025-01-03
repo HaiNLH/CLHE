@@ -419,13 +419,14 @@ class CLHE(nn.Module):
                 item_loss = self.cl_alpha * cl_loss_function(
                     sub1.view(-1, self.embedding_size), sub2.view(-1, self.embedding_size), self.cl_temp)
             elif self.item_augmentation == "NA":
-                tmp = F.normalize(self.encoder(batch, all=True)*w1 + self.item_cate_feat*(1-w1),dim = -1).to(self.device)
+                tmp = F.normalize(self.encoder(batch, all=True) + self.item_cate_feat,dim = -1).to(self.device)
                 # tmp = F.normalize(self.encoder(batch, all=True)).to(self.device)
                 item_features = tmp[items_in_batch]
                 item_loss = self.cl_alpha * cl_loss_function(
                     item_features.view(-1, self.embedding_size),item_features.view(-1, self.embedding_size), self.cl_temp)
             elif self.item_augmentation == "FN":
-                tmp = F.normalize(self.encoder(batch, all=True)*w1 + self.item_cate_feat*(1-w1),dim = -1).to(self.device)
+                tmp = F.normalize(self.encoder(batch, all=True) + self.item_cate_feat,dim = -1).to(self.device)
+                # tmp = F.normalize(self.encoder(batch, all=True)*w1 + self.item_cate_feat*(1-w1),dim = -1).to(self.device)
                 # tmp = F.normalize(self.encoder(batch, all=True),dim = -1).to(self.device)
                 item_features = tmp[items_in_batch]
                 sub1 = self.cl_projector(
