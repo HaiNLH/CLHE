@@ -351,9 +351,10 @@ class CLHE(nn.Module):
         dataset_name = 'pog'
         path = self.conf['data_path']
         if co_oc == True:
+            self.init_emb()
             cbc_cooc = sp.load_npz(f'{path}/{dataset_name}/cbc_cooc.npz')
             svd = TruncatedSVD(n_components=self.embedding_size)
-            cate_embeddings = svd.fit_transform(cbc_cooc) 
+            cate_embeddings = self.cate_feature @ cbc_cooc
             cate_embeddings_tensor = torch.FloatTensor(cate_embeddings).to(self.device)
             print(cate_embeddings.shape)
             self.cate_feature = cate_embeddings_tensor
