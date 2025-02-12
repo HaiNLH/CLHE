@@ -5,6 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from models.utils import TransformerEncoder
 from models.Asym import AsymMatrix
+from models.CrossAttention import Cross_Attn
 from collections import OrderedDict
 from sklearn.decomposition import TruncatedSVD
 import scipy.sparse as sp
@@ -70,7 +71,6 @@ class HierachicalEncoder(nn.Module):
         self.embedding_size = 64
         self.ui_graph, self.bi_graph_train, self.bi_graph_seen, self.ic_graph= raw_graph
         self.attention_components = self.conf["attention"]
-
         self.content_feature, self.text_feature, self.cf_feature = features
 
         items_in_train = self.bi_graph_train.sum(axis=0, dtype=bool)
@@ -162,18 +162,6 @@ class HierachicalEncoder(nn.Module):
         attn = attn.softmax(dim = -1)
         output = attn@ v 
         output = output.mean(dim=-2)
-        # outputs = []
-        # chunk_size =10000
-        # for i in range(0, query.size(0), chunk_size):
-        #     q_chunk = query[i:i+chunk_size]
-        #     k_chunk = key[i:i+chunk_size]
-        #     v_chunk = value[i:i+chunk_size]
-
-        #     attn = q_chunk @ k_chunk.T
-        #     attn = attn.softmax(dim=-1)
-        #     output = attn @ v_chunk
-        #     outputs.append(output)
-        # return torch.cat(outputs, dim=0)
         return output
         
     def forward_cross(self,seq_modify):
@@ -188,7 +176,7 @@ class HierachicalEncoder(nn.Module):
         cf_key = F.normalize(cf_feature).unsqueeze(1) 
 
         t_attn = self.cross_attention(query =cf_key , key =c_query, value = t_key)
-        # cf_attn = self.cross_attention(query = c_query, key =cf_key, value = t_key)
+
         fused_feature = F.normalize( t_attn, dim=-1)
 
         return fused_feature
@@ -328,14 +316,6 @@ class CLHE(nn.Module):
         self.item_cate_feat = dense_ic @ self.cate_feature
         self.item_cate_feat = (F.normalize(self.item_cate_feat, dim = -1)).to(self.device)
     #     self.get_item_agg_graph()
-    #     self.cbc_edge_index = torch.tensor(
-    # np.load(
-    #     os.path.join(conf["data_path"], conf["dataset"], "n_neigh_cbc.npy"),
-    #     allow_pickle=True,)).to(self.device)
-    #     print("cbc_edge:   ", self.cbc_edge_index)
-    #     self.cbc_gat_conv = Amatrix(in_dim = 64, out_dim = 64, n_layer = 1, dropout = 0.0, heads = self.n_head, concat=False, self_loop = self.a_self_loop, extra_layer = self.extra_layer)
-    #     print("see_result cbc:   ", self.cbc_gat_conv)
-        #get item_cate_feat<<<
 
 
 
@@ -367,14 +347,6 @@ class CLHE(nn.Module):
     def get_item_agg_graph(self):
         ic_graph = self.ic_graph
         device = self.device
-
-        #temp removing ED
-        # if self.conf["aug_type"] == "ED":
-        #     modification_ratio = self.conf["bundle_agg_ratio"]
-        #     graph = self.ic_graph.tocoo()
-        #     values = np_edge_dropout(graph.data, modification_ratio)
-        #     ic_graph = sp.coo_matrix((values, (graph.row, graph.col)), shape=graph.shape).tocsr()
-
         item_size = ic_graph.sum(axis=1) + 1e-8
         ic_graph = sp.diags(1 / item_size.A.ravel()) @ ic_graph
         self.item_agg_graph = to_tensor(ic_graph).to(device)
@@ -384,11 +356,6 @@ class CLHE(nn.Module):
             CL_cates_feature = torch.matmul(self.item_agg_graph, CL_cates_feature)
         else:
             CL_cates_feature = torch.matmul(self.item_agg_graph, CL_cates_feature)
-
-        # simple embedding dropout on bundle embeddings
-        # if self.conf["bundle_agg_ratio"] != 0 and self.conf["aug_type"] == "MD" and not test:
-        #     CL_cates_feature = self.bundle_agg_dropout(IL_users_feature)
-
         return CL_cates_feature
     
 
@@ -409,8 +376,7 @@ class CLHE(nn.Module):
         # # item-level contrastive learning >>>
         items_in_batch = torch.argwhere(full.sum(dim=0)).squeeze()
         item_loss = torch.tensor(0).to(self.device)
-        # self.item_cate_feat = self.propagate()
-        # item_cate_feat = (F.normalize(self.item_cate_feat, dim = -1)).to(self.device)
+
         w1 = 0.7
         if self.cl_alpha > 0:
             if self.item_augmentation == "FD":
@@ -451,19 +417,10 @@ class CLHE(nn.Module):
             bundle_feature2 = self.bundle_encode(feat_bundle_view2, mask=mask)
             bundle_loss = self.bundle_cl_alpha * cl_loss_function(
                 bundle_feature.view(-1, self.embedding_size), bundle_feature2.view(-1, self.embedding_size), self.bundle_cl_temp)
-        # bundle-level contrastive learning <<<
-
-        #cate-level contrastive learning>>>
-        # cate_loss = torch.tensor(0).to(self.device)
-        # if self.cate_cl_alpha > 0:
-        #     cate_loss = self.cate_cl_alpha*cl_loss_function()
-
-        #cate-level contrastive learning<<<
         return {
             'loss': loss + item_loss + bundle_loss ,
             'item_loss': item_loss.detach(),
             'bundle_loss': bundle_loss.detach()
-            # 'cate_loss': cate_loss.detach()
         }
 
     def evaluate(self, _, batch):
@@ -474,68 +431,12 @@ class CLHE(nn.Module):
         bundle_feature = self.bundle_encode(feat_bundle_view, mask=mask)
         feat_retrival_view = self.decoder(
             (idx, x, seq_x, None, None), all=True)
-        #Mask all item with exist cate>>>
-        #seq_x: item-pairs, ic: #i x #c 
-        # item_cate = self.ic[seq_x]
-        # same_cate_mask = (item_cate @ item_cate.T)
-        # print(same_cate_mask)
-        #<<<Mask all item with exist cate 
+
 
         logits = bundle_feature @ feat_retrival_view.transpose(0, 1) #itemxitem
         # print(logits.shape)
         return logits
 
     def propagate(self, test=False):
-        # a = 0.8
-        # # Perform GAT convolution
-        # cate_feat, _ = self.cbc_gat_conv(self.cate_feature, self.cbc_edge_index, return_attention_weights=True)
-
-        # # Weighted combination
-        # cate_ft = cate_feat * a + self.cate_feature * (1 - a)
-        # # cate_ft = torch.nan_to_num(cate_ft, nan=0.0)  # Handle NaNs explicitly
-        
-
-        # # Aggregate category to item
-        # cl_item_cate = self.get_CL_item_rep(cate_ft, test)
-        # #debugging
-        # # print("Checking input tensors...")
-        # # print("self.cate_feature NaNs:", torch.isnan(self.cate_feature).any())
-        # # print("cate_feat NaNs after GAT:", torch.isnan(cate_feat).any())
-        # # print("cate_ft NaNs after combination:", torch.isnan(cate_ft).any())
-        # # print("cl_item_cate NaNs:", torch.isnan(cl_item_cate).any())
         return None
-        # return cl_item_cate
         
-# class Amatrix(nn.Module):
-#     def __init__(self, in_dim, out_dim, n_layer=1, dropout=0.0, heads=2, concat=False, self_loop=True,
-#                  extra_layer=False):
-#         super(Amatrix, self).__init__()
-#         self.num_layer = n_layer
-#         self.dropout = dropout
-#         self.in_dim = in_dim
-#         self.out_dim = out_dim
-#         self.heads = heads
-#         self.concat = concat
-#         self.self_loop = self_loop
-#         self.extra_layer = extra_layer
-#         self.convs = nn.ModuleList([AsymMatrix(in_channels=self.in_dim,
-#                                                out_channels=self.out_dim,
-#                                                dropout=self.dropout,
-#                                                heads=self.heads,
-#                                                concat=self.concat,
-#                                                add_self_loops=self.self_loop,
-#                                                extra_layer=self.extra_layer)
-#                                     for _ in range(self.num_layer)])
-
-#     def forward(self, x, edge_index, return_attention_weights=True):
-#         feats = [x]
-#         attns = []
-
-#         for conv in self.convs:
-#             x, attn = conv(x, edge_index, return_attention_weights=return_attention_weights)
-#             feats.append(x)
-#             attns.append(attn)
-
-#         feat = torch.stack(feats, dim=1)
-#         x = torch.mean(feat, dim=1)
-#         return x, attns
