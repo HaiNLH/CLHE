@@ -8,6 +8,7 @@ from models.Asym import AsymMatrix
 from models.CrossAttention import Cross_Attn
 from collections import OrderedDict
 from sklearn.decomposition import TruncatedSVD
+from types import SimpleNamespace
 import scipy.sparse as sp
 
 eps = 1e-9
@@ -286,7 +287,26 @@ class CLHE(nn.Module):
         self.encoder = HierachicalEncoder(conf, raw_graph, features)
         # decoder has the similar structure of the encoder
         self.decoder = HierachicalEncoder(conf, raw_graph, features)
-
+        cross_attn_params = SimpleNamespace(
+            orig_d_t=self.embedding_size,
+            orig_d_m=self.embedding_size,
+            orig_d_c=self.embedding_size,
+            t_only=1, m_only=1, c_only=1,
+            num_heads=self.n_head,
+            layers=2,
+            attn_dropout=0.1,
+            attn_dropout_t=0.1,
+            attn_dropout_m=0.1,
+            attn_dropout_c=0.1,
+            relu_dropout=0.1,
+            res_dropout=0.1,
+            out_dropout=0.1,
+            embed_dropout=0.1,
+            attn_mask=True,
+            output_dim=self.embedding_size
+        )
+        self.cross_attention = Cross_Attn(cross_attn_params)
+        
         self.bundle_encode = TransformerEncoder(conf={
             "n_layer": conf["trans_layer"],
             "dim": 64,
