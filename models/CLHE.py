@@ -131,6 +131,20 @@ class HierachicalEncoder(nn.Module):
         y = features.mean(dim=-2)  # [bs, d]
 
         return y
+    
+    def cross_attention(self, query, key, value):
+        q = self.w_q(query)
+        k = self.w_k(key)
+        v =self.w_v(value)
+
+        attn = (q@ k.transpose(-1,-2))*(self.embedding_size ** -0.5)
+        attn = attn.softmax(dim = -1)
+
+        output = attn@ v 
+
+        output = output.mean(dim=-2)
+        return output
+      
     def forward_cross(self):
         c_feature = self.c_encoder(self.content_feature)
         t_feature = self.t_encoder(self.text_feature)
