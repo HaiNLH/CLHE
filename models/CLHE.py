@@ -5,7 +5,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 from models.utils import TransformerEncoder
 from models.Asym import AsymMatrix
-from models.CrossAttention import Cross_Attn
 from collections import OrderedDict
 from sklearn.decomposition import TruncatedSVD
 from types import SimpleNamespace
@@ -335,7 +334,7 @@ class CLHE(nn.Module):
         
         
         #get item_cate_feat>>>
-        self.get_cate_embbed(True)
+        # self.get_cate_embbed(True)
         dense_ic = self.convert_sparse(self.ic_graph)
         self.ic = dense_ic
         self.item_cate_feat = dense_ic @ self.cate_feature
