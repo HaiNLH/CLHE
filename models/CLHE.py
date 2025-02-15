@@ -180,20 +180,21 @@ class HierachicalEncoder(nn.Module):
         #1. Content, CF -> Text
         t_with_c = self.cross_attention(t_ft, c_ft,c_ft)
         t_with_cf = self.cross_attention(t_ft,cf_ft,cf_ft)
-        t_ca = torch.cat([t_with_c,t_with_cf],dim = 2)
-        t_ca = self.selfAttention(t_ca)
+        # t_ca = torch.cat([t_with_c,t_with_cf],dim = 2)
+        print('text c: ', t_with_c.shape())
+        t_ca = self.selfAttention(t_with_c)
 
         #2. Text,CF -> Content
         c_with_t = self.cross_attention(c_ft,t_ft,t_ft)
         c_with_cf = self.cross_attention(c_ft,cf_ft,cf_ft)
-        c_ca = torch.cat([c_with_t, c_with_cf], dim = 2)
-        c_ca = self.selfAttention(c_ca)
+        # c_ca = torch.cat([c_with_t, c_with_cf], dim = 2)
+        c_ca = self.selfAttention(c_with_t)
 
         #3. Text,Content -> CF
         cf_with_t = self.cross_attention(cf_ft,t_ft,t_ft)
         cf_with_c = self.cross_attention(cf_ft,c_ft,c_ft)
-        cf_ca = self.cross_attention([cf_with_t, cf_with_c], dim = 2)
-        cf_ca = self.selfAttention(cf_ca)
+        # cf_ca = self.cross_attention([cf_with_t, cf_with_c], dim = 2)
+        cf_ca = self.selfAttention(cf_with_t)
 
         #residual block - not added yet
 
@@ -335,10 +336,10 @@ class CLHE(nn.Module):
         
         #get item_cate_feat>>>
         # self.get_cate_embbed(True)
-        dense_ic = self.convert_sparse(self.ic_graph)
-        self.ic = dense_ic
-        self.item_cate_feat = dense_ic @ self.cate_feature
-        self.item_cate_feat = (F.normalize(self.item_cate_feat, dim = -1)).to(self.device)
+        # dense_ic = self.convert_sparse(self.ic_graph)
+        # self.ic = dense_ic
+        # self.item_cate_feat = dense_ic @ self.cate_feature
+        # self.item_cate_feat = (F.normalize(self.item_cate_feat, dim = -1)).to(self.device)
     #     self.get_item_agg_graph()
 
 
