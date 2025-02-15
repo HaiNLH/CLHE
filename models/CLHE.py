@@ -155,30 +155,54 @@ class HierachicalEncoder(nn.Module):
         y = features.mean(dim=-2)  # [bs, d]
 
         return y
-    def cross_attention(self, query,key,value):
+    
+    #Get cross-attention for better alignment 
+    def cross_attention(self, query, key, value):
         q = self.w_q(query)
         k = self.w_k(key)
         v =self.w_v(value)
+
         attn = (q@ k.transpose(-1,-2))*(self.embedding_size ** -0.5)
         attn = attn.softmax(dim = -1)
+
         output = attn@ v 
+
         output = output.mean(dim=-2)
         return output
         
     def forward_cross(self,seq_modify):
         c_feature = self.c_encoder(self.content_feature)
-        # print("c_feature:0", c_feature.shape)
         t_feature = self.t_encoder(self.text_feature)
         cf_feature= self.cf_transformation(self.cf_feature)
+        c_ft = F.normalize(c_feature).unsqueeze(1) 
+        t_ft = F.normalize(t_feature).unsqueeze(1) 
+        cf_ft = F.normalize(cf_feature).unsqueeze(1)
 
-        c_query = F.normalize(c_feature).unsqueeze(1) 
-        # print("c_query shaeooooee",c_query.shape)
-        t_key = F.normalize(t_feature).unsqueeze(1) 
-        cf_key = F.normalize(cf_feature).unsqueeze(1) 
+        #1. Content, CF -> Text
+        t_with_c = self.cross_attention(t_ft, c_ft,c_ft)
+        t_with_cf = self.cross_attention(t_ft,cf_ft,cf_ft)
+        t_ca = torch.cat([t_with_c,t_with_cf],dim = 2)
+        t_ca = self.selfAttention(t_ca)
 
-        t_attn = self.cross_attention(query =cf_key , key =c_query, value = t_key)
+        #2. Text,CF -> Content
+        c_with_t = self.cross_attention(c_ft,t_ft,t_ft)
+        c_with_cf = self.cross_attention(c_ft,cf_ft,cf_ft)
+        c_ca = torch.cat([c_with_t, c_with_cf], dim = 2)
+        c_ca = self.selfAttention(c_ca)
 
-        fused_feature = F.normalize( t_attn, dim=-1)
+        #3. Text,Content -> CF
+        cf_with_t = self.cross_attention(cf_ft,t_ft,t_ft)
+        cf_with_c = self.cross_attention(cf_ft,c_ft,c_ft)
+        cf_ca = self.cross_attention([cf_with_t, cf_with_c], dim = 2)
+        cf_ca = self.selfAttention(cf_ca)
+
+        #residual block - not added yet
+
+        #1. Concat
+        # fused_feature = torch.cat([t_ca,c_ca,cf_ca], dim = 1) #dim = 3* embeddings_size
+
+        #2. Mean avg
+        fused_feature = (t_ca + c_ca + cf_ca)/3
 
         return fused_feature
 
@@ -205,6 +229,7 @@ class HierachicalEncoder(nn.Module):
     def forward(self, seq_modify, all=False):
         if all is True:
             # return self.forward_all()
+            print("Using cross attentino module: /n")
             return self.forward_cross(seq_modify)
 
         modify_mask = seq_modify == self.num_item
@@ -377,9 +402,9 @@ class CLHE(nn.Module):
         items_in_batch = torch.argwhere(full.sum(dim=0)).squeeze()
         item_loss = torch.tensor(0).to(self.device)
 
-        w1 = 0.7
         if self.cl_alpha > 0:
             if self.item_augmentation == "FD":
+                print("Using Feature Drop augmentation: /n")
                 item_features = self.encoder(batch, all=True)[items_in_batch]
                 sub1 = self.cl_projector(self.dropout(item_features))
                 sub2 = self.cl_projector(self.dropout(item_features))
