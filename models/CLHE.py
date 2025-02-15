@@ -131,6 +131,42 @@ class HierachicalEncoder(nn.Module):
         y = features.mean(dim=-2)  # [bs, d]
 
         return y
+    def forward_cross(self):
+        c_feature = self.c_encoder(self.content_feature)
+        t_feature = self.t_encoder(self.text_feature)
+        cf_feature= self.cf_transformation(self.cf_feature)
+        c_ft = F.normalize(c_feature).unsqueeze(1) 
+        t_ft = F.normalize(t_feature).unsqueeze(1) 
+        cf_ft = F.normalize(cf_feature).unsqueeze(1)
+
+        #1. Content, CF -> Text
+        t_with_c = self.cross_attention(t_ft, c_ft,c_ft)
+        t_with_cf = self.cross_attention(t_ft,cf_ft,cf_ft)
+        # t_ca = torch.cat([t_with_c,t_with_cf],dim = 2)
+        print('text c: ', t_with_c.shape())
+        t_ca = self.selfAttention(t_with_c)
+
+        #2. Text,CF -> Content
+        c_with_t = self.cross_attention(c_ft,t_ft,t_ft)
+        c_with_cf = self.cross_attention(c_ft,cf_ft,cf_ft)
+        # c_ca = torch.cat([c_with_t, c_with_cf], dim = 2)
+        c_ca = self.selfAttention(c_with_t)
+
+        #3. Text,Content -> CF
+        cf_with_t = self.cross_attention(cf_ft,t_ft,t_ft)
+        cf_with_c = self.cross_attention(cf_ft,c_ft,c_ft)
+        # cf_ca = self.cross_attention([cf_with_t, cf_with_c], dim = 2)
+        cf_ca = self.selfAttention(cf_with_t)
+
+        #residual block - not added yet
+
+        #1. Concat
+        # fused_feature = torch.cat([t_ca,c_ca,cf_ca], dim = 1) #dim = 3* embeddings_size
+
+        #2. Mean avg
+        fused_feature = (t_ca + c_ca + cf_ca)/3
+
+        return fused_feature
 
     def forward_all(self):
         c_feature = self.c_encoder(self.content_feature)
@@ -154,7 +190,7 @@ class HierachicalEncoder(nn.Module):
 
     def forward(self, seq_modify, all=False):
         if all is True:
-            return self.forward_all()
+            return self.forward_cross()
 
         modify_mask = seq_modify == self.num_item
         seq_modify.masked_fill_(modify_mask, 0)
