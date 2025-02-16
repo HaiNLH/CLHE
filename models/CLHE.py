@@ -156,20 +156,23 @@ class HierachicalEncoder(nn.Module):
         #1. Content, CF -> Text
         t_with_c = self.cross_attention(t_ft, c_ft,c_ft).unsqueeze(1)
         t_with_cf = self.cross_attention(t_ft,cf_ft,cf_ft).unsqueeze(1)
-        # t_ca = torch.cat([t_with_c,t_with_cf],dim = 2)
-        t_ca = self.selfAttention(t_with_c)
+        t_ca = torch.cat([t_with_c,t_with_cf],dim = 2)
+        projection = nn.Linear(128, 64).to(self.device)
+        t_ca = self.selfAttention(projection(t_ca))
 
         #2. Text,CF -> Content
         c_with_t = self.cross_attention(c_ft,t_ft,t_ft).unsqueeze(1)
         c_with_cf = self.cross_attention(c_ft,cf_ft,cf_ft).unsqueeze(1)
-        # c_ca = torch.cat([c_with_t, c_with_cf], dim = 2)
-        c_ca = self.selfAttention(c_with_t)
+        c_ca = torch.cat([c_with_t, c_with_cf], dim = 2)
+        c_ca = self.selfAttention(projection(c_ca))
+
 
         #3. Text,Content -> CF
         cf_with_t = self.cross_attention(cf_ft,t_ft,t_ft).unsqueeze(1)
         cf_with_c = self.cross_attention(cf_ft,c_ft,c_ft).unsqueeze(1)
-        # cf_ca = self.cross_attention([cf_with_t, cf_with_c], dim = 2)
-        cf_ca = self.selfAttention(cf_with_t)
+        cf_ca = torch.cat([cf_with_t, cf_with_c], dim = 2)
+        cf_ca = self.selfAttention(projection(cf_ca))
+
 
         #residual block - not added yet
 
@@ -203,7 +206,7 @@ class HierachicalEncoder(nn.Module):
 
     def forward(self, seq_modify, all=False):
         if all is True:
-            return self.forward_all()
+            return self.forward_cross()
 
         modify_mask = seq_modify == self.num_item
         seq_modify.masked_fill_(modify_mask, 0)
@@ -371,7 +374,7 @@ class CLHE(nn.Module):
 
         feat_retrival_view = self.decoder(
             (idx, x, seq_x, None, None), all=True)
-
+       
         logits = bundle_feature @ feat_retrival_view.transpose(0, 1)
 
         return logits
