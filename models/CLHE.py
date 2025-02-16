@@ -154,21 +154,20 @@ class HierachicalEncoder(nn.Module):
         cf_ft = F.normalize(cf_feature).unsqueeze(1)
 
         #1. Content, CF -> Text
-        t_with_c = self.cross_attention(t_ft, c_ft,c_ft)
-        t_with_cf = self.cross_attention(t_ft,cf_ft,cf_ft)
+        t_with_c = self.cross_attention(t_ft, c_ft,c_ft).unsqueeze(1)
+        t_with_cf = self.cross_attention(t_ft,cf_ft,cf_ft).unsqueeze(1)
         # t_ca = torch.cat([t_with_c,t_with_cf],dim = 2)
-        print('text c: ', t_with_c.shape())
         t_ca = self.selfAttention(t_with_c)
 
         #2. Text,CF -> Content
-        c_with_t = self.cross_attention(c_ft,t_ft,t_ft)
-        c_with_cf = self.cross_attention(c_ft,cf_ft,cf_ft)
+        c_with_t = self.cross_attention(c_ft,t_ft,t_ft).unsqueeze(1)
+        c_with_cf = self.cross_attention(c_ft,cf_ft,cf_ft).unsqueeze(1)
         # c_ca = torch.cat([c_with_t, c_with_cf], dim = 2)
         c_ca = self.selfAttention(c_with_t)
 
         #3. Text,Content -> CF
-        cf_with_t = self.cross_attention(cf_ft,t_ft,t_ft)
-        cf_with_c = self.cross_attention(cf_ft,c_ft,c_ft)
+        cf_with_t = self.cross_attention(cf_ft,t_ft,t_ft).unsqueeze(1)
+        cf_with_c = self.cross_attention(cf_ft,c_ft,c_ft).unsqueeze(1)
         # cf_ca = self.cross_attention([cf_with_t, cf_with_c], dim = 2)
         cf_ca = self.selfAttention(cf_with_t)
 
@@ -204,7 +203,7 @@ class HierachicalEncoder(nn.Module):
 
     def forward(self, seq_modify, all=False):
         if all is True:
-            return self.forward_cross()
+            return self.forward_all()
 
         modify_mask = seq_modify == self.num_item
         seq_modify.masked_fill_(modify_mask, 0)
