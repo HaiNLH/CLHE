@@ -146,18 +146,19 @@ class HierachicalEncoder(nn.Module):
         return output
       
     def forward_cross(self):
-        c_feature = self.c_encoder(self.content_feature)
-        t_feature = self.t_encoder(self.text_feature)
+        c_feature = self.c_encoder()
+        t_feature = self.t_encoder()
         cf_feature= self.cf_transformation(self.cf_feature)
         c_ft = F.normalize(c_feature).unsqueeze(1) 
         t_ft = F.normalize(t_feature).unsqueeze(1) 
         cf_ft = F.normalize(cf_feature).unsqueeze(1)
+        
+        projection = nn.Linear(128, 64).to(self.device)
 
         #1. Content, CF -> Text
         t_with_c = self.cross_attention(t_ft, c_ft,c_ft).unsqueeze(1)
         t_with_cf = self.cross_attention(t_ft,cf_ft,cf_ft).unsqueeze(1)
         t_ca = torch.cat([t_with_c,t_with_cf],dim = 2)
-        projection = nn.Linear(128, 64).to(self.device)
         t_ca = self.selfAttention(projection(t_ca))
 
         #2. Text,CF -> Content
@@ -364,6 +365,7 @@ class CLHE(nn.Module):
             'item_loss': item_loss.detach(),
             'bundle_loss': bundle_loss.detach()
         }
+
 
     def evaluate(self, _, batch):
         idx, x, seq_x = batch
