@@ -145,46 +145,99 @@ class HierachicalEncoder(nn.Module):
         output = output.mean(dim=-2)
         return output
       
+    # def forward_cross(self):
+    #     c_feature = self.c_encoder(self.content_feature)
+    #     t_feature = self.t_encoder(self.text_feature)
+    #     mm_feature_full = F.normalize(c_feature) + F.normalize(t_feature)
+    #     cf_feature_full = self.cf_transformation(self.cf_feature)
+    #     cf_feature_full[self.cold_indices_cf] = mm_feature_full[self.cold_indices_cf]
+
+    #     c_ft = F.normalize(c_feature).unsqueeze(1) 
+    #     t_ft = F.normalize(t_feature).unsqueeze(1) 
+    #     cf_ft = F.normalize(cf_feature_full).unsqueeze(1)
+        
+    #     projection = nn.Linear(128, 64).to(self.device)
+
+    #     #1. Content, CF -> Text
+    #     t_with_c = self.cross_attention(t_ft, c_ft,c_ft).unsqueeze(1)
+    #     t_with_cf = self.cross_attention(t_ft,cf_ft,cf_ft).unsqueeze(1)
+    #     t_ca = torch.cat([t_with_c,t_with_cf],dim = 2)
+    #     t_ca = self.selfAttention(projection(t_ca))
+
+    #     #2. Text,CF -> Content
+    #     c_with_t = self.cross_attention(c_ft,t_ft,t_ft).unsqueeze(1)
+    #     c_with_cf = self.cross_attention(c_ft,cf_ft,cf_ft).unsqueeze(1)
+    #     c_ca = torch.cat([c_with_t, c_with_cf], dim = 2)
+    #     c_ca = self.selfAttention(projection(c_ca))
+
+
+    #     #3. Text,Content -> CF
+    #     cf_with_t = self.cross_attention(cf_ft,t_ft,t_ft).unsqueeze(1)
+    #     cf_with_c = self.cross_attention(cf_ft,c_ft,c_ft).unsqueeze(1)
+    #     cf_ca = torch.cat([cf_with_t, cf_with_c], dim = 2)
+    #     cf_ca = self.selfAttention(projection(cf_ca))
+    #     item_embeddings_att = self.selfAttention(self.item_embeddings.unsqueeze(1))
+    
+    # # Concatenate all attended features
+    #     fused_features = torch.cat([
+    #             c_with_t, t_with_c, 
+    #             c_with_cf, cf_with_c, 
+    #             t_with_cf, cf_with_t, 
+    #             item_embeddings_att
+    #         ], dim=1)
+    #     #missing self item embedding
+    #     #residual block - not added yet
+
+    #     #1. Concat
+    #     # fused_feature = torch.cat([t_ca,c_ca,cf_ca], dim = 1) #dim = 3* embeddings_size
+    #     fused_features = self.selfAttention(fused_features)
+    #     #2. Mean avg
+    #     # fused_feature = (t_ca + c_ca + cf_ca)/3
+
+    #     return fused_features
     def forward_cross(self):
         c_feature = self.c_encoder(self.content_feature)
         t_feature = self.t_encoder(self.text_feature)
-        cf_feature= self.cf_transformation(self.cf_feature)
+        mm_feature_full = F.normalize(c_feature) + F.normalize(t_feature)
+        cf_feature_full = self.cf_transformation(self.cf_feature)
+        cf_feature_full[self.cold_indices_cf] = mm_feature_full[self.cold_indices_cf]
+
         c_ft = F.normalize(c_feature).unsqueeze(1) 
         t_ft = F.normalize(t_feature).unsqueeze(1) 
-        cf_ft = F.normalize(cf_feature).unsqueeze(1)
+        cf_ft = F.normalize(cf_feature_full).unsqueeze(1)
         
         projection = nn.Linear(128, 64).to(self.device)
 
-        #1. Content, CF -> Text
-        t_with_c = self.cross_attention(t_ft, c_ft,c_ft).unsqueeze(1)
-        t_with_cf = self.cross_attention(t_ft,cf_ft,cf_ft).unsqueeze(1)
-        t_ca = torch.cat([t_with_c,t_with_cf],dim = 2)
-        t_ca = self.selfAttention(projection(t_ca))
+        # 1. Content, CF -> Text
+        t_with_c = self.cross_attention(t_ft, c_ft, c_ft).unsqueeze(1)
+        t_with_cf = self.cross_attention(t_ft, cf_ft, cf_ft).unsqueeze(1)
+        t_ca = torch.cat([t_with_c, t_with_cf], dim=2)
+        t_ca = self.selfAttention(projection(t_ca)) + t_ft  # Residual
 
-        #2. Text,CF -> Content
-        c_with_t = self.cross_attention(c_ft,t_ft,t_ft).unsqueeze(1)
-        c_with_cf = self.cross_attention(c_ft,cf_ft,cf_ft).unsqueeze(1)
-        c_ca = torch.cat([c_with_t, c_with_cf], dim = 2)
-        c_ca = self.selfAttention(projection(c_ca))
+        # 2. Text, CF -> Content
+        c_with_t = self.cross_attention(c_ft, t_ft, t_ft).unsqueeze(1)
+        c_with_cf = self.cross_attention(c_ft, cf_ft, cf_ft).unsqueeze(1)
+        c_ca = torch.cat([c_with_t, c_with_cf], dim=2)
+        c_ca = self.selfAttention(projection(c_ca)) + c_ft  # Residual
 
+        # 3. Text, Content -> CF
+        cf_with_t = self.cross_attention(cf_ft, t_ft, t_ft).unsqueeze(1)
+        cf_with_c = self.cross_attention(cf_ft, c_ft, c_ft).unsqueeze(1)
+        cf_ca = torch.cat([cf_with_t, cf_with_c], dim=2)
+        cf_ca = self.selfAttention(projection(cf_ca)) + cf_ft  # Residual
+        
+        # Self-attention on item embeddings
+        item_embeddings_att = self.selfAttention(self.item_embeddings.unsqueeze(1))
+        
+        # Concatenate all attended features
+        fused_features = torch.cat([
+            t_ca, c_ca, cf_ca, item_embeddings_att
+        ], dim=1)
+        
+        # Apply self-attention to fused features
+        fused_features = self.selfAttention(fused_features)
 
-        #3. Text,Content -> CF
-        cf_with_t = self.cross_attention(cf_ft,t_ft,t_ft).unsqueeze(1)
-        cf_with_c = self.cross_attention(cf_ft,c_ft,c_ft).unsqueeze(1)
-        cf_ca = torch.cat([cf_with_t, cf_with_c], dim = 2)
-        cf_ca = self.selfAttention(projection(cf_ca))
-
-
-        #residual block - not added yet
-
-        #1. Concat
-        # fused_feature = torch.cat([t_ca,c_ca,cf_ca], dim = 1) #dim = 3* embeddings_size
-
-        #2. Mean avg
-        fused_feature = (t_ca + c_ca + cf_ca)/3
-
-        return fused_feature
-
+        return fused_features
     def forward_all(self):
         c_feature = self.c_encoder(self.content_feature)
         t_feature = self.t_encoder(self.text_feature)
