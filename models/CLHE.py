@@ -146,8 +146,8 @@ class HierachicalEncoder(nn.Module):
         return output
       
     def forward_cross(self):
-        c_feature = self.c_encoder()
-        t_feature = self.t_encoder()
+        c_feature = self.c_encoder(self.content_feature)
+        t_feature = self.t_encoder(self.text_feature)
         cf_feature= self.cf_transformation(self.cf_feature)
         c_ft = F.normalize(c_feature).unsqueeze(1) 
         t_ft = F.normalize(t_feature).unsqueeze(1) 
