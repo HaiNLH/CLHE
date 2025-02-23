@@ -236,7 +236,7 @@ class HierachicalEncoder(nn.Module):
         fused_features = torch.stack(fused_features, dim=-2) 
         # Apply self-attention to fused features
         fused_features = self.selfAttention(F.normalize(fused_features, dim=-1))
-
+        print("Using cross_att")
         return fused_features
     def forward_all(self):
         c_feature = self.c_encoder(self.content_feature)
@@ -429,7 +429,7 @@ class CLHE(nn.Module):
         bundle_feature = self.bundle_encode(feat_bundle_view, mask=mask)
 
         feat_retrival_view = self.decoder(
-            (idx, x, seq_x, None, None), all=True)
+            (idx, x, seq_x, None, None), all=True, item = True)
        
         logits = bundle_feature @ feat_retrival_view.transpose(0, 1)
 
