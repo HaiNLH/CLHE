@@ -46,7 +46,7 @@ class SelfAttention(nn.Module):
         super().__init__()
         self.conf = {
             "dim": 64,
-            "n_head": 1,
+            "n_head": 5,
             "device": None,
             "w_v": False,
             "layernorm": False,
