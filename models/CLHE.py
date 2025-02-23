@@ -162,37 +162,52 @@ class HierachicalEncoder(nn.Module):
         attn = attn.softmax(dim = -1)
         output = attn@ v 
         output = output.mean(dim=-2)
-        # outputs = []
-        # chunk_size =10000
-        # for i in range(0, query.size(0), chunk_size):
-        #     q_chunk = query[i:i+chunk_size]
-        #     k_chunk = key[i:i+chunk_size]
-        #     v_chunk = value[i:i+chunk_size]
 
-        #     attn = q_chunk @ k_chunk.T
-        #     attn = attn.softmax(dim=-1)
-        #     output = attn @ v_chunk
-        #     outputs.append(output)
-        # return torch.cat(outputs, dim=0)
         return output
         
-    def forward_cross(self,seq_modify):
+    def forward_cross(self):
         c_feature = self.c_encoder(self.content_feature)
-        # print("c_feature:0", c_feature.shape)
         t_feature = self.t_encoder(self.text_feature)
-        cf_feature= self.cf_transformation(self.cf_feature)
+        mm_feature_full = F.normalize(c_feature) + F.normalize(t_feature)
+        cf_feature_full = self.cf_transformation(self.cf_feature)
+        cf_feature_full[self.cold_indices_cf] = mm_feature_full[self.cold_indices_cf]
+        projection = nn.Linear(128, 64).to(self.device)
+        c_ft = F.normalize(c_feature).unsqueeze(1) 
+        t_ft = F.normalize(t_feature).unsqueeze(1) 
+        cf_ft = F.normalize(cf_feature_full).unsqueeze(1)
+        
 
-        c_query = F.normalize(c_feature).unsqueeze(1) 
-        # print("c_query shaeooooee",c_query.shape)
-        t_key = F.normalize(t_feature).unsqueeze(1) 
-        cf_key = F.normalize(cf_feature).unsqueeze(1) 
+        # 1. Content, CF -> Text
+        t_with_c = self.cross_attention(t_ft, c_ft, c_ft).unsqueeze(1)
+        t_with_cf = self.cross_attention(t_ft, cf_ft, cf_ft).unsqueeze(1)
+        t_ca = torch.cat([t_with_c, t_with_cf], dim=2)
+        # t_ca = t_ca.permute(1, 0, 2)
+        t_ca = self.selfAttention(projection(t_ca)) + F.normalize(t_feature)  # Residual
 
-        t_attn = self.cross_attention(query =cf_key , key =c_query, value = t_key)
-        # cf_attn = self.cross_attention(query = c_query, key =cf_key, value = t_key)
-        fused_feature = F.normalize( t_attn, dim=-1)
+        # 2. Text, CF -> Content
+        c_with_t = self.cross_attention(c_ft, t_ft, t_ft).unsqueeze(1)
+        c_with_cf = self.cross_attention(c_ft, cf_ft, cf_ft).unsqueeze(1)
+        c_ca = torch.cat([c_with_t, c_with_cf], dim=2)
+        c_ca = self.selfAttention(projection(c_ca)) + F.normalize(c_feature) # Residual
 
-        return fused_feature
+        # 3. Text, Content -> CF
+        cf_with_t = self.cross_attention(cf_ft, t_ft, t_ft).unsqueeze(1)
+        cf_with_c = self.cross_attention(cf_ft, c_ft, c_ft).unsqueeze(1)
+        cf_ca = torch.cat([cf_with_t, cf_with_c], dim=2)
+        cf_ca = self.selfAttention(projection(cf_ca)) + F.normalize(cf_feature_full)  # Residual
+        
+        # Self-attention on item embeddings
+        item_embeddings_att = self.selfAttention(self.item_embeddings.unsqueeze(1))
 
+        # Concatenate all attended features
+        fused_features = [
+            t_ca, c_ca, cf_ca, item_embeddings_att
+        ]
+        fused_features = torch.stack(fused_features, dim=-2) 
+        # Apply self-attention to fused features
+        fused_features = self.selfAttention(F.normalize(fused_features, dim=-1))
+
+        return fused_features
     def forward_all(self):
         c_feature = self.c_encoder(self.content_feature)
         t_feature = self.t_encoder(self.text_feature)
@@ -213,10 +228,11 @@ class HierachicalEncoder(nn.Module):
 
         return final_feature
 
-    def forward(self, seq_modify, all=False):
-        if all is True:
-            # return self.forward_all()
-            return self.forward_cross(seq_modify)
+    def forward(self, seq_modify, all=False, item = False):
+        if all is True and item is False:
+            return self.forward_all()
+        if all is True and item is True:
+            return self.forward_cross()
 
         modify_mask = seq_modify == self.num_item
         seq_modify.masked_fill_(modify_mask, 0)
@@ -426,7 +442,7 @@ class CLHE(nn.Module):
                 item_loss = self.cl_alpha * cl_loss_function(
                     item_features.view(-1, self.embedding_size),item_features.view(-1, self.embedding_size), self.cl_temp)
             elif self.item_augmentation == "FN":
-                tmp = F.normalize(self.encoder(batch, all=True) + self.item_cate_feat,dim = -1).to(self.device)
+                tmp = F.normalize(self.encoder(batch, all=True, item = True) + self.item_cate_feat,dim = -1).to(self.device)
                 # tmp = F.normalize(self.encoder(batch, all=True)*w1 + self.item_cate_feat*(1-w1),dim = -1).to(self.device)
                 # tmp = F.normalize(self.encoder(batch, all=True),dim = -1).to(self.device)
                 item_features = tmp[items_in_batch]
@@ -451,19 +467,11 @@ class CLHE(nn.Module):
             bundle_feature2 = self.bundle_encode(feat_bundle_view2, mask=mask)
             bundle_loss = self.bundle_cl_alpha * cl_loss_function(
                 bundle_feature.view(-1, self.embedding_size), bundle_feature2.view(-1, self.embedding_size), self.bundle_cl_temp)
-        # bundle-level contrastive learning <<<
-
-        #cate-level contrastive learning>>>
-        # cate_loss = torch.tensor(0).to(self.device)
-        # if self.cate_cl_alpha > 0:
-        #     cate_loss = self.cate_cl_alpha*cl_loss_function()
-
-        #cate-level contrastive learning<<<
         return {
             'loss': loss + item_loss + bundle_loss ,
             'item_loss': item_loss.detach(),
             'bundle_loss': bundle_loss.detach()
-            # 'cate_loss': cate_loss.detach()
+
         }
 
     def evaluate(self, _, batch):
@@ -474,68 +482,14 @@ class CLHE(nn.Module):
         bundle_feature = self.bundle_encode(feat_bundle_view, mask=mask)
         feat_retrival_view = self.decoder(
             (idx, x, seq_x, None, None), all=True)
-        #Mask all item with exist cate>>>
-        #seq_x: item-pairs, ic: #i x #c 
-        # item_cate = self.ic[seq_x]
-        # same_cate_mask = (item_cate @ item_cate.T)
-        # print(same_cate_mask)
-        #<<<Mask all item with exist cate 
+
 
         logits = bundle_feature @ feat_retrival_view.transpose(0, 1) #itemxitem
         # print(logits.shape)
         return logits
 
     def propagate(self, test=False):
-        # a = 0.8
-        # # Perform GAT convolution
-        # cate_feat, _ = self.cbc_gat_conv(self.cate_feature, self.cbc_edge_index, return_attention_weights=True)
 
-        # # Weighted combination
-        # cate_ft = cate_feat * a + self.cate_feature * (1 - a)
-        # # cate_ft = torch.nan_to_num(cate_ft, nan=0.0)  # Handle NaNs explicitly
-        
-
-        # # Aggregate category to item
-        # cl_item_cate = self.get_CL_item_rep(cate_ft, test)
-        # #debugging
-        # # print("Checking input tensors...")
-        # # print("self.cate_feature NaNs:", torch.isnan(self.cate_feature).any())
-        # # print("cate_feat NaNs after GAT:", torch.isnan(cate_feat).any())
-        # # print("cate_ft NaNs after combination:", torch.isnan(cate_ft).any())
-        # # print("cl_item_cate NaNs:", torch.isnan(cl_item_cate).any())
         return None
-        # return cl_item_cate
+
         
-# class Amatrix(nn.Module):
-#     def __init__(self, in_dim, out_dim, n_layer=1, dropout=0.0, heads=2, concat=False, self_loop=True,
-#                  extra_layer=False):
-#         super(Amatrix, self).__init__()
-#         self.num_layer = n_layer
-#         self.dropout = dropout
-#         self.in_dim = in_dim
-#         self.out_dim = out_dim
-#         self.heads = heads
-#         self.concat = concat
-#         self.self_loop = self_loop
-#         self.extra_layer = extra_layer
-#         self.convs = nn.ModuleList([AsymMatrix(in_channels=self.in_dim,
-#                                                out_channels=self.out_dim,
-#                                                dropout=self.dropout,
-#                                                heads=self.heads,
-#                                                concat=self.concat,
-#                                                add_self_loops=self.self_loop,
-#                                                extra_layer=self.extra_layer)
-#                                     for _ in range(self.num_layer)])
-
-#     def forward(self, x, edge_index, return_attention_weights=True):
-#         feats = [x]
-#         attns = []
-
-#         for conv in self.convs:
-#             x, attn = conv(x, edge_index, return_attention_weights=return_attention_weights)
-#             feats.append(x)
-#             attns.append(attn)
-
-#         feat = torch.stack(feats, dim=1)
-#         x = torch.mean(feat, dim=1)
-#         return x, attns
