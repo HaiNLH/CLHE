@@ -68,7 +68,7 @@ class Cross_Attn(nn.Module):
         self.proj2 = nn.Linear(combined_dim, combined_dim)
         self.out_layer = nn.Linear(combined_dim, output_dim)
 
-    def get_network(self, self_type ='t', layers = 1)
+    def get_network(self, self_type ='t', layers = 1):
         if self_type in ['t', 'mt', 'ct']:
             embed_dim, attn_dropout = self.d_t, self.attn_dropout
         elif self_type in ['m','tm','cm'] :
