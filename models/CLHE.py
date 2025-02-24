@@ -5,6 +5,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from models.utils import TransformerEncoder
 from models.Asym import AsymMatrix
+from models.CrossAttention import Cross_Attn
 from collections import OrderedDict
 from sklearn.decomposition import TruncatedSVD
 from types import SimpleNamespace
@@ -73,6 +74,7 @@ class HierachicalEncoder(nn.Module):
         self.attention_components = self.conf["attention"]
         self.content_feature, self.text_feature, self.cf_feature = features
 
+       
         items_in_train = self.bi_graph_train.sum(axis=0, dtype=bool)
         self.warm_indices = torch.LongTensor(
             np.argwhere(items_in_train)[:, 1]).to(device)
@@ -122,7 +124,7 @@ class HierachicalEncoder(nn.Module):
             np.argwhere(~items_in_cf)[:, 1]).to(device)
         self.multimodal_feature_dim += self.embedding_size
         # UI <<<
-
+        self.cross_attn = Cross_Attn()
         # Multimodal Fusion:
         self.w_q = nn.Linear(self.embedding_size,
                              self.embedding_size, bias=False)
@@ -207,6 +209,7 @@ class HierachicalEncoder(nn.Module):
         return fused_feature
 
     def forward_all(self):
+        
         c_feature = self.c_encoder(self.content_feature)
         t_feature = self.t_encoder(self.text_feature)
 
@@ -217,7 +220,9 @@ class HierachicalEncoder(nn.Module):
         cf_feature_full = self.cf_transformation(self.cf_feature)
         cf_feature_full[self.cold_indices_cf] = mm_feature_full[self.cold_indices_cf]
         features.append(cf_feature_full)
-
+        
+        features_cross = self.cross_attn(t_feature, c_feature, cf_feature_full)
+        print(features_cross.shape)
         features = torch.stack(features, dim=-2)  # [bs, #modality, d]
 
         # multimodal fusion >>>
@@ -229,8 +234,7 @@ class HierachicalEncoder(nn.Module):
     def forward(self, seq_modify, all=False):
         if all is True:
             # return self.forward_all()
-            print("Using cross attentino module: /n")
-            return self.forward_cross(seq_modify)
+            return self.forward_all()
 
         modify_mask = seq_modify == self.num_item
         seq_modify.masked_fill_(modify_mask, 0)
