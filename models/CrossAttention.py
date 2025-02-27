@@ -13,9 +13,9 @@ class Cross_Attn(nn.Module):
         self.orig_d_t, self.orig_d_m, self.orig_d_c = 64, 64, 64
         self.d_t, self.d_m, self.d_c = 64, 64, 64
         #3 modality: text, media, user-item:c
-        self.t_only = False   # Use only text modality
-        self.m_only = False   # Use only media modality
-        self.c_only = False   # Use only user-item (content) modality
+        self.t_only = 1   # Use only text modality
+        self.m_only = 1   # Use only media modality
+        self.c_only = 1   # Use only user-item (content) modality
         self.num_heads = 4    # Number of attention heads (try 4 or 8 as a starting point)
         self.layers = 2       # Number of transformer layer
         self.attn_dropout = 0.1      # Overall attention dropout rate
@@ -97,6 +97,13 @@ class Cross_Attn(nn.Module):
         """
         text, media, content should have dimension [batch_size, seq_len, n_features]
         """
+        if x_t.dim() < 3:
+            x_t = x_t.unsqueeze(1)
+        if x_m.dim() < 3:
+            x_m = x_m.unsqueeze(1)
+        if x_c.dim() < 3:
+            x_c = x_c.unsqueeze(1)
+
         x_t = F.dropout(x_t.transpose(1,2), p = self.embed_dropout, training = self.training)
         x_m = x_m.transpose(1,2)
         x_c = x_c.transpose(1,2)
@@ -121,7 +128,7 @@ class Cross_Attn(nn.Module):
                 h_ts = h_ts[0]
             last_h_t = last_hs = h_ts[-1] # take the last output for prediction
 
-        if self.t_only:
+        if self.m_only:
             #(T,C) --> M
             h_m_with_ts = self.trans_m_with_t(proj_x_m, proj_x_t, proj_x_t) #Dim (T, N ,d_t)
             h_m_with_cs = self.trans_m_with_c(proj_x_m, proj_x_c, proj_x_c) #Dim (T, N, d_t)
@@ -146,7 +153,10 @@ class Cross_Attn(nn.Module):
             last_hs = torch.cat([last_h_t, last_h_m, last_h_c], dim = 1)
 
         #residual block
-        last_hs_proj = self.proj2(F.dropout(F.relu(self.proj1(last_hs))), p =self.out_dropout, training = self.training)
+        last_hs_proj = self.proj2(F.dropout(
+            F.relu(self.proj1(last_hs)),
+            p =self.out_dropout,
+            training = self.training))
         last_hs_proj += last_hs
         output = self.out_layer(last_hs_proj)
 

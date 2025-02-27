@@ -124,7 +124,10 @@ class HierachicalEncoder(nn.Module):
             np.argwhere(~items_in_cf)[:, 1]).to(device)
         self.multimodal_feature_dim += self.embedding_size
         # UI <<<
+
+
         self.cross_attn = Cross_Attn()
+
         # Multimodal Fusion:
         self.w_q = nn.Linear(self.embedding_size,
                              self.embedding_size, bias=False)
@@ -221,8 +224,9 @@ class HierachicalEncoder(nn.Module):
         cf_feature_full[self.cold_indices_cf] = mm_feature_full[self.cold_indices_cf]
         features.append(cf_feature_full)
         
-        features_cross = self.cross_attn(t_feature, c_feature, cf_feature_full)
-        print(features_cross.shape)
+        features_output, feature_cross = self.cross_attn(t_feature, c_feature, cf_feature_full)
+        print("Feature_cross: ", feature_cross.shape)
+        print("Feature output: ", features_output.shape)
         features = torch.stack(features, dim=-2)  # [bs, #modality, d]
 
         # multimodal fusion >>>
