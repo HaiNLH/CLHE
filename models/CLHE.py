@@ -228,12 +228,12 @@ class HierachicalEncoder(nn.Module):
         print("Feature_cross: ", feature_cross.shape)
         print("Feature output: ", features_output.shape)
         features = torch.stack(features, dim=-2)  # [bs, #modality, d]
-        
+
         # multimodal fusion >>>
-        # final_feature = self.selfAttention(F.normalize(features, dim=-1))
+        final_feature = self.selfAttention(F.normalize(features, dim=-1))
         # multimodal fusion <<<
 
-        return features_output
+        return final_feature
 
     def forward(self, seq_modify, all=False):
         if all is True:
