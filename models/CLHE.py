@@ -225,8 +225,8 @@ class HierachicalEncoder(nn.Module):
         features.append(cf_feature_full)
         
         features_output, feature_cross = self.cross_attn(t_feature, c_feature, cf_feature_full)
-        print("Feature_cross: ", feature_cross.shape)
-        print("Feature output: ", features_output.shape)
+        # print("Feature_cross: ", feature_cross.shape)
+        # print("Feature output: ", features_output.shape)
         features = torch.stack(features, dim=-2)  # [bs, #modality, d]
 
         # multimodal fusion >>>
@@ -412,7 +412,7 @@ class CLHE(nn.Module):
 
         if self.cl_alpha > 0:
             if self.item_augmentation == "FD":
-                print("Using Feature Drop augmentation: /n")
+                # print("Using Feature Drop augmentation: /n")
                 item_features = self.encoder(batch, all=True)[items_in_batch]
                 sub1 = self.cl_projector(self.dropout(item_features))
                 sub2 = self.cl_projector(self.dropout(item_features))
