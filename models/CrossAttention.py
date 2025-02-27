@@ -5,28 +5,28 @@ import torch.nn.functional as F
 from modules.transformer import TransformerEncoder
 
 class Cross_Attn(nn.Module):
-    def __init__(self,hyper_params):
+    def __init__(self):
         """
         Construct a cross transformer
         """
         super(Cross_Attn, self).__init__()
+        self.orig_d_t, self.orig_d_m, self.orig_d_c = 64, 64, 64
+        self.d_t, self.d_m, self.d_c = 64, 64, 64
         #3 modality: text, media, user-item:c
-        self.orig_d_t, self.orig_d_m, self.orig_d_c = hyper_params.orig_d_t, hyper_params.orig_d_m, hyper_params.orig_d_c
-        self.d_t, self.d_m, self.d_c = 64,64,64 #dimension
-        self.t_only = hyper_params.t_only
-        self.m_only = hyper_params.m_only
-        self.c_only = hyper_params.c_only
-        self.num_heads = hyper_params.num_heads
-        self.layers = hyper_params.layers
-        self.attn_dropout = hyper_params.attn_dropout
-        self.attn_dropout_t = hyper_params.attn_dropout_t
-        self.attn_dropout_m = hyper_params.attn_dropout_m
-        self.attn_dropout_c = hyper_params.attn_dropout_c
-        self.relu_dropout = hyper_params.relu_dropout
-        self.res_dropout = hyper_params.res_dropout
-        self.out_dropout = hyper_params.out_dropout
-        self.embed_dropout = hyper_params.embed_dropout
-        self.attn_mask = hyper_params.attn_mask
+        self.t_only = False   # Use only text modality
+        self.m_only = False   # Use only media modality
+        self.c_only = False   # Use only user-item (content) modality
+        self.num_heads = 4    # Number of attention heads (try 4 or 8 as a starting point)
+        self.layers = 2       # Number of transformer layer
+        self.attn_dropout = 0.1      # Overall attention dropout rate
+        self.attn_dropout_t = 0.1    # Attention dropout for text modality
+        self.attn_dropout_m = 0.1    # Attention dropout for media modality
+        self.attn_dropout_c = 0.1    # Attention dropout for user-item content modality
+        self.relu_dropout = 0.1      # Dropout after ReLU activations
+        self.res_dropout = 0.1       # Dropout in residual connections
+        self.out_dropout = 0.1       # Dropout on the output layer
+        self.embed_dropout = 0.1     # Dropout on the embedding layers
+        self.attn_mask = None
 
         combined_dim = self.d_t + self.d_m + self.d_c
 
@@ -37,7 +37,7 @@ class Cross_Attn(nn.Module):
         else:
             combined_dim = 2*(self.d_t + self.d_m + self.d_c)
         
-        output_dim  = hyper_params.output_dim
+        output_dim  = 64
 
         # 1. Temporal convolution layers get all presentation of 3 modality
 
