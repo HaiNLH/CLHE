@@ -228,12 +228,12 @@ class HierachicalEncoder(nn.Module):
         print("Feature_cross: ", feature_cross.shape)
         print("Feature output: ", features_output.shape)
         features = torch.stack(features, dim=-2)  # [bs, #modality, d]
-
+        
         # multimodal fusion >>>
-        final_feature = self.selfAttention(F.normalize(features, dim=-1))
+        # final_feature = self.selfAttention(F.normalize(features, dim=-1))
         # multimodal fusion <<<
 
-        return final_feature
+        return features_output
 
     def forward(self, seq_modify, all=False):
         if all is True:
@@ -419,13 +419,13 @@ class CLHE(nn.Module):
                 item_loss = self.cl_alpha * cl_loss_function(
                     sub1.view(-1, self.embedding_size), sub2.view(-1, self.embedding_size), self.cl_temp)
             elif self.item_augmentation == "NA":
-                tmp = F.normalize(self.encoder(batch, all=True) + self.item_cate_feat,dim = -1).to(self.device)
+                tmp = F.normalize(self.encoder(batch, all=True),dim = -1).to(self.device)
                 # tmp = F.normalize(self.encoder(batch, all=True)).to(self.device)
                 item_features = tmp[items_in_batch]
                 item_loss = self.cl_alpha * cl_loss_function(
                     item_features.view(-1, self.embedding_size),item_features.view(-1, self.embedding_size), self.cl_temp)
             elif self.item_augmentation == "FN":
-                tmp = F.normalize(self.encoder(batch, all=True) + self.item_cate_feat,dim = -1).to(self.device)
+                tmp = F.normalize(self.encoder(batch, all=True) ,dim = -1).to(self.device)
                 # tmp = F.normalize(self.encoder(batch, all=True)*w1 + self.item_cate_feat*(1-w1),dim = -1).to(self.device)
                 # tmp = F.normalize(self.encoder(batch, all=True),dim = -1).to(self.device)
                 item_features = tmp[items_in_batch]
