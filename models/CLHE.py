@@ -258,11 +258,10 @@ class HierachicalEncoder(nn.Module):
 
         return final_feature
 
-    def forward(self, seq_modify, all=False, item = False):
-        if all is True and item is False:
+    def forward(self, seq_modify, all=False):
+        if all is True:
             return self.forward_all()
-        if all is True and item is True:
-            return self.forward_cross()
+
         modify_mask = seq_modify == self.num_item
         seq_modify.masked_fill_(modify_mask, 0)
 
@@ -369,7 +368,7 @@ class CLHE(nn.Module):
         # bundle feature construction >>>
         bundle_feature = self.bundle_encode(feat_bundle_view, mask=mask)
 
-        feat_retrival_view = self.decoder(batch, all=True, item = False)
+        feat_retrival_view = self.decoder(batch, all=True)
 
         # compute loss >>>
         logits = bundle_feature @ feat_retrival_view.transpose(0, 1)
@@ -380,17 +379,17 @@ class CLHE(nn.Module):
         item_loss = torch.tensor(0).to(self.device)
         if self.cl_alpha > 0:
             if self.item_augmentation == "FD":
-                item_features = self.encoder(batch, item = True, all=True)[items_in_batch]
+                item_features = self.encoder(batch,  all=True)[items_in_batch]
                 sub1 = self.cl_projector(self.dropout(item_features))
                 sub2 = self.cl_projector(self.dropout(item_features))
                 item_loss = self.cl_alpha * cl_loss_function(
                     sub1.view(-1, self.embedding_size), sub2.view(-1, self.embedding_size), self.cl_temp)
             elif self.item_augmentation == "NA":
-                item_features = self.encoder(batch,item = True, all=True)[items_in_batch]
+                item_features = self.encoder(batch, all=True)[items_in_batch]
                 item_loss = self.cl_alpha * cl_loss_function(
                     item_features.view(-1, self.embedding_size), item_features.view(-1, self.embedding_size), self.cl_temp)
             elif self.item_augmentation == "FN":
-                item_features = self.encoder(batch,item = True, all=True)[items_in_batch]
+                item_features = self.encoder(batch, all=True)[items_in_batch]
                 sub1 = self.cl_projector(
                     self.noise_weight * torch.randn_like(item_features) + item_features)
                 sub2 = self.cl_projector(
