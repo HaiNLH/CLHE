@@ -239,6 +239,7 @@ class HierachicalEncoder(nn.Module):
         print("Using cross_att")
         return fused_features
     def forward_all(self):
+        
         c_feature = self.c_encoder(self.content_feature)
         t_feature = self.t_encoder(self.text_feature)
 
@@ -249,14 +250,18 @@ class HierachicalEncoder(nn.Module):
         cf_feature_full = self.cf_transformation(self.cf_feature)
         cf_feature_full[self.cold_indices_cf] = mm_feature_full[self.cold_indices_cf]
         features.append(cf_feature_full)
-
+       
+        features_output, feature_cross = self.cross_attn(t_feature, c_feature, cf_feature_full)
+        # print("Feature_cross: ", feature_cross.shape)
+        # print("Feature output: ", features_output.shape)
         features = torch.stack(features, dim=-2)  # [bs, #modality, d]
 
         # multimodal fusion >>>
-        final_feature = self.selfAttention(F.normalize(features, dim=-1))
+        final_feature = self.selfAttention(features_output.unsqueeze(1))
         # multimodal fusion <<<
 
         return final_feature
+
 
     def forward(self, seq_modify, all=False):
         if all is True:
@@ -428,7 +433,7 @@ class CLHE(nn.Module):
         bundle_feature = self.bundle_encode(feat_bundle_view, mask=mask)
 
         feat_retrival_view = self.decoder(
-            (idx, x, seq_x, None, None), all=True, item = True)
+            (idx, x, seq_x, None, None), all=True)
        
         logits = bundle_feature @ feat_retrival_view.transpose(0, 1)
 
