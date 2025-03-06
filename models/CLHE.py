@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from models.utils import TransformerEncoder
 from collections import OrderedDict
-
+from models.CrossAttention import Cross_Attn
 eps = 1e-9
 
 
@@ -73,7 +73,7 @@ class HierachicalEncoder(nn.Module):
             for m in module:
                 init(m)
             return module
-
+        self.cross_attn = Cross_Attn()
         # encoders for media feature
         self.c_encoder = dense(self.content_feature)
         self.t_encoder = dense(self.text_feature)

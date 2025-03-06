@@ -6,7 +6,7 @@ from modules.multihead_attention import MultiheadAttention
 import math
 
 
-class TransformerEncoders(nn.Module):
+class TransformerEncoder(nn.Module):
     """
     Transformer encoder consisting of *args.encoder_layers* layers. Each layer
     is a :class:`TransformerEncoderLayer`.
@@ -200,6 +200,6 @@ def LayerNorm(embedding_dim):
 
 
 if __name__ == '__main__':
-    encoder = TransformerEncoders(300, 4, 2)
+    encoder = TransformerEncoder(300, 4, 2)
     x = torch.tensor(torch.rand(20, 2, 300))
     print(encoder(x).shape)
