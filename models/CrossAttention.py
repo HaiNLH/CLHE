@@ -66,7 +66,7 @@ class Cross_Attn(nn.Module):
         #proj layers
         self.proj1 = nn.Linear(combined_dim, combined_dim)
         self.proj2 = nn.Linear(combined_dim, combined_dim)
-        self.out_layer = nn.Linear(combined_dim, output_dim)
+        self.out_layer = nn.Linear(combined_dim, output_dim*3)
 
     def get_network(self, self_type ='t', layers = 1):
         if self_type in ['t', 'mt', 'ct']:
@@ -159,6 +159,6 @@ class Cross_Attn(nn.Module):
             training = self.training))
         last_hs_proj += last_hs
         output = self.out_layer(last_hs_proj)
-
+        #item*64*3
         return output, last_hs
     
