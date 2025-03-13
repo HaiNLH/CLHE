@@ -1,16 +1,12 @@
 import numpy as np
 import torch
-import os
 import torch.nn as nn
 import torch.nn.functional as F
 from models.utils import TransformerEncoder
-from models.Asym import AsymMatrix
-from models.CrossAttention import Cross_Attn
 from collections import OrderedDict
+from models.CrossAttention import Cross_Attn
 from sklearn.decomposition import TruncatedSVD
-from types import SimpleNamespace
 import scipy.sparse as sp
-
 eps = 1e-9
 
 
@@ -28,19 +24,8 @@ def recon_loss_function(recon_x, x):
     negLogLike = -torch.mean(negLogLike)
     return negLogLike
 
-def to_tensor(graph):
-    graph = graph.tocoo()
-    values = graph.data
-    indices = np.vstack((graph.row, graph.col))
-    graph = torch.sparse.FloatTensor(torch.LongTensor(indices), torch.FloatTensor(values), torch.Size(graph.shape))
 
-    return graph
 infonce_criterion = nn.CrossEntropyLoss()
-
-def np_edge_dropout(values, dropout_ratio):
-    mask = np.random.choice([0, 1], size=(len(values),), p=[dropout_ratio, 1 - dropout_ratio])
-    values = mask * values
-    return values
 
 
 def cl_loss_function(a, b, temp=0.2):
@@ -50,14 +35,6 @@ def cl_loss_function(a, b, temp=0.2):
     logits /= temp
     labels = torch.arange(a.shape[0]).to(a.device)
     return infonce_criterion(logits, labels)
-
-def filter(bundle_cate, item_cate):
-    filter_mat =  torch.zeros(item_cate.shape[1],dtype = torch.bool)
-    filter_mat[bundle_cate] = True #bundle cate -> position 
-    filter_mat = 1 - filter_mat.to(torch.long)
-    item_mask = item_cate @ filter_mat 
-    filter_items = torch.nonzero(item_mask, as_tuple=False).squeeze()
-    return filter_items
 
 
 class HierachicalEncoder(nn.Module):
@@ -70,11 +47,11 @@ class HierachicalEncoder(nn.Module):
         self.num_bundle = self.conf["num_bundles"]
         self.num_item = self.conf["num_items"]
         self.embedding_size = 64
-        self.ui_graph, self.bi_graph_train, self.bi_graph_seen, self.ic_graph= raw_graph
+        self.ui_graph, self.bi_graph_train, self.bi_graph_seen, self.ic_graph = raw_graph
         self.attention_components = self.conf["attention"]
+
         self.content_feature, self.text_feature, self.cf_feature = features
 
-       
         items_in_train = self.bi_graph_train.sum(axis=0, dtype=bool)
         self.warm_indices = torch.LongTensor(
             np.argwhere(items_in_train)[:, 1]).to(device)
@@ -98,7 +75,7 @@ class HierachicalEncoder(nn.Module):
             for m in module:
                 init(m)
             return module
-
+        self.cross_attn = Cross_Attn()
         # encoders for media feature
         self.c_encoder = dense(self.content_feature)
         self.t_encoder = dense(self.text_feature)
@@ -124,9 +101,6 @@ class HierachicalEncoder(nn.Module):
             np.argwhere(~items_in_cf)[:, 1]).to(device)
         self.multimodal_feature_dim += self.embedding_size
         # UI <<<
-
-
-        self.cross_attn = Cross_Attn()
 
         # Multimodal Fusion:
         self.w_q = nn.Linear(self.embedding_size,
@@ -160,7 +134,6 @@ class HierachicalEncoder(nn.Module):
 
         return y
     
-    #Get cross-attention for better alignment 
     def cross_attention(self, query, key, value):
         q = self.w_q(query)
         k = self.w_k(key)
@@ -173,44 +146,50 @@ class HierachicalEncoder(nn.Module):
 
         output = output.mean(dim=-2)
         return output
-        
-    def forward_cross(self,seq_modify):
+      
+    def forward_cross(self):
         c_feature = self.c_encoder(self.content_feature)
         t_feature = self.t_encoder(self.text_feature)
-        cf_feature= self.cf_transformation(self.cf_feature)
+        mm_feature_full = F.normalize(c_feature) + F.normalize(t_feature)
+        cf_feature_full = self.cf_transformation(self.cf_feature)
+        cf_feature_full[self.cold_indices_cf] = mm_feature_full[self.cold_indices_cf]
+        projection = nn.Linear(128, 64).to(self.device)
         c_ft = F.normalize(c_feature).unsqueeze(1) 
         t_ft = F.normalize(t_feature).unsqueeze(1) 
-        cf_ft = F.normalize(cf_feature).unsqueeze(1)
+        cf_ft = F.normalize(cf_feature_full).unsqueeze(1)
+        
 
-        #1. Content, CF -> Text
-        t_with_c = self.cross_attention(t_ft, c_ft,c_ft)
-        t_with_cf = self.cross_attention(t_ft,cf_ft,cf_ft)
-        # t_ca = torch.cat([t_with_c,t_with_cf],dim = 2)
-        print('text c: ', t_with_c.shape())
-        t_ca = self.selfAttention(t_with_c)
+        # 1. Content, CF -> Text
+        t_with_c = self.cross_attention(t_ft, c_ft, c_ft).unsqueeze(1)
+        t_with_cf = self.cross_attention(t_ft, cf_ft, cf_ft).unsqueeze(1)
+        t_ca = torch.cat([t_with_c, t_with_cf], dim=2)
+        # t_ca = t_ca.permute(1, 0, 2)
+        t_ca = self.selfAttention(projection(t_ca)) + F.normalize(t_feature)  # Residual
 
-        #2. Text,CF -> Content
-        c_with_t = self.cross_attention(c_ft,t_ft,t_ft)
-        c_with_cf = self.cross_attention(c_ft,cf_ft,cf_ft)
-        # c_ca = torch.cat([c_with_t, c_with_cf], dim = 2)
-        c_ca = self.selfAttention(c_with_t)
+        # 2. Text, CF -> Content
+        c_with_t = self.cross_attention(c_ft, t_ft, t_ft).unsqueeze(1)
+        c_with_cf = self.cross_attention(c_ft, cf_ft, cf_ft).unsqueeze(1)
+        c_ca = torch.cat([c_with_t, c_with_cf], dim=2)
+        c_ca = self.selfAttention(projection(c_ca)) + F.normalize(c_feature) # Residual
 
-        #3. Text,Content -> CF
-        cf_with_t = self.cross_attention(cf_ft,t_ft,t_ft)
-        cf_with_c = self.cross_attention(cf_ft,c_ft,c_ft)
-        # cf_ca = self.cross_attention([cf_with_t, cf_with_c], dim = 2)
-        cf_ca = self.selfAttention(cf_with_t)
+        # 3. Text, Content -> CF
+        cf_with_t = self.cross_attention(cf_ft, t_ft, t_ft).unsqueeze(1)
+        cf_with_c = self.cross_attention(cf_ft, c_ft, c_ft).unsqueeze(1)
+        cf_ca = torch.cat([cf_with_t, cf_with_c], dim=2)
+        cf_ca = self.selfAttention(projection(cf_ca)) + F.normalize(cf_feature_full)  # Residual
+        
+        # Self-attention on item embeddings
+        item_embeddings_att = self.selfAttention(self.item_embeddings.unsqueeze(1))
 
-        #residual block - not added yet
-
-        #1. Concat
-        # fused_feature = torch.cat([t_ca,c_ca,cf_ca], dim = 1) #dim = 3* embeddings_size
-
-        #2. Mean avg
-        fused_feature = (t_ca + c_ca + cf_ca)/3
-
-        return fused_feature
-
+        # Concatenate all attended features
+        fused_features = [
+            t_ca, c_ca, cf_ca, item_embeddings_att
+        ]
+        fused_features = torch.stack(fused_features, dim=-2) 
+        # Apply self-attention to fused features
+        fused_features = self.selfAttention(F.normalize(fused_features, dim=-1))
+        print("Using cross_att")
+        return fused_features
     def forward_all(self):
         
         c_feature = self.c_encoder(self.content_feature)
@@ -225,19 +204,20 @@ class HierachicalEncoder(nn.Module):
         features.append(cf_feature_full)
        
         features_output, feature_cross = self.cross_attn(t_feature, c_feature, cf_feature_full)
+        features_output = torch.split(features_output, 3, dim = 1)
         # print("Feature_cross: ", feature_cross.shape)
         # print("Feature output: ", features_output.shape)
-        features = torch.stack(features, dim=-2)  # [bs, #modality, d]
-
+        features_output = torch.stack(features, dim=-2)  # [bs, #modality, d]
         # multimodal fusion >>>
-        final_feature = self.selfAttention(features_output.unsqueeze(1))
-        # multimodal fusion <<<
+        # final_feature = self.selfAttention(features_output.unsqueeze(1))
+        final_feature = self.selfAttention(F.normalize(features_output, dim=-1))
+        # multimodal fusion <<< 
 
         return final_feature
 
+
     def forward(self, seq_modify, all=False):
         if all is True:
-            # return self.forward_all()
             return self.forward_all()
 
         modify_mask = seq_modify == self.num_item
@@ -310,16 +290,14 @@ class CLHE(nn.Module):
         self.num_user = self.conf["num_users"]
         self.num_bundle = self.conf["num_bundles"]
         self.num_item = self.conf["num_items"]
-        self.num_cate  = self.conf["num_cates"]
-        self.embedding_size = conf['embedding_size']
+        self.embedding_size = 64
         self.ui_graph, self.bi_graph_train, self.bi_graph_seen, self.ic_graph = raw_graph
         self.item_augmentation = self.conf["item_augment"]
-        self.extra_layer = conf["extra_layer"]
-        self.a_self_loop = self.conf["self_loop"]
-        self.n_head = self.conf["n_head"]
+
         self.encoder = HierachicalEncoder(conf, raw_graph, features)
         # decoder has the similar structure of the encoder
         self.decoder = HierachicalEncoder(conf, raw_graph, features)
+
         self.bundle_encode = TransformerEncoder(conf={
             "n_layer": conf["trans_layer"],
             "dim": 64,
@@ -332,7 +310,6 @@ class CLHE(nn.Module):
 
         self.bundle_cl_temp = conf['bundle_cl_temp']
         self.bundle_cl_alpha = conf['bundle_cl_alpha']
-        
         self.cl_projector = nn.Linear(self.embedding_size, self.embedding_size)
         init(self.cl_projector)
         if self.item_augmentation in ["FD", "MD"]:
@@ -340,34 +317,24 @@ class CLHE(nn.Module):
             self.dropout = nn.Dropout(p=self.dropout_rate)
         elif self.item_augmentation in ["FN"]:
             self.noise_weight = conf['noise_weight']
-        
-        
-        #get item_cate_feat>>>
-        # self.get_cate_embbed(True)
-        # dense_ic = self.convert_sparse(self.ic_graph)
-        # self.ic = dense_ic
-        # self.item_cate_feat = dense_ic @ self.cate_feature
-        # self.item_cate_feat = (F.normalize(self.item_cate_feat, dim = -1)).to(self.device)
-    #     self.get_item_agg_graph()
 
-
-
-    def init_emb(self):
-        self.cate_feature = nn.Parameter(torch.FloatTensor(self.num_cate, self.embedding_size)).to(self.device)
-        nn.init.xavier_normal_(self.cate_feature)
+        self.get_cate_embbed(False)
+        dense_ic = self.convert_sparse(self.ic_graph)
+        self.item_cate_feat = dense_ic @ self.cate_feature
     def convert_sparse(self, sparse):
         dense_mat = sparse.toarray()
         dense_tensor= torch.tensor(dense_mat)
         return dense_tensor.to(self.device)
-    
+    def init_emb(self):
+        self.cate_feature = nn.Parameter(torch.FloatTensor(self.num_cate, self.embedding_size)).to(self.device)
+        nn.init.xavier_normal_(self.cate_feature)
     def get_cate_embbed(self, co_oc = False):
         dataset_name = 'pog'
         path = self.conf['data_path']
         if co_oc == True:
-            self.init_emb()
             cbc_cooc = sp.load_npz(f'{path}/{dataset_name}/cbc_cooc.npz')
             svd = TruncatedSVD(n_components=self.embedding_size)
-            cate_embeddings = self.cate_feature @ cbc_cooc
+            cate_embeddings = svd.fit_transform(cbc_cooc) 
             cate_embeddings_tensor = torch.FloatTensor(cate_embeddings).to(self.device)
             print(cate_embeddings.shape)
             self.cate_feature = cate_embeddings_tensor
@@ -376,21 +343,6 @@ class CLHE(nn.Module):
             self.init_emb()
             # print(self.item_cate_feat.device)
             print("Random initialize c_embed")
-
-    def get_item_agg_graph(self):
-        ic_graph = self.ic_graph
-        device = self.device
-        item_size = ic_graph.sum(axis=1) + 1e-8
-        ic_graph = sp.diags(1 / item_size.A.ravel()) @ ic_graph
-        self.item_agg_graph = to_tensor(ic_graph).to(device)
-
-    def get_CL_item_rep(self, CL_cates_feature, test):
-        if test:
-            CL_cates_feature = torch.matmul(self.item_agg_graph, CL_cates_feature)
-        else:
-            CL_cates_feature = torch.matmul(self.item_agg_graph, CL_cates_feature)
-        return CL_cates_feature
-    
 
     def forward(self, batch):
         idx, full, seq_full, modify, seq_modify = batch  # x: [bs, #items]
@@ -409,26 +361,19 @@ class CLHE(nn.Module):
         # # item-level contrastive learning >>>
         items_in_batch = torch.argwhere(full.sum(dim=0)).squeeze()
         item_loss = torch.tensor(0).to(self.device)
-
         if self.cl_alpha > 0:
             if self.item_augmentation == "FD":
-                # print("Using Feature Drop augmentation: /n")
-                item_features = self.encoder(batch, all=True)[items_in_batch]
+                item_features = (self.encoder(batch, all=True) + self.item_cate_feat)[items_in_batch]
                 sub1 = self.cl_projector(self.dropout(item_features))
                 sub2 = self.cl_projector(self.dropout(item_features))
                 item_loss = self.cl_alpha * cl_loss_function(
                     sub1.view(-1, self.embedding_size), sub2.view(-1, self.embedding_size), self.cl_temp)
             elif self.item_augmentation == "NA":
-                tmp = F.normalize(self.encoder(batch, all=True),dim = -1).to(self.device)
-                # tmp = F.normalize(self.encoder(batch, all=True)).to(self.device)
-                item_features = tmp[items_in_batch]
+                item_features = (self.encoder(batch, all=True) + self.item_cate_feat)[items_in_batch]
                 item_loss = self.cl_alpha * cl_loss_function(
-                    item_features.view(-1, self.embedding_size),item_features.view(-1, self.embedding_size), self.cl_temp)
+                    item_features.view(-1, self.embedding_size), item_features.view(-1, self.embedding_size), self.cl_temp)
             elif self.item_augmentation == "FN":
-                tmp = F.normalize(self.encoder(batch, all=True) ,dim = -1).to(self.device)
-                # tmp = F.normalize(self.encoder(batch, all=True)*w1 + self.item_cate_feat*(1-w1),dim = -1).to(self.device)
-                # tmp = F.normalize(self.encoder(batch, all=True),dim = -1).to(self.device)
-                item_features = tmp[items_in_batch]
+                item_features = (self.encoder(batch, all=True) + self.item_cate_feat)[items_in_batch]
                 sub1 = self.cl_projector(
                     self.noise_weight * torch.randn_like(item_features) + item_features)
                 sub2 = self.cl_projector(
@@ -450,26 +395,28 @@ class CLHE(nn.Module):
             bundle_feature2 = self.bundle_encode(feat_bundle_view2, mask=mask)
             bundle_loss = self.bundle_cl_alpha * cl_loss_function(
                 bundle_feature.view(-1, self.embedding_size), bundle_feature2.view(-1, self.embedding_size), self.bundle_cl_temp)
+        # bundle-level contrastive learning <<<
+
         return {
-            'loss': loss + item_loss + bundle_loss ,
+            'loss': loss + item_loss + bundle_loss,
             'item_loss': item_loss.detach(),
             'bundle_loss': bundle_loss.detach()
         }
 
+
     def evaluate(self, _, batch):
         idx, x, seq_x = batch
         mask = seq_x == self.num_item
-        # print(seq_x)
         feat_bundle_view = self.encoder(seq_x)
+
         bundle_feature = self.bundle_encode(feat_bundle_view, mask=mask)
+
         feat_retrival_view = self.decoder(
             (idx, x, seq_x, None, None), all=True)
+       
+        logits = bundle_feature @ feat_retrival_view.transpose(0, 1)
 
-
-        logits = bundle_feature @ feat_retrival_view.transpose(0, 1) #itemxitem
-        # print(logits.shape)
         return logits
 
     def propagate(self, test=False):
         return None
-        
