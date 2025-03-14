@@ -207,7 +207,7 @@ class HierachicalEncoder(nn.Module):
         features_output = torch.split(features_output, 3, dim = 1)
         # print("Feature_cross: ", feature_cross.shape)
         # print("Feature output: ", features_output.shape)
-        features_output = torch.stack(features, dim=-2)  # [bs, #modality, d]
+        features_output = torch.stack(features_output, dim=-2)  # [bs, #modality, d]
         # multimodal fusion >>>
         # final_feature = self.selfAttention(features_output.unsqueeze(1))
         final_feature = self.selfAttention(F.normalize(features_output, dim=-1))
@@ -290,6 +290,7 @@ class CLHE(nn.Module):
         self.num_user = self.conf["num_users"]
         self.num_bundle = self.conf["num_bundles"]
         self.num_item = self.conf["num_items"]
+        self.num_cate  = self.conf["num_cates"]
         self.embedding_size = 64
         self.ui_graph, self.bi_graph_train, self.bi_graph_seen, self.ic_graph = raw_graph
         self.item_augmentation = self.conf["item_augment"]
