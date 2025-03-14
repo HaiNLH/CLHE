@@ -14,8 +14,8 @@ class Cross_Attn(nn.Module):
         self.d_t, self.d_m, self.d_c = 64, 64, 64
         #3 modality: text, media, user-item:c
         self.t_only = True   # Use only text modality
-        self.m_only = False   # Use only media modality
-        self.c_only = False   # Use only user-item (content) modality
+        self.m_only = True   # Use only media modality
+        self.c_only = True   # Use only user-item (content) modality
         self.num_heads = 4    # Number of attention heads (try 4 or 8 as a starting point)
         self.layers = 2       # Number of transformer layer
         self.attn_dropout = 0.1      # Overall attention dropout rate
@@ -38,7 +38,6 @@ class Cross_Attn(nn.Module):
             combined_dim = 2*(self.d_t + self.d_m + self.d_c)
         
         output_dim  = 64
-
         # 1. Temporal convolution layers get all presentation of 3 modality
 
         self.proj_t = nn.Conv1d(self.orig_d_t, self.d_t, kernel_size = 1, padding = 0, bias = False) 
@@ -60,13 +59,13 @@ class Cross_Attn(nn.Module):
         # 3. Self-attention (others optoin: LSTMs, GRUs,...)
 
         self.trans_t_mem = self.get_network(self_type = 't_mem', layers = 3)
-        self.trans_m_mem = self.get_network(self_type = 'm_mem', layers = 3)
+        self.trans_m_mem = self.get_network(self_type = 'm_mem', layers = 3) 
         self.trans_c_mem = self.get_network(self_type = 'c_mem', layers = 3)
 
         #proj layers
         self.proj1 = nn.Linear(combined_dim, combined_dim)
         self.proj2 = nn.Linear(combined_dim, combined_dim)
-        self.out_layer = nn.Linear(combined_dim, output_dim)
+        self.out_layer = nn.Linear(combined_dim, output_dim*3)
 
     def get_network(self, self_type ='t', layers = 1):
         if self_type in ['t', 'mt', 'ct']:
@@ -159,6 +158,6 @@ class Cross_Attn(nn.Module):
             training = self.training))
         last_hs_proj += last_hs
         output = self.out_layer(last_hs_proj)
-
+        #item*64*3
         return output, last_hs
     
