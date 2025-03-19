@@ -16,8 +16,8 @@ class Cross_Attn(nn.Module):
         self.t_only = True   # Use only text modality
         self.m_only = True   # Use only media modality
         self.c_only = True   # Use only user-item (content) modality
-        self.num_heads = 4    # Number of attention heads (try 4 or 8 as a starting point)
-        self.layers = 2       # Number of transformer layer
+        self.num_heads = 8    # Number of attention heads (try 4 or 8 as a starting point)
+        self.layers = 3       # Number of transformer layer
         self.attn_dropout = 0.1      # Overall attention dropout rate
         self.attn_dropout_t = 0.1    # Attention dropout for text modality
         self.attn_dropout_m = 0.1    # Attention dropout for media modality
