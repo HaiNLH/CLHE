@@ -1,6 +1,7 @@
 pog:
   # data_path: 'D:\DS-KT\Bundle_data\datasets'
-  data_path: './datasets'
+  # data_path: './datasets'
+  data_path: '/kaggle/input/cate-train/datasets'
   # data_path: '/content/drive/MyDrive/datasets/'
   batch_size_train: 256 # the batch size for training
   batch_size_test: 1024 # the batch size for testing
