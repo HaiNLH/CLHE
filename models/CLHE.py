@@ -202,11 +202,11 @@ class HierachicalEncoder(nn.Module):
         features.append(cf_feature_full)
        
         features_output, feature_cross = self.cross_attn(t_feature, c_feature, cf_feature_full)
-        features_output = torch.split(features_output, 3, dim = 1)
-        print(features_output.shape)
+        features_output = torch.split(features_output, 64, dim = 1)
+        # print(features_output.shape)
         # print("Feature_cross: ", feature_cross.shape)
         # print("Feature output: ", features_output.shape)
-        features_output = torch.stack(features, dim=-2)  # [bs, #modality, d]
+        features_output = torch.stack(features_output, dim=1)  # [bs, #modality, d]
         # multimodal fusion >>>
         # final_feature = self.selfAttention(features_output.unsqueeze(1))
         final_feature = self.selfAttention(F.normalize(features_output, dim=-1))
