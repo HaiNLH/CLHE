@@ -13,19 +13,19 @@ class Cross_Attn(nn.Module):
         self.orig_d_t, self.orig_d_m, self.orig_d_c = 64, 64, 64
         self.d_t, self.d_m, self.d_c = 64, 64, 64
         #3 modality: text, media, user-item:c
-        self.t_only = True   # Use only text modality
-        self.m_only = True   # Use only media modality
-        self.c_only = True   # Use only user-item (content) modality
-        self.num_heads = 4    # Number of attention heads (try 4 or 8 as a starting point)
-        self.layers = 2       # Number of transformer layer
-        self.attn_dropout = 0.1      # Overall attention dropout rate
-        self.attn_dropout_t = 0.1    # Attention dropout for text modality
-        self.attn_dropout_m = 0.1    # Attention dropout for media modality
-        self.attn_dropout_c = 0.1    # Attention dropout for user-item content modality
-        self.relu_dropout = 0.1      # Dropout after ReLU activations
-        self.res_dropout = 0.1       # Dropout in residual connections
-        self.out_dropout = 0.1       # Dropout on the output layer
-        self.embed_dropout = 0.1     # Dropout on the embedding layers
+        self.t_only = True   # Use only text 
+        self.m_only = True   # Use only media
+        self.c_only = True   # Use only user-item (cf) 
+        self.num_heads = 4     
+        self.layers = 2       
+        self.attn_dropout = 0.1      
+        self.attn_dropout_t = 0.1    
+        self.attn_dropout_m = 0.1    
+        self.attn_dropout_c = 0.1    
+        self.relu_dropout = 0.1      
+        self.res_dropout = 0.1       
+        self.out_dropout = 0.1     
+        self.embed_dropout = 0.1   
         self.attn_mask = None
 
         combined_dim = self.d_t + self.d_m + self.d_c
