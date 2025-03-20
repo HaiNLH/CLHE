@@ -14,7 +14,7 @@ import torch
 import torch.optim as optim
 from utility import Datasets
 import models
-
+import wandb
 
 def setup_seed(seed=2023):
     random.seed(seed)
@@ -151,13 +151,15 @@ def main():
     best_metrics, best_perform = init_best_metrics(conf)
     best_epoch = 0
     setup_seed(conf["seed"])
+    wandb.init(project="CLHE", name="electronic_run")  # Initialize WandB
+
     num_epoch = conf['epochs'] if conf['epoch'] == -1 else conf["epoch"]
     for epoch in range(num_epoch):
         epoch_anchor = epoch * batch_cnt
         model.train(True)
-        pbar = tqdm(enumerate(dataset.train_loader),
-                    total=len(dataset.train_loader))
+        pbar = tqdm(enumerate(dataset.train_loader), total=len(dataset.train_loader))
         avg_losses = {}
+
         for batch_i, batch in pbar:
             model.train(True)
             optimizer.zero_grad()
@@ -166,7 +168,7 @@ def main():
 
             losses = model(batch)
 
-            losses['loss'].backward(retain_graph=False)
+            losses['loss'].backward()
             optimizer.step()
 
             for l in losses:
@@ -176,20 +178,22 @@ def main():
                     avg_losses[l].append(losses[l].detach().cpu().item())
 
             pbar.set_description("epoch: %d, " % (epoch) +
-                                 ", ".join([
-                                     "%s: %.5f" % (l, losses[l].detach()) for l in losses
-                                 ]))
+                                ", ".join(["%s: %.5f" % (l, losses[l].detach()) for l in losses]))
 
             if (batch_anchor+1) % test_interval_bs == 0:
                 metrics = {}
                 metrics["val"] = test(model, dataset.val_loader, conf)
                 metrics["test"] = test(model, dataset.test_loader, conf)
+
                 best_metrics, best_perform, best_epoch, is_better = log_metrics(
                     conf, model, metrics, run, log_path, checkpoint_model_path, checkpoint_conf_path, epoch, batch_anchor, best_metrics, best_perform, best_epoch)
 
-        for l in avg_losses:
-            run.add_scalar(l, np.mean(avg_losses[l]), epoch)
-        avg_losses = {}
+        # Log average loss per epoch
+        avg_loss_epoch = {l: np.mean(avg_losses[l]) for l in avg_losses}
+        avg_loss_epoch["epoch"] = epoch
+        wandb.log(avg_loss_epoch)  # Now the x-axis is "epoch"
+
+    wandb.finish()  # Mark WandB logging as finished
 
 
 def init_best_metrics(conf):
