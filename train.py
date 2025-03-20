@@ -151,7 +151,7 @@ def main():
     best_metrics, best_perform = init_best_metrics(conf)
     best_epoch = 0
     setup_seed(conf["seed"])
-    wandb.init(project="CLHE", name="electronic_run")  # Initialize WandB
+    wandb.init(project="CLHE", name=conf['dataset'])  # Initialize WandB
 
     num_epoch = conf['epochs'] if conf['epoch'] == -1 else conf["epoch"]
     for epoch in range(num_epoch):
