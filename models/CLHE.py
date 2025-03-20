@@ -47,7 +47,7 @@ class HierachicalEncoder(nn.Module):
         self.num_bundle = self.conf["num_bundles"]
         self.num_item = self.conf["num_items"]
         self.embedding_size = 64
-        self.ui_graph, self.bi_graph_train, self.bi_graph_seen, self.ic_graph = raw_graph
+        self.ui_graph, self.bi_graph_train, self.bi_graph_seen, _= raw_graph
         self.attention_components = self.conf["attention"]
 
         self.content_feature, self.text_feature, self.cf_feature = features
@@ -133,63 +133,6 @@ class HierachicalEncoder(nn.Module):
         y = features.mean(dim=-2)  # [bs, d]
 
         return y
-    
-    def cross_attention(self, query, key, value):
-        q = self.w_q(query)
-        k = self.w_k(key)
-        v =self.w_v(value)
-
-        attn = (q@ k.transpose(-1,-2))*(self.embedding_size ** -0.5)
-        attn = attn.softmax(dim = -1)
-
-        output = attn@ v 
-
-        output = output.mean(dim=-2)
-        return output
-      
-    def forward_cross(self):
-        c_feature = self.c_encoder(self.content_feature)
-        t_feature = self.t_encoder(self.text_feature)
-        mm_feature_full = F.normalize(c_feature) + F.normalize(t_feature)
-        cf_feature_full = self.cf_transformation(self.cf_feature)
-        cf_feature_full[self.cold_indices_cf] = mm_feature_full[self.cold_indices_cf]
-        projection = nn.Linear(128, 64).to(self.device)
-        c_ft = F.normalize(c_feature).unsqueeze(1) 
-        t_ft = F.normalize(t_feature).unsqueeze(1) 
-        cf_ft = F.normalize(cf_feature_full).unsqueeze(1)
-        
-
-        # 1. Content, CF -> Text
-        t_with_c = self.cross_attention(t_ft, c_ft, c_ft).unsqueeze(1)
-        t_with_cf = self.cross_attention(t_ft, cf_ft, cf_ft).unsqueeze(1)
-        t_ca = torch.cat([t_with_c, t_with_cf], dim=2)
-        # t_ca = t_ca.permute(1, 0, 2)
-        t_ca = self.selfAttention(projection(t_ca)) + F.normalize(t_feature)  # Residual
-
-        # 2. Text, CF -> Content
-        c_with_t = self.cross_attention(c_ft, t_ft, t_ft).unsqueeze(1)
-        c_with_cf = self.cross_attention(c_ft, cf_ft, cf_ft).unsqueeze(1)
-        c_ca = torch.cat([c_with_t, c_with_cf], dim=2)
-        c_ca = self.selfAttention(projection(c_ca)) + F.normalize(c_feature) # Residual
-
-        # 3. Text, Content -> CF
-        cf_with_t = self.cross_attention(cf_ft, t_ft, t_ft).unsqueeze(1)
-        cf_with_c = self.cross_attention(cf_ft, c_ft, c_ft).unsqueeze(1)
-        cf_ca = torch.cat([cf_with_t, cf_with_c], dim=2)
-        cf_ca = self.selfAttention(projection(cf_ca)) + F.normalize(cf_feature_full)  # Residual
-        
-        # Self-attention on item embeddings
-        item_embeddings_att = self.selfAttention(self.item_embeddings.unsqueeze(1))
-
-        # Concatenate all attended features
-        fused_features = [
-            t_ca, c_ca, cf_ca, item_embeddings_att
-        ]
-        fused_features = torch.stack(fused_features, dim=-2) 
-        # Apply self-attention to fused features
-        fused_features = self.selfAttention(F.normalize(fused_features, dim=-1))
-        print("Using cross_att")
-        return fused_features
     def forward_all(self):
         
         c_feature = self.c_encoder(self.content_feature)
@@ -322,32 +265,52 @@ class CLHE(nn.Module):
         elif self.item_augmentation in ["FN"]:
             self.noise_weight = conf['noise_weight']
 
-        self.get_cate_embbed(False)
-        dense_ic = self.convert_sparse(self.ic_graph)
-        self.item_cate_feat = dense_ic @ self.cate_feature
+        self.init_emb()
+        self.get_cate_embbed(True)
+        self.compute_item_embeddings()
+
+
     def convert_sparse(self, sparse):
         dense_mat = sparse.toarray()
         dense_tensor= torch.tensor(dense_mat)
         return dense_tensor.to(self.device)
+    
     def init_emb(self):
         self.cate_feature = nn.Parameter(torch.FloatTensor(self.num_cate, self.embedding_size)).to(self.device)
         nn.init.xavier_normal_(self.cate_feature)
+        self.item_feature = nn.Parameter(torch.FloatTensor(self.num_item, self.embedding_size)).to(self.device)
+        nn.init.xavier_normal_(self.item_feature)
+
     def get_cate_embbed(self, co_oc = False):
         dataset_name = 'pog'
         path = self.conf['data_path']
-        if co_oc == True:
+        if co_oc:
+            print("Using SVD to generate category embeddings from co-occurrence matrix...")
             cbc_cooc = sp.load_npz(f'{path}/{dataset_name}/cbc_cooc.npz')
-            svd = TruncatedSVD(n_components=self.embedding_size)
-            cate_embeddings = svd.fit_transform(cbc_cooc) 
-            cate_embeddings_tensor = torch.FloatTensor(cate_embeddings).to(self.device)
-            print(cate_embeddings.shape)
-            self.cate_feature = cate_embeddings_tensor
-            print("Done creating c_embed from cooc matrix")
-        else:
-            self.init_emb()
-            # print(self.item_cate_feat.device)
-            print("Random initialize c_embed")
 
+            # Apply Truncated SVD
+            svd = TruncatedSVD(n_components=self.embedding_size)
+            cate_embeddings = svd.fit_transform(cbc_cooc)
+
+            # Convert to torch tensor
+            cate_embeddings_tensor = torch.tensor(cate_embeddings, dtype=torch.float32, device=self.device)
+
+            self.cate_feature = nn.Parameter(cate_embeddings_tensor)  # Assign directly without reinitializing
+            print("Done creating category embeddings from co-occurrence matrix.")
+        else:
+            print("Randomly initializing category embeddings.")
+    def compute_item_embeddings(self):
+        """Compute item embeddings from item-category graph and category embeddings."""
+        dense_ic = self.convert_sparse(self.ic_graph)  # Convert sparse matrix to tensor
+
+        # Normalize Item-Category matrix (row-wise)
+        row_sum = dense_ic.sum(dim=1, keepdim=True) + 1e-8  # Avoid division by zero
+        dense_ic = dense_ic / row_sum
+
+        # Compute item embeddings
+        self.item_cate_feat = dense_ic @ self.cate_feature  # Aggregating category embeddings
+
+        print("Updated item embeddings from category embeddings.")
     def forward(self, batch):
         idx, full, seq_full, modify, seq_modify = batch  # x: [bs, #items]
         mask = seq_full == self.num_item

@@ -167,7 +167,6 @@ class Datasets():
             shape=(self.num_bundles, self.num_items),
             tag="BI(seen)")
         self.graphs = [u_i_graph, b_i_graph_train, b_i_graph_seen, i_c_graph]
-        self.ic_graph = i_c_graph
         self.features = self.get_features()
 
         self.bundle_train_data = BundleTrainDataset(
