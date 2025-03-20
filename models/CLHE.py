@@ -311,79 +311,145 @@ class CLHE(nn.Module):
         self.item_cate_feat = dense_ic @ self.cate_feature  # Aggregating category embeddings
 
         print("Updated item embeddings from category embeddings.")
+    # def forward(self, batch):
+    #     idx, full, seq_full, modify, seq_modify = batch  # x: [bs, #items]
+    #     mask = seq_full == self.num_item
+    #     feat_bundle_view = self.encoder(seq_full)  # [bs, n_token, d]
+
+    #     # bundle feature construction >>>
+    #     bundle_feature = self.bundle_encode(feat_bundle_view, mask=mask)
+
+    #     feat_retrival_view = self.decoder(batch, all=True)
+
+    #     # compute loss >>>
+    #     logits = bundle_feature @ feat_retrival_view.transpose(0, 1)
+    #     loss = recon_loss_function(logits, full)  # main_loss
+
+    #     # # item-level contrastive learning >>>
+    #     items_in_batch = torch.argwhere(full.sum(dim=0)).squeeze()
+    #     item_loss = torch.tensor(0).to(self.device)
+    #     if self.cl_alpha > 0:
+    #         if self.item_augmentation == "FD":
+    #             item_features = (self.encoder(batch, all=True) + self.item_cate_feat)[items_in_batch]
+    #             sub1 = self.cl_projector(self.dropout(item_features))
+    #             sub2 = self.cl_projector(self.dropout(item_features))
+    #             item_loss = self.cl_alpha * cl_loss_function(
+    #                 sub1.view(-1, self.embedding_size), sub2.view(-1, self.embedding_size), self.cl_temp)
+    #         elif self.item_augmentation == "NA":
+    #             item_features = (self.encoder(batch, all=True) + self.item_cate_feat)[items_in_batch]
+    #             item_loss = self.cl_alpha * cl_loss_function(
+    #                 item_features.view(-1, self.embedding_size), item_features.view(-1, self.embedding_size), self.cl_temp)
+    #         elif self.item_augmentation == "FN":
+    #             item_features = (self.encoder(batch, all=True) + self.item_cate_feat)[items_in_batch]
+    #             sub1 = self.cl_projector(
+    #                 self.noise_weight * torch.randn_like(item_features) + item_features)
+    #             sub2 = self.cl_projector(
+    #                 self.noise_weight * torch.randn_like(item_features) + item_features)
+    #             item_loss = self.cl_alpha * cl_loss_function(
+    #                 sub1.view(-1, self.embedding_size), sub2.view(-1, self.embedding_size), self.cl_temp)
+    #         elif self.item_augmentation == "MD":
+    #             sub1, sub2 = self.encoder.generate_two_subs(self.dropout_rate)
+    #             sub1 = sub1[items_in_batch]
+    #             sub2 = sub2[items_in_batch]
+    #             item_loss = self.cl_alpha * cl_loss_function(
+    #                 sub1.view(-1, self.embedding_size), sub2.view(-1, self.embedding_size), self.cl_temp)
+    #     # # item-level contrastive learning <<<
+
+    #     # bundle-level contrastive learning >>>
+    #     bundle_loss = torch.tensor(0).to(self.device)
+    #     if self.bundle_cl_alpha > 0:
+    #         feat_bundle_view2 = self.encoder(seq_modify)  # [bs, n_token, d]
+    #         bundle_feature2 = self.bundle_encode(feat_bundle_view2, mask=mask)
+    #         bundle_loss = self.bundle_cl_alpha * cl_loss_function(
+    #             bundle_feature.view(-1, self.embedding_size), bundle_feature2.view(-1, self.embedding_size), self.bundle_cl_temp)
+    #     # bundle-level contrastive learning <<<
+
+    #     return {
+    #         'loss': loss + item_loss + bundle_loss,
+    #         'item_loss': item_loss.detach(),
+    #         'bundle_loss': bundle_loss.detach()
+    #     }
+
+
+    # def evaluate(self, _, batch):
+    #     idx, x, seq_x = batch
+    #     mask = seq_x == self.num_item
+    #     feat_bundle_view = self.encoder(seq_x)
+
+    #     bundle_feature = self.bundle_encode(feat_bundle_view, mask=mask)
+
+    #     feat_retrival_view = self.decoder(
+    #         (idx, x, seq_x, None, None), all=True)
+       
+    #     logits = bundle_feature @ feat_retrival_view.transpose(0, 1)
+
+    #     return logits
     def forward(self, batch):
         idx, full, seq_full, modify, seq_modify = batch  # x: [bs, #items]
         mask = seq_full == self.num_item
-        feat_bundle_view = self.encoder(seq_full)  # [bs, n_token, d]
 
-        # bundle feature construction >>>
+        # === Bundle-based Pipeline ===
+        feat_bundle_view = self.encoder(seq_full)  # [bs, n_token, d]
         bundle_feature = self.bundle_encode(feat_bundle_view, mask=mask)
 
         feat_retrival_view = self.decoder(batch, all=True)
 
-        # compute loss >>>
-        logits = bundle_feature @ feat_retrival_view.transpose(0, 1)
-        loss = recon_loss_function(logits, full)  # main_loss
-
-        # # item-level contrastive learning >>>
+        # === Item-Category-based Pipeline ===
         items_in_batch = torch.argwhere(full.sum(dim=0)).squeeze()
-        item_loss = torch.tensor(0).to(self.device)
-        if self.cl_alpha > 0:
-            if self.item_augmentation == "FD":
-                item_features = (self.encoder(batch, all=True) + self.item_cate_feat)[items_in_batch]
-                sub1 = self.cl_projector(self.dropout(item_features))
-                sub2 = self.cl_projector(self.dropout(item_features))
-                item_loss = self.cl_alpha * cl_loss_function(
-                    sub1.view(-1, self.embedding_size), sub2.view(-1, self.embedding_size), self.cl_temp)
-            elif self.item_augmentation == "NA":
-                item_features = (self.encoder(batch, all=True) + self.item_cate_feat)[items_in_batch]
-                item_loss = self.cl_alpha * cl_loss_function(
-                    item_features.view(-1, self.embedding_size), item_features.view(-1, self.embedding_size), self.cl_temp)
-            elif self.item_augmentation == "FN":
-                item_features = (self.encoder(batch, all=True) + self.item_cate_feat)[items_in_batch]
-                sub1 = self.cl_projector(
-                    self.noise_weight * torch.randn_like(item_features) + item_features)
-                sub2 = self.cl_projector(
-                    self.noise_weight * torch.randn_like(item_features) + item_features)
-                item_loss = self.cl_alpha * cl_loss_function(
-                    sub1.view(-1, self.embedding_size), sub2.view(-1, self.embedding_size), self.cl_temp)
-            elif self.item_augmentation == "MD":
-                sub1, sub2 = self.encoder.generate_two_subs(self.dropout_rate)
-                sub1 = sub1[items_in_batch]
-                sub2 = sub2[items_in_batch]
-                item_loss = self.cl_alpha * cl_loss_function(
-                    sub1.view(-1, self.embedding_size), sub2.view(-1, self.embedding_size), self.cl_temp)
-        # # item-level contrastive learning <<<
+        item_features = self.encoder(batch, all=True) + self.item_cate_feat  # Parallel item representation
 
-        # bundle-level contrastive learning >>>
-        bundle_loss = torch.tensor(0).to(self.device)
+        # Compute Loss
+        logits = bundle_feature @ feat_retrival_view.transpose(0, 1)
+        loss = recon_loss_function(logits, full)  # Main bundle reconstruction loss
+
+        # Item-Level Contrastive Learning
+        item_loss = torch.tensor(0.0, device=self.device)
+        if self.cl_alpha > 0:
+            sub1 = self.cl_projector(self.dropout(item_features[items_in_batch]))
+            sub2 = self.cl_projector(self.dropout(item_features[items_in_batch]))
+            item_loss = self.cl_alpha * cl_loss_function(sub1.view(-1, self.embedding_size), sub2.view(-1, self.embedding_size), self.cl_temp)
+
+        # === Item-Category Loss ===
+        ic_loss = torch.tensor(0.0, device=self.device)
+        if self.ic_alpha > 0:
+            item_cate_pred = item_features @ self.item_cate_feat.T  # Predict item-category relationships
+            ic_loss = self.ic_alpha * torch.nn.functional.mse_loss(item_cate_pred, self.item_cate_feat)  # Ensure item embeddings align with category info
+
+        # === Bundle-Level Contrastive Learning ===
+        bundle_loss = torch.tensor(0.0, device=self.device)
         if self.bundle_cl_alpha > 0:
-            feat_bundle_view2 = self.encoder(seq_modify)  # [bs, n_token, d]
+            feat_bundle_view2 = self.encoder(seq_modify)
             bundle_feature2 = self.bundle_encode(feat_bundle_view2, mask=mask)
-            bundle_loss = self.bundle_cl_alpha * cl_loss_function(
-                bundle_feature.view(-1, self.embedding_size), bundle_feature2.view(-1, self.embedding_size), self.bundle_cl_temp)
-        # bundle-level contrastive learning <<<
+            bundle_loss = self.bundle_cl_alpha * cl_loss_function(bundle_feature.view(-1, self.embedding_size), bundle_feature2.view(-1, self.embedding_size), self.bundle_cl_temp)
+
+        total_loss = loss + item_loss + bundle_loss + ic_loss
 
         return {
-            'loss': loss + item_loss + bundle_loss,
+            'loss': total_loss,
             'item_loss': item_loss.detach(),
-            'bundle_loss': bundle_loss.detach()
+            'bundle_loss': bundle_loss.detach(),
+            'ic_loss': ic_loss.detach(),
         }
 
 
     def evaluate(self, _, batch):
         idx, x, seq_x = batch
         mask = seq_x == self.num_item
-        feat_bundle_view = self.encoder(seq_x)
 
+        # === Bundle-Based Prediction ===
+        feat_bundle_view = self.encoder(seq_x)
         bundle_feature = self.bundle_encode(feat_bundle_view, mask=mask)
 
-        feat_retrival_view = self.decoder(
-            (idx, x, seq_x, None, None), all=True)
-       
-        logits = bundle_feature @ feat_retrival_view.transpose(0, 1)
+        feat_retrival_view = self.decoder((idx, x, seq_x, None, None), all=True)
+        bundle_logits = bundle_feature @ feat_retrival_view.transpose(0, 1)
 
-        return logits
+        # === Item-Category-Based Prediction ===
+        item_features = self.encoder((idx, x, seq_x, None, None), all=True) + self.item_cate_feat
+        item_cate_logits = item_features @ self.item_cate_feat.T  # Predict category relations
 
+        # Merge predictions (optional: weighted sum or concatenation)
+        final_logits = bundle_logits + item_cate_logits  # You can use different weighting factors here
+
+        return final_logits
     def propagate(self, test=False):
         return None
