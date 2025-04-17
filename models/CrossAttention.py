@@ -27,7 +27,7 @@ class Cross_Attn(nn.Module):
         self.out_dropout = 0.1     
         self.embed_dropout = 0.1   
         self.attn_mask = None
-
+        
         combined_dim = self.d_t + self.d_m + self.d_c
 
         self.parital_mode = self.t_only + self.m_only + self.c_only

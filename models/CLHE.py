@@ -57,7 +57,12 @@ class HierachicalEncoder(nn.Module):
             np.argwhere(items_in_train)[:, 1]).to(device)
         self.cold_indices = torch.LongTensor(
             np.argwhere(~items_in_train)[:, 1]).to(device)
-
+        self.fusion_proj = nn.Sequential(
+            nn.Linear(self.embedding_size * 2, self.embedding_size),
+            nn.ReLU(),
+            nn.Dropout(0.1),
+            nn.LayerNorm(self.embedding_size)  # optional but recommended
+        )
         # MM >>>
         self.content_feature = nn.functional.normalize(
             self.content_feature, dim=-1)
@@ -196,22 +201,26 @@ class HierachicalEncoder(nn.Module):
         t_feature = self.t_encoder(self.text_feature)
 
         mm_feature_full = F.normalize(c_feature) + F.normalize(t_feature)
-        features = [mm_feature_full]
-        features.append(self.item_embeddings)
+        # features = [mm_feature_full]
+        # features = [self.item_embeddings]
+        # print(features.shape)
+        # cf_feature_full = self.cf_transformation(self.cf_feature)
+        # cf_feature_full[self.cold_indices_cf] = mm_feature_full[self.cold_indices_cf]
+        # # features.append(cf_feature_full)
+        
+        # features_output, feature_cross = self.cross_attn(t_feature, c_feature, cf_feature_full)
+        # # print("Features outpout shape: ", features_output.shape)
+        # # features_output = torch.split(features_output, 64, dim = 1)
+        # # features_output = torch.stack(features_output, dim=1) 
+        # # # multimodal fusion >>>
+        # # # final_feature = self.selfAttention(features_output.unsqueeze(1))
+        # # final_feature = self.selfAttention(F.normalize(features_output, dim=-1))
+        # fused = torch.cat([features_output, self.item_embeddings], dim=-1)  # [num_items, 2 * embed_dim]
+        # fused = self.fusion_proj(fused)  # [num_items, embed_dim]
 
-        cf_feature_full = self.cf_transformation(self.cf_feature)
-        cf_feature_full[self.cold_indices_cf] = mm_feature_full[self.cold_indices_cf]
-        features.append(cf_feature_full)
-       
-        features_output, feature_cross = self.cross_attn(t_feature, c_feature, cf_feature_full)
-        features_output = torch.split(features_output, 64, dim = 1)
-        features_output = torch.stack(features_output, dim=1) 
-        # multimodal fusion >>>
-        # final_feature = self.selfAttention(features_output.unsqueeze(1))
-        final_feature = self.selfAttention(F.normalize(features_output, dim=-1))
         # multimodal fusion <<< 
 
-        return final_feature
+        return self.item_embeddings
 
 
     def forward(self, seq_modify, all=False):

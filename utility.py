@@ -56,7 +56,7 @@ class BundleTrainDataset(Dataset):
         cate_counts = cate_mat.sum(dim=0)
         # pop_cate = torch.argmax(cate_counts) only produce top 1 cate
         topk_cats = torch.topk(cate_counts, k=min(3, cate_counts.shape[0]))[1]
-        print(topk_cats.tolist())
+        # print(topk_cats.tolist())
         mask =  (cate_mat[:, topk_cats] > 0).any(dim=1)
         pop_indices = indices[mask]
         # get popular category<<<
