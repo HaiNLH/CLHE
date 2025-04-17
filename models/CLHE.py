@@ -328,7 +328,7 @@ class CLHE(nn.Module):
         self.cate_feature = nn.Parameter(torch.FloatTensor(self.num_cate, self.embedding_size)).to(self.device)
         nn.init.xavier_normal_(self.cate_feature)
     def get_cate_embbed(self, co_oc = False):
-        dataset_name = 'pog'
+        dataset_name = ''  
         path = self.conf['data_path']
         if co_oc == True:
             cbc_cooc = sp.load_npz(f'{path}/{dataset_name}/cbc_cooc.npz')
