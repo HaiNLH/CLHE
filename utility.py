@@ -9,7 +9,7 @@ from torch.utils.data import Dataset, DataLoader
 
 
 class BundleTrainDataset(Dataset):
-    def __init__(self, conf, b_i_pairs, b_i_graph, features, num_bundles, b_i_for_neg_sample, b_b_for_neg_sample, neg_sample=1):
+    def __init__(self, conf, b_i_pairs, b_i_graph, features, num_bundles, b_i_for_neg_sample, b_b_for_neg_sample, neg_sample=1, ic_graph):
         self.conf = conf
         self.b_i_pairs = b_i_pairs
         self.b_i_graph = b_i_graph
@@ -19,7 +19,7 @@ class BundleTrainDataset(Dataset):
         self.num_items = self.b_i_graph.shape[1]
         self.neg_sample = neg_sample
         self.features = features
-
+        self.ic_graph = ic_graph
         self.b_i_for_neg_sample = b_i_for_neg_sample
         self.b_b_for_neg_sample = b_b_for_neg_sample
 
@@ -37,34 +37,49 @@ class BundleTrainDataset(Dataset):
         self.bundle_augment = conf["bundle_augment"]
 
     def __getitem__(self, index):
-
+        if not hasattr(self, 'debug_counter'):
+            self.debug_counter = 0  # Initialize counter if it doesn't exist
         full = torch.from_numpy(
             self.b_i_graph[self.bundles_map[index]].toarray()).squeeze()
 
         # multi-hot
         modify = torch.zeros_like(full)
         indices = torch.argwhere(full)[:, 0]
-
-        # shuffle >>>
         num_items = indices.shape[0]
+        # shuffle >>>
         random_idx = torch.randperm(num_items)
         indices = indices[random_idx]
         # shuffle <<<
+
+        # get popular category>>>
+        cate_mat = torch.from_numpy(self.ic_graph[indices].toarray())
+        cate_counts = cate_mat.sum(dim=0)
+        pop_cate = torch.argmax(cate_counts)
+
+        mask = cate_mat[:, pop_cate]==1
+        pop_indices = indices[mask]
+        # get popular category<<<
 
         seq_full = F.pad(
             indices, (0, self.len_max-len(indices)), value=self.num_items)
 
         if self.conf["bundle_ratio"] > 0 and self.conf["bundle_ratio"] < 1:  # remove items
             if self.bundle_augment == "ID":
-                line = round(len(indices)*self.conf["bundle_ratio"]+0.5)
-                line = line if line < len(indices) else len(
-                    indices)-1  # ensure at less one item is masked
-                p_indices = indices[:line]
-                modify[p_indices] = 1
 
-                # sequence set:
-                seq_modify = F.pad(
-                    p_indices, (0, self.len_max-len(p_indices)), value=self.num_items)
+                topk = round(num_items *self.conf['bundle_ratio'] + 0.5)
+                topk = min(topk,len(pop_indices))
+                kept_indices = pop_indices[torch.randperm(len(pop_indices))[:topk]]
+                modify[kept_indices] = 1
+                seq_modify = F.pad(kept_indices, (0, self.len_max-len(kept_indices)), values = self.num_items)
+                # line = round(len(indices)*self.conf["bundle_ratio"]+0.5)
+                # line = line if line < len(indices) else len(
+                #     indices)-1  # ensure at less one item is masked
+                # p_indices = indices[:line]
+                # modify[p_indices] = 1
+
+                # # sequence set:
+                # seq_modify = F.pad(
+                #     p_indices, (0, self.len_max-len(p_indices)), value=self.num_items)
             elif self.bundle_augment == "IR":
                 line = round(len(indices)*self.conf["bundle_ratio"]+0.5)
                 line = line if line < len(indices) else len(
@@ -97,6 +112,15 @@ class BundleTrainDataset(Dataset):
             modify[m_indices] = 1
             seq_modify = F.pad(
                 m_indices, (0, self.len_max-len(m_indices)), value=self.num_items)
+        if self.conf.get("print_mask_debug", False):
+            if self.debug_counter < 5:
+                print(f"[Bundle ID: {index}]")
+                print(f"  All Items   : {indices.tolist()}")
+                print(f"  Random Mask : {p_indices.tolist()}")
+                print("=" * 50)
+                self.debug_counter += 1
+        # Increment counter
+        
 
         return self.bundles_map[index], full, seq_full, modify, seq_modify
 
@@ -171,7 +195,7 @@ class Datasets():
         self.features = self.get_features()
 
         self.bundle_train_data = BundleTrainDataset(
-            conf, b_i_pairs_train, b_i_graph_train, self.features, self.num_bundles, b_i_for_neg_sample, b_b_for_neg_sample, conf["neg_num"])
+            conf, b_i_pairs_train, b_i_graph_train, self.features, self.num_bundles, b_i_for_neg_sample, b_b_for_neg_sample, conf["neg_num"], self.ic_graph)
 
         self.bundle_val_data = BundleTestDataset(conf, b_i_pairs_val_i, b_i_graph_val_i, b_i_pairs_val_gt, b_i_graph_val_gt,
                                                  self.num_bundles, self.num_items)
@@ -238,7 +262,7 @@ class Datasets():
         values = np.ones(len(i_c_pairs), dtype=np.float32)
         i_c_graph = sp.csr_matrix(
             (values, (indice[:, 0], indice[:, 1])), shape=(self.num_items, self.num_cates))
-        print(i_c_pairs)
+        # print(i_c_pairs)
         return i_c_pairs, i_c_graph
     def get_bi_train(self):
 
