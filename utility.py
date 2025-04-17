@@ -9,7 +9,7 @@ from torch.utils.data import Dataset, DataLoader
 
 
 class BundleTrainDataset(Dataset):
-    def __init__(self, conf, b_i_pairs, b_i_graph, features, num_bundles, b_i_for_neg_sample, b_b_for_neg_sample, neg_sample=1, ic_graph):
+    def __init__(self, conf, b_i_pairs, b_i_graph, features, num_bundles, b_i_for_neg_sample, b_b_for_neg_sample, ic_graph, neg_sample=1):
         self.conf = conf
         self.b_i_pairs = b_i_pairs
         self.b_i_graph = b_i_graph
@@ -54,9 +54,10 @@ class BundleTrainDataset(Dataset):
         # get popular category>>>
         cate_mat = torch.from_numpy(self.ic_graph[indices].toarray())
         cate_counts = cate_mat.sum(dim=0)
-        pop_cate = torch.argmax(cate_counts)
-
-        mask = cate_mat[:, pop_cate]==1
+        # pop_cate = torch.argmax(cate_counts) only produce top 1 cate
+        topk_cats = torch.topk(cate_counts, k=min(3, cate_counts.shape[0]))[1]
+        print(topk_cats.tolist())
+        mask =  (cate_mat[:, topk_cats] > 0).any(dim=1)
         pop_indices = indices[mask]
         # get popular category<<<
 
@@ -67,14 +68,19 @@ class BundleTrainDataset(Dataset):
             if self.bundle_augment == "ID":
 
                 topk = round(num_items *self.conf['bundle_ratio'] + 0.5)
+
                 topk = min(topk,len(pop_indices))
+                topk = topk if topk < len(indices) else len(
+                    indices)-1 
                 kept_indices = pop_indices[torch.randperm(len(pop_indices))[:topk]]
+
                 modify[kept_indices] = 1
-                seq_modify = F.pad(kept_indices, (0, self.len_max-len(kept_indices)), values = self.num_items)
-                # line = round(len(indices)*self.conf["bundle_ratio"]+0.5)
-                # line = line if line < len(indices) else len(
-                #     indices)-1  # ensure at less one item is masked
-                # p_indices = indices[:line]
+                seq_modify = F.pad(kept_indices, (0, self.len_max-len(kept_indices)), value = self.num_items)
+                
+                line = round(len(indices)*self.conf["bundle_ratio"]+0.5)
+                line = line if line < len(indices) else len(
+                    indices)-1  # ensure at less one item is masked
+                p_indices = indices[:line]
                 # modify[p_indices] = 1
 
                 # # sequence set:
@@ -114,9 +120,10 @@ class BundleTrainDataset(Dataset):
                 m_indices, (0, self.len_max-len(m_indices)), value=self.num_items)
         if self.conf.get("print_mask_debug", False):
             if self.debug_counter < 5:
-                print(f"[Bundle ID: {index}]")
+                print("Popular indices len: ", len(pop_indices) )
                 print(f"  All Items   : {indices.tolist()}")
-                print(f"  Random Mask : {p_indices.tolist()}")
+                print(f"  Cate mask : {kept_indices.tolist()}")
+                print(f"  Random mask : {p_indices.tolist()}")
                 print("=" * 50)
                 self.debug_counter += 1
         # Increment counter
@@ -195,7 +202,7 @@ class Datasets():
         self.features = self.get_features()
 
         self.bundle_train_data = BundleTrainDataset(
-            conf, b_i_pairs_train, b_i_graph_train, self.features, self.num_bundles, b_i_for_neg_sample, b_b_for_neg_sample, conf["neg_num"], self.ic_graph)
+            conf, b_i_pairs_train, b_i_graph_train, self.features, self.num_bundles, b_i_for_neg_sample, b_b_for_neg_sample,  self.ic_graph, conf["neg_num"])
 
         self.bundle_val_data = BundleTestDataset(conf, b_i_pairs_val_i, b_i_graph_val_i, b_i_pairs_val_gt, b_i_graph_val_gt,
                                                  self.num_bundles, self.num_items)

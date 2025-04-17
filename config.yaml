@@ -67,7 +67,8 @@ food:
   num_layerss: [1] # number of layers for the infomation progagation over the item- and bundle-level graphs
   lrs: [1.0e-4] # learning rate
   l2_regs: [1.0e-5] # the l2 regularization weight: lambda_2
-  epochs: 100 # number of epochs to train
+  print_mask_debug: False
+  epochs: 50 # number of epochs to train
   test_interval: 5 # by how many epochs to run the validation and testing.
 
 electronic:
@@ -80,5 +81,6 @@ electronic:
   num_layerss: [1] # number of layers for the infomation progagation over the item- and bundle-level graphs
   lrs: [1.0e-4] # learning rate
   l2_regs: [1.0e-5] # the l2 regularization weight: lambda_2
-  epochs: 100 # number of epochs to train
+  print_mask_debug: False
+  epochs: 50 # number of epochs to train
   test_interval: 5 # by how many epochs to run the validation and testing.
