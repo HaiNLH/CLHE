@@ -1,8 +1,8 @@
 pog:
   # data_path: 'D:\DS-KT\Bundle_data\datasets'
   # data_path: './datasets'
-  data_path: '/kaggle/input/cate-train/datasets'
-  # data_path: '/content/drive/MyDrive/datasets/'
+  # data_path: '/kaggle/input/cate-train/datasets'
+  data_path: '/content/drive/MyDrive/datasets/'
   batch_size_train: 256 # the batch size for training
   batch_size_test: 1024 # the batch size for testing
   topk: [5, 10, 20, 40, 80] # the topks metrics for evaluation
@@ -14,6 +14,7 @@ pog:
   n_head: 3
   seed: 2023
   self_loop: False
+  print_mask_debug: False
   extra_layer: True
   epochs: 100 # number of epochs to train
   test_interval: 5 # by how many epochs to run the validation and testing.
