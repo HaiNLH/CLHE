@@ -54,13 +54,10 @@ class BundleTrainDataset(Dataset):
         # get popular category>>>
         cate_mat = torch.from_numpy(self.ic_graph[indices].toarray())
         cate_counts = cate_mat.sum(dim=0)
-        # pop_cate = torch.argmax(cate_counts) only produce top 1 cate
-        topk_cats = torch.topk(cate_counts, k=min(3, cate_counts.shape[0]))[1]
-        print(topk_cats.tolist())
+        pop_cate = torch.argmax(cate_counts)
 
-        mask =  ~(cate_mat[:, topk_cats] > 0).any(dim=1)
-        non_anchor_indices = indices[mask]
-        anchor_indices = indices[~mask]
+        mask = cate_mat[:, pop_cate]==1
+        pop_indices = indices[mask]
         # get popular category<<<
 
         seq_full = F.pad(
@@ -68,30 +65,20 @@ class BundleTrainDataset(Dataset):
 
         if self.conf["bundle_ratio"] > 0 and self.conf["bundle_ratio"] < 1:  # remove items
             if self.bundle_augment == "ID":
-                if anchor_indices.numel() == 0:
-                    # Randomly sample items to mask (ensuring at least one is kept)
-                    num_to_mask = round(len(indices) * self.conf["bundle_ratio"] + 0.5)
-                    num_to_mask = min(num_to_mask, len(indices) - 1)
-                    perm = torch.randperm(len(indices))
-                    mask_indices = indices[perm[:num_to_mask]]
-                    keep_indices = indices[perm[num_to_mask:]]
+                topk = round(num_items *self.conf['bundle_ratio'] + 0.5)
+                topk = min(topk,len(pop_indices))
+                kept_indices = pop_indices[torch.randperm(len(pop_indices))[:topk]]
+                modify[kept_indices] = 1
+                seq_modify = F.pad(kept_indices, (0, self.len_max-len(kept_indices)), values = self.num_items)
+                # line = round(len(indices)*self.conf["bundle_ratio"]+0.5)
+                # line = line if line < len(indices) else len(
+                #     indices)-1  # ensure at less one item is masked
+                # p_indices = indices[:line]
+                # modify[p_indices] = 1
 
-                    modify[keep_indices] = 1
-                    seq_modify = F.pad(keep_indices, (0, self.len_max - len(keep_indices)), value=self.num_items)
-
-                else:
-                    if 0 < self.conf["bundle_ratio"] < 1:
-                        topk = round(num_items * self.conf['bundle_ratio'] + 0.5)
-                        topk = min(topk, len(non_anchor_indices))
-                        topk = topk if topk < len(indices) else len(indices) - 1
-
-                        selected_non_anchors = non_anchor_indices[torch.randperm(len(non_anchor_indices))[:topk]]
-                        kept_indices = torch.cat([anchor_indices, selected_non_anchors])
-                        print("Selected non-anchor to keep:", selected_non_anchors.tolist())
-                        print("Final kept indices (anchor + selected):", kept_indices.tolist())
-                        modify[kept_indices] = 1
-                        seq_modify = F.pad(kept_indices, (0, self.len_max - len(kept_indices)), value=self.num_items)
-                        print("Final padded kept sequence:", seq_modify.tolist())
+                # # sequence set:
+                # seq_modify = F.pad(
+                #     p_indices, (0, self.len_max-len(p_indices)), value=self.num_items)
             elif self.bundle_augment == "IR":
                 line = round(len(indices)*self.conf["bundle_ratio"]+0.5)
                 line = line if line < len(indices) else len(
@@ -126,10 +113,9 @@ class BundleTrainDataset(Dataset):
                 m_indices, (0, self.len_max-len(m_indices)), value=self.num_items)
         if self.conf.get("print_mask_debug", False):
             if self.debug_counter < 5:
-                print("Popular indices len: ", len(pop_indices) )
+                print(f"[Bundle ID: {index}]")
                 print(f"  All Items   : {indices.tolist()}")
-                print(f"  Cate mask : {kept_indices.tolist()}")
-                print(f"  Random mask : {p_indices.tolist()}")
+                print(f"  Random Mask : {p_indices.tolist()}")
                 print("=" * 50)
                 self.debug_counter += 1
         # Increment counter
