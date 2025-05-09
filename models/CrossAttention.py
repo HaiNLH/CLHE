@@ -16,7 +16,7 @@ class Cross_Attn(nn.Module):
         self.t_only = True   # Use only text 
         self.m_only = True   # Use only media
         self.c_only = True   # Use only user-item (cf) 
-        self.num_heads = 4     
+        self.num_heads = 3     
         self.layers = 2       
         self.attn_dropout = 0.1      
         self.attn_dropout_t = 0.1    

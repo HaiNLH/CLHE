@@ -151,70 +151,20 @@ class HierachicalEncoder(nn.Module):
 
         output = output.mean(dim=-2)
         return output
-      
-    def forward_cross(self):
-        c_feature = self.c_encoder(self.content_feature)
-        t_feature = self.t_encoder(self.text_feature)
-        mm_feature_full = F.normalize(c_feature) + F.normalize(t_feature)
-        cf_feature_full = self.cf_transformation(self.cf_feature)
-        cf_feature_full[self.cold_indices_cf] = mm_feature_full[self.cold_indices_cf]
-        projection = nn.Linear(128, 64).to(self.device)
-        c_ft = F.normalize(c_feature).unsqueeze(1) 
-        t_ft = F.normalize(t_feature).unsqueeze(1) 
-        cf_ft = F.normalize(cf_feature_full).unsqueeze(1)
-        
 
-        # 1. Content, CF -> Text
-        t_with_c = self.cross_attention(t_ft, c_ft, c_ft).unsqueeze(1)
-        t_with_cf = self.cross_attention(t_ft, cf_ft, cf_ft).unsqueeze(1)
-        t_ca = torch.cat([t_with_c, t_with_cf], dim=2)
-        # t_ca = t_ca.permute(1, 0, 2)
-        t_ca = self.selfAttention(projection(t_ca)) + F.normalize(t_feature)  # Residual
-
-        # 2. Text, CF -> Content
-        c_with_t = self.cross_attention(c_ft, t_ft, t_ft).unsqueeze(1)
-        c_with_cf = self.cross_attention(c_ft, cf_ft, cf_ft).unsqueeze(1)
-        c_ca = torch.cat([c_with_t, c_with_cf], dim=2)
-        c_ca = self.selfAttention(projection(c_ca)) + F.normalize(c_feature) # Residual
-
-        # 3. Text, Content -> CF
-        cf_with_t = self.cross_attention(cf_ft, t_ft, t_ft).unsqueeze(1)
-        cf_with_c = self.cross_attention(cf_ft, c_ft, c_ft).unsqueeze(1)
-        cf_ca = torch.cat([cf_with_t, cf_with_c], dim=2)
-        cf_ca = self.selfAttention(projection(cf_ca)) + F.normalize(cf_feature_full)  # Residual
-        
-        # Self-attention on item embeddings
-        item_embeddings_att = self.selfAttention(self.item_embeddings.unsqueeze(1))
-
-        # Concatenate all attended features
-        fused_features = [
-            t_ca, c_ca, cf_ca, item_embeddings_att
-        ]
-        fused_features = torch.stack(fused_features, dim=-2) 
-        # Apply self-attention to fused features
-        fused_features = self.selfAttention(F.normalize(fused_features, dim=-1))
-        print("Using cross_att")
-        return fused_features
     def forward_all(self):
         
         c_feature = self.c_encoder(self.content_feature)
         t_feature = self.t_encoder(self.text_feature)
-
-        mm_feature_full = F.normalize(c_feature) + F.normalize(t_feature)
-        # features = [mm_feature_full]
-        # features = [self.item_embeddings]
-        # print(features.shape)
-        # cf_feature_full = self.cf_transformation(self.cf_feature)
-        # cf_feature_full[self.cold_indices_cf] = mm_feature_full[self.cold_indices_cf]
-        # # features.append(cf_feature_full)
-        
-        # features_output, feature_cross = self.cross_attn(t_feature, c_feature, cf_feature_full)
-        # # print("Features outpout shape: ", features_output.shape)
-        # # features_output = torch.split(features_output, 64, dim = 1)
-        # # features_output = torch.stack(features_output, dim=1) 
-        # # # multimodal fusion >>>
-        # # # final_feature = self.selfAttention(features_output.unsqueeze(1))
-        # # final_feature = self.selfAttention(F.normalize(features_output, dim=-1))
+        cf_feature_full = self.cf_transformation(self.cf_feature)
+        dummy = torch.zeros_like(c_feature)
+        features_output, feature_cross = self.cross_attn(t_feature, c_feature, cf_feature_full)
+        # print("Features outpout shape: ", features_output.shape)
+        features_output = torch.split(features_output, 64, dim = 1)
+        features_output = torch.stack(features_output, dim=1) 
+        # # multimodal fusion >>>
+        # # final_feature = self.selfAttention(features_output.unsqueeze(1))
+        # final_feature = self.selfAttention(F.normalize(features_output, dim=-1))
         # fused = torch.cat([features_output, self.item_embeddings], dim=-1)  # [num_items, 2 * embed_dim]
         # fused = self.fusion_proj(fused)  # [num_items, embed_dim]
 
