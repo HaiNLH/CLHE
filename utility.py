@@ -52,7 +52,8 @@ class BundleTrainDataset(Dataset):
         # shuffle <<<
 
         # get popular category>>>
-        cate_mat = torch.from_numpy(self.ic_graph[indices].toarray())
+        indices_np = indices.cpu().numpy() if isinstance(indices, torch.Tensor) else indices
+        cate_mat = torch.from_numpy(self.ic_graph[indices_np].toarray())
         cate_counts = cate_mat.sum(dim=0)
         # pop_cate = torch.argmax(cate_counts) only produce top 1 cate
         topk_cats = torch.topk(cate_counts, k=min(3, cate_counts.shape[0]))[1]
