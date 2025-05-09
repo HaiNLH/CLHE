@@ -164,13 +164,14 @@ class HierachicalEncoder(nn.Module):
         features_output = torch.stack(features_output, dim=1) 
         # # multimodal fusion >>>
         # # final_feature = self.selfAttention(features_output.unsqueeze(1))
-        # final_feature = self.selfAttention(F.normalize(features_output, dim=-1))
+        final_feature = self.selfAttention(F.normalize(features_output, dim=-1))
         # fused = torch.cat([features_output, self.item_embeddings], dim=-1)  # [num_items, 2 * embed_dim]
         # fused = self.fusion_proj(fused)  # [num_items, embed_dim]
+        fused = final_feature + self.item_embeddings
 
         # multimodal fusion <<< 
 
-        return self.item_embeddings
+        return fused
 
 
     def forward(self, seq_modify, all=False):
