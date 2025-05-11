@@ -52,7 +52,7 @@ class BundleTrainDataset(Dataset):
         # shuffle <<<
 
         # get popular category>>>
-        cate_mat = torch.from_numpy(self.ic_graph[indices].toarray())
+        cate_mat = torch.from_numpy(self.ic_graph[np.array(indices)].toarray())
         cate_counts = cate_mat.sum(dim=0)
         pop_cate = torch.argmax(cate_counts)
 
@@ -69,7 +69,7 @@ class BundleTrainDataset(Dataset):
                 topk = min(topk,len(pop_indices))
                 kept_indices = pop_indices[torch.randperm(len(pop_indices))[:topk]]
                 modify[kept_indices] = 1
-                seq_modify = F.pad(kept_indices, (0, self.len_max-len(kept_indices)), values = self.num_items)
+                seq_modify = F.pad(kept_indices, (0, self.len_max-len(kept_indices)), value = self.num_items)
                 # line = round(len(indices)*self.conf["bundle_ratio"]+0.5)
                 # line = line if line < len(indices) else len(
                 #     indices)-1  # ensure at less one item is masked
